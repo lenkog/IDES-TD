@@ -17,32 +17,27 @@ public class TemplatePlugin implements Plugin
 
 	public String getCredits()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return Hub.string("TD_DEVELOPERS");
 	}
 
 	public String getDescription()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return Hub.string("TD_DESC");
 	}
 
 	public String getLicense()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return Hub.string("TD_LICENSE");
 	}
 
 	public String getName()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return Hub.string("TD_SHORT");
 	}
 
 	public String getVersion()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return Hub.string("TD_VER");
 	}
 
 	public void initialize() throws PluginInitException
@@ -61,8 +56,6 @@ public class TemplatePlugin implements Plugin
 
 	public void unload()
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 }
