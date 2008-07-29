@@ -4,45 +4,37 @@ import ides.api.plugin.model.DESModel;
 
 import java.util.Collection;
 
-public interface TemplateModel extends DESModel
+public interface TemplateModel extends DESModel, TemplateModelPublisher
 {
-	public Collection<TemplateModule> getModules();
+	public Collection<TemplateComponent> getComponents();
+	
+	public Collection<TemplateComponent> getModules();
 
-	public Collection<TemplateChannel> getChannels();
+	public Collection<TemplateComponent> getChannels();
 
 	public Collection<TemplateLink> getLinks();
 
-	public TemplateModule getModule(long id);
-
-	public TemplateChannel getChannel(long id);
+	public TemplateComponent getComponent(long id);
 
 	public TemplateLink getLink(long id);
 
-	public TemplateModule addNewModule();
+	public TemplateComponent createComponent();
 
-	public void addModule(TemplateModule module);
+	public void addComponent(TemplateComponent component);
 
-	public TemplateChannel addNewChannel();
-
-	public void addChannel(TemplateChannel channel);
-
-	public TemplateLink addNewLink(long channelId, long moduleId);
+	public TemplateLink createLink(long leftId, long rightId);
 
 	public void addLink(TemplateLink link);
 
-	public void removeModule(long id);
-
-	public void removeChannel(long id);
+	public void removeComponent(long id);
 
 	public void removeLink(long id);
 
-	public Collection<TemplateLink> getChannelLinks(long channelId);
+	public Collection<TemplateLink> getAdjacentLinks(long componentId);
 
-	public Collection<TemplateLink> getModuleLinks(long moduleId);
+	public Collection<TemplateComponent> getCover(long channelId);
 
-	public Collection<TemplateModule> getCover(long channelId);
+	public boolean existsLink(long leftId, long rightId);
 
-	public boolean existsLink(long channelId, long moduleId);
-
-	public Collection<TemplateLink> getLinks(long channelId, long moduleId);
+	public Collection<TemplateLink> getLinks(long leftId, long rightId);
 }

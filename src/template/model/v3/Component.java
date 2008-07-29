@@ -4,9 +4,9 @@ import ides.api.model.fsa.FSAModel;
 
 import java.util.Hashtable;
 
-import template.model.TemplateModule;
+import template.model.TemplateComponent;
 
-public class Module implements TemplateModule
+public class Component implements TemplateComponent
 {
 	protected Hashtable<String, Object> annotations = new Hashtable<String, Object>();
 
@@ -35,9 +35,11 @@ public class Module implements TemplateModule
 
 	protected long id;
 
+	protected int type=TemplateComponent.TYPE_INDETERMINATE;
+	
 	protected FSAModel fsa = null;
 
-	public Module(long id)
+	public Component(long id)
 	{
 		this.id = id;
 	}
@@ -65,5 +67,22 @@ public class Module implements TemplateModule
 	public void setModel(FSAModel fsa)
 	{
 		this.fsa = fsa;
+	}
+
+	public int getType()
+	{
+		return type;
+	}
+
+	public void setType(int type)
+	{
+		if(type==TYPE_MODULE||type==TYPE_CHANNEL)
+		{
+			this.type=type;
+		}
+		else
+		{
+			this.type=TYPE_INDETERMINATE;
+		}
 	}
 }

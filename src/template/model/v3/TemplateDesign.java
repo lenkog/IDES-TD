@@ -14,10 +14,11 @@ import java.util.Hashtable;
 import java.util.Set;
 
 import template.model.InconsistentModificationException;
-import template.model.TemplateChannel;
+import template.model.TemplateComponent;
 import template.model.TemplateLink;
 import template.model.TemplateModel;
-import template.model.TemplateModule;
+import template.model.TemplateModelMessage;
+import template.model.TemplateModelSubscriber;
 
 public class TemplateDesign implements TemplateModel
 {
@@ -78,6 +79,31 @@ public class TemplateDesign implements TemplateModel
 	public DESModelSubscriber[] getDESModelSubscribers()
 	{
 		return modelSubscribers.toArray(new DESModelSubscriber[] {});
+	}
+
+	private ArrayList<TemplateModelSubscriber> templateSubscribers = new ArrayList<TemplateModelSubscriber>();
+
+	public void addSubscriber(TemplateModelSubscriber subscriber)
+	{
+		templateSubscribers.add(subscriber);
+	}
+
+	public void removeSubscriber(TemplateModelSubscriber subscriber)
+	{
+		templateSubscribers.remove(subscriber);
+	}
+
+	public TemplateModelSubscriber[] getTemplateModelSubscribers()
+	{
+		return templateSubscribers.toArray(new TemplateModelSubscriber[]{});
+	}
+
+	public void fireTemplateModelStructureChanged(TemplateModelMessage message)
+	{
+		for(TemplateModelSubscriber subscriber:templateSubscribers)
+		{
+			subscriber.templateModelStructureChanged(message);
+		}
 	}
 
 	protected boolean needsSave = false;
@@ -141,15 +167,11 @@ public class TemplateDesign implements TemplateModel
 
 	protected String name;
 
-	protected Set<TemplateModule> modules = new HashSet<TemplateModule>();
-
-	protected Set<TemplateChannel> channels = new HashSet<TemplateChannel>();
+	protected Set<TemplateComponent> components = new HashSet<TemplateComponent>();
 
 	protected Set<TemplateLink> links = new HashSet<TemplateLink>();
 
-	protected long freeModuleId = 0;
-
-	protected long freeChannelId = 0;
+	protected long freeComponentId = 0;
 
 	protected long freeLinkId = 0;
 
@@ -158,23 +180,11 @@ public class TemplateDesign implements TemplateModel
 		this.name = name;
 	}
 
-	protected boolean containsModuleId(long id)
+	protected boolean containsComponentId(long id)
 	{
-		for (TemplateModule module : modules)
+		for (TemplateComponent component : components)
 		{
-			if (module.getId() == id)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	protected boolean containsChannelId(long id)
-	{
-		for (TemplateChannel channel : channels)
-		{
-			if (channel.getId() == id)
+			if (component.getId() == id)
 			{
 				return true;
 			}
@@ -194,18 +204,20 @@ public class TemplateDesign implements TemplateModel
 		return false;
 	}
 
-	public synchronized void addChannel(TemplateChannel channel)
+	public synchronized void addComponent(TemplateComponent component)
 	{
-		if (containsChannelId(channel.getId()))
+		if (containsComponentId(component.getId()))
 		{
 			throw new InconsistentModificationException(Hub
-					.string("inconsistencyChannelId"));
+					.string("TD_inconsistencyComponentId"));
 		}
-		if (freeChannelId <= channel.getId())
+		if (freeComponentId <= component.getId())
 		{
-			freeChannelId = channel.getId() + 1;
+			freeComponentId = component.getId() + 1;
 		}
-		channels.add(channel);
+		components.add(component);
+		fireTemplateModelStructureChanged(new TemplateModelMessage(this,component.getId(),
+				TemplateModelMessage.ELEMENT_COMPONENT,TemplateModelMessage.OP_ADD));
 		setNeedsSave(true);
 	}
 
@@ -214,87 +226,69 @@ public class TemplateDesign implements TemplateModel
 		if (containsLinkId(link.getId()))
 		{
 			throw new InconsistentModificationException(Hub
-					.string("inconsistencyLinkId"));
+					.string("TD_inconsistencyLinkId"));
 		}
-		if (!modules.contains(link.getModule())
-				|| !channels.contains(link.getChannel()))
+		if (!components.contains(link.getLeftComponent())
+				|| !components.contains(link.getRightComponent()))
 		{
 			throw new InconsistentModificationException(Hub
-					.string("inconsistencyLinking"));
+					.string("TD_inconsistencyLinking"));
 		}
-		Collection<TemplateLink> channelLinks = getChannelLinks(link
-				.getChannel().getId());
-		for (TemplateLink l : channelLinks)
-		{
-			if (l.getChannelEventName().equals(link.getChannelEventName())
-					|| (l.getModule() == link.getModule() && l
-							.getModuleEventName().equals(link
-									.getModuleEventName())))
-			{
-				throw new InconsistentModificationException(Hub
-						.string("inconsistencyLinking"));
-			}
-		}
+//		Collection<TemplateLink> channelLinks = getChannelLinks(link
+//				.getChannel().getId());
+//		for (TemplateLink l : channelLinks)
+//		{
+//			if (l.getChannelEventName().equals(link.getChannelEventName())
+//					|| (l.getModule() == link.getModule() && l
+//							.getModuleEventName().equals(link
+//									.getModuleEventName())))
+//			{
+//				throw new InconsistentModificationException(Hub
+//						.string("TD_inconsistencyLinking"));
+//			}
+//		}
 		if (freeLinkId <= link.getId())
 		{
 			freeLinkId = link.getId() + 1;
 		}
 		links.add(link);
+		fireTemplateModelStructureChanged(new TemplateModelMessage(this,link.getId(),
+				TemplateModelMessage.ELEMENT_LINK,TemplateModelMessage.OP_ADD));
 		setNeedsSave(true);
 	}
 
-	public synchronized void addModule(TemplateModule module)
+	public synchronized TemplateLink createLink(long leftId, long rightId)
 	{
-		if (containsModuleId(module.getId()))
+		TemplateComponent left = getComponent(leftId);
+		TemplateComponent right = getComponent(rightId);
+		if (left == null || right == null)
 		{
 			throw new InconsistentModificationException(Hub
-					.string("inconsistencyModuleId"));
+					.string("TD_inconsistencyLinkInit"));
 		}
-		if (freeModuleId <= module.getId())
-		{
-			freeModuleId = module.getId() + 1;
-		}
-		modules.add(module);
-		setNeedsSave(true);
-	}
-
-	public synchronized TemplateChannel addNewChannel()
-	{
-		Channel channel = new Channel(freeChannelId);
-		freeChannelId++;
-		channels.add(channel);
-		setNeedsSave(true);
-		return channel;
-	}
-
-	public synchronized TemplateLink addNewLink(long channelId, long moduleId)
-	{
-		TemplateChannel channel = getChannel(channelId);
-		TemplateModule module = getModule(moduleId);
-		if (channel == null || module == null)
-		{
-			throw new InconsistentModificationException(Hub
-					.string("inconsistencyLinkInit"));
-		}
-		Link link = new Link(freeLinkId, channel, module);
+		Link link = new Link(freeLinkId, left, right);
 		freeLinkId++;
 		links.add(link);
+		fireTemplateModelStructureChanged(new TemplateModelMessage(this,link.getId(),
+				TemplateModelMessage.ELEMENT_LINK,TemplateModelMessage.OP_ADD));
 		setNeedsSave(true);
 		return link;
 	}
 
-	public synchronized TemplateModule addNewModule()
+	public synchronized TemplateComponent createComponent()
 	{
-		Module module = new Module(freeModuleId);
-		freeModuleId++;
-		modules.add(module);
+		Component component = new Component(freeComponentId);
+		freeComponentId++;
+		components.add(component);
+		fireTemplateModelStructureChanged(new TemplateModelMessage(this,component.getId(),
+				TemplateModelMessage.ELEMENT_COMPONENT,TemplateModelMessage.OP_ADD));
 		setNeedsSave(true);
-		return module;
+		return component;
 	}
 
-	public Collection<TemplateChannel> getChannels()
+	public Collection<TemplateComponent> getComponents()
 	{
-		return new HashSet<TemplateChannel>(channels);
+		return new HashSet<TemplateComponent>(components);
 	}
 
 	public Collection<TemplateLink> getLinks()
@@ -302,33 +296,42 @@ public class TemplateDesign implements TemplateModel
 		return new HashSet<TemplateLink>(links);
 	}
 
-	public Collection<TemplateModule> getModules()
+	public TemplateComponent getComponent(long id)
 	{
-		return new HashSet<TemplateModule>(modules);
-	}
-
-	public TemplateModule getModule(long id)
-	{
-		for (TemplateModule module : modules)
+		for (TemplateComponent component : components)
 		{
-			if (module.getId() == id)
+			if (component.getId() == id)
 			{
-				return module;
+				return component;
 			}
 		}
 		return null;
 	}
 
-	public TemplateChannel getChannel(long id)
+	public Collection<TemplateComponent> getModules()
 	{
-		for (TemplateChannel channel : channels)
+		Set<TemplateComponent> modules=new HashSet<TemplateComponent>();
+		for (TemplateComponent component : components)
 		{
-			if (channel.getId() == id)
+			if (component.getType()==TemplateComponent.TYPE_MODULE)
 			{
-				return channel;
+				modules.add(component);
 			}
 		}
-		return null;
+		return modules;
+	}
+
+	public Collection<TemplateComponent> getChannels()
+	{
+		Set<TemplateComponent> channels=new HashSet<TemplateComponent>();
+		for (TemplateComponent component : components)
+		{
+			if (component.getType()==TemplateComponent.TYPE_CHANNEL)
+			{
+				channels.add(component);
+			}
+		}
+		return channels;
 	}
 
 	public TemplateLink getLink(long id)
@@ -343,13 +346,15 @@ public class TemplateDesign implements TemplateModel
 		return null;
 	}
 
-	public synchronized void removeChannel(long id)
+	public synchronized void removeComponent(long id)
 	{
-		if (!containsChannelId(id))
+		if (!containsComponentId(id))
 		{
 			return;
 		}
-		channels.remove(getChannel(id));
+		components.remove(getComponent(id));
+		fireTemplateModelStructureChanged(new TemplateModelMessage(this,id,
+				TemplateModelMessage.ELEMENT_COMPONENT,TemplateModelMessage.OP_REMOVE));
 		setNeedsSave(true);
 	}
 
@@ -360,16 +365,8 @@ public class TemplateDesign implements TemplateModel
 			return;
 		}
 		links.remove(getLink(id));
-		setNeedsSave(true);
-	}
-
-	public synchronized void removeModule(long id)
-	{
-		if (!containsModuleId(id))
-		{
-			return;
-		}
-		modules.remove(getModule(id));
+		fireTemplateModelStructureChanged(new TemplateModelMessage(this,id,
+				TemplateModelMessage.ELEMENT_LINK,TemplateModelMessage.OP_REMOVE));
 		setNeedsSave(true);
 	}
 
@@ -418,12 +415,12 @@ public class TemplateDesign implements TemplateModel
 		return false;
 	}
 
-	public Collection<TemplateLink> getChannelLinks(long channelId)
+	public Collection<TemplateLink> getAdjacentLinks(long componentId)
 	{
 		Set<TemplateLink> ret = new HashSet<TemplateLink>();
 		for (TemplateLink link : links)
 		{
-			if (link.getChannel().getId() == channelId)
+			if (link.getLeftComponent().getId() == componentId||link.getRightComponent().getId()==componentId)
 			{
 				ret.add(link);
 			}
@@ -431,39 +428,31 @@ public class TemplateDesign implements TemplateModel
 		return ret;
 	}
 
-	public Collection<TemplateModule> getCover(long channelId)
+	public Collection<TemplateComponent> getCover(long channelId)
 	{
-		Set<TemplateModule> ret = new HashSet<TemplateModule>();
-		for (TemplateLink link : links)
+		Set<TemplateComponent> ret = new HashSet<TemplateComponent>();
+		if(getComponent(channelId).getType()==TemplateComponent.TYPE_CHANNEL)
 		{
-			if (link.getChannel().getId() == channelId)
+		for (TemplateLink link : getAdjacentLinks(channelId))
+		{
+			if (link.getModule()!=null)
 			{
 				ret.add(link.getModule());
 			}
 		}
-		return ret;
-	}
-
-	public Collection<TemplateLink> getLinks(long channelId, long moduleId)
-	{
-		Set<TemplateLink> ret = new HashSet<TemplateLink>();
-		for (TemplateLink link : links)
-		{
-			if (link.getChannel().getId() == channelId
-					&& link.getModule().getId() == moduleId)
-			{
-				ret.add(link);
-			}
 		}
 		return ret;
 	}
 
-	public Collection<TemplateLink> getModuleLinks(long moduleId)
+	public Collection<TemplateLink> getLinks(long leftId, long rightId)
 	{
 		Set<TemplateLink> ret = new HashSet<TemplateLink>();
 		for (TemplateLink link : links)
 		{
-			if (link.getModule().getId() == moduleId)
+			if ((link.getLeftComponent().getId() == leftId
+					&& link.getRightComponent().getId() == rightId)||
+					(link.getLeftComponent().getId() == rightId
+							&& link.getRightComponent().getId() == leftId))
 			{
 				ret.add(link);
 			}

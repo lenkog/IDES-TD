@@ -5,23 +5,31 @@ import ides.api.plugin.model.DESElement;
 
 public interface TemplateLink extends DESElement
 {
-	public TemplateModule getModule();
+	public TemplateComponent getLeftComponent();
+	
+	public TemplateComponent getRightComponent();
 
-	public TemplateChannel getChannel();
+	public TemplateComponent[] getComponents();
 
-	public String getModuleEventName();
+	public boolean hasProperNeighbors();
 
-	public boolean existsModuleEvent();
+	public TemplateComponent getModule();
 
-	public FSAEvent getModuleEvent();
+	public TemplateComponent getChannel();
+	
+	public String getLeftEventName();
 
-	public String getChannelEventName();
+	public boolean existsLeftEvent();
 
-	public boolean existsChannelEvent();
+	public FSAEvent getLeftEvent();
 
-	public FSAEvent getChannelEvent();
+	public String getRightEventName();
 
-	public void setModuleEventName(String name);
+	public boolean existsRightEvent();
 
-	public void setChannelEventName(String name);
+	public FSAEvent getRightEvent();
+
+	public void setLeftEventName(String name);
+
+	public void setRightEventName(String name);
 }

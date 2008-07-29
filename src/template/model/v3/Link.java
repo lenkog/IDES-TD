@@ -6,9 +6,8 @@ import ides.api.model.fsa.FSAEvent;
 import java.util.Hashtable;
 
 import template.model.InconsistentModificationException;
-import template.model.TemplateChannel;
+import template.model.TemplateComponent;
 import template.model.TemplateLink;
-import template.model.TemplateModule;
 
 public class Link implements TemplateLink
 {
@@ -39,24 +38,24 @@ public class Link implements TemplateLink
 
 	protected long id;
 
-	protected TemplateModule module;
+	protected TemplateComponent left;
 
-	protected TemplateChannel channel;
+	protected TemplateComponent right;
 
-	protected String moduleEvent = "";
+	protected String leftEvent = "";
 
-	protected String channelEvent = "";
+	protected String rightEvent = "";
 
-	public Link(long id, TemplateChannel channel, TemplateModule module)
+	public Link(long id, TemplateComponent left, TemplateComponent right)
 	{
-		if (module == null || channel == null)
+		if (right == null || left == null)
 		{
 			throw new InconsistentModificationException(Hub
-					.string("inconsistencyLinkInit"));
+					.string("TD_inconsistencyLinkInit"));
 		}
 		this.id = id;
-		this.module = module;
-		this.channel = channel;
+		this.left = right;
+		this.right = left;
 	}
 
 	public long getId()
@@ -69,20 +68,28 @@ public class Link implements TemplateLink
 		this.id = id;
 	}
 
-	public TemplateChannel getChannel()
+	public TemplateComponent getChannel()
 	{
-		return channel;
+		if(left.getType()==TemplateComponent.TYPE_CHANNEL)
+		{
+			return left;
+		}
+		else if(right.getType()==TemplateComponent.TYPE_CHANNEL)
+		{
+			return right;
+		}
+		return null;
 	}
 
-	public FSAEvent getChannelEvent()
+	public FSAEvent getRightEvent()
 	{
-		if (!channel.hasModel())
+		if (!right.hasModel())
 		{
 			return null;
 		}
-		for (FSAEvent event : channel.getModel().getEventSet())
+		for (FSAEvent event : right.getModel().getEventSet())
 		{
-			if (event.getSymbol().equals(channelEvent))
+			if (event.getSymbol().equals(rightEvent))
 			{
 				return event;
 			}
@@ -90,25 +97,33 @@ public class Link implements TemplateLink
 		return null;
 	}
 
-	public String getChannelEventName()
+	public String getRightEventName()
 	{
-		return channelEvent;
+		return rightEvent;
 	}
 
-	public TemplateModule getModule()
+	public TemplateComponent getModule()
 	{
-		return module;
+		if(left.getType()==TemplateComponent.TYPE_MODULE)
+		{
+			return left;
+		}
+		else if(right.getType()==TemplateComponent.TYPE_MODULE)
+		{
+			return right;
+		}
+		return null;
 	}
 
-	public FSAEvent getModuleEvent()
+	public FSAEvent getLeftEvent()
 	{
-		if (!module.hasModel())
+		if (!left.hasModel())
 		{
 			return null;
 		}
-		for (FSAEvent event : module.getModel().getEventSet())
+		for (FSAEvent event : left.getModel().getEventSet())
 		{
-			if (event.getSymbol().equals(moduleEvent))
+			if (event.getSymbol().equals(leftEvent))
 			{
 				return event;
 			}
@@ -116,36 +131,57 @@ public class Link implements TemplateLink
 		return null;
 	}
 
-	public String getModuleEventName()
+	public String getLeftEventName()
 	{
-		return moduleEvent;
+		return leftEvent;
 	}
 
-	public boolean existsChannelEvent()
+	public boolean existsRightEvent()
 	{
-		return getChannelEvent() != null;
+		return getRightEvent() != null;
 	}
 
-	public boolean existsModuleEvent()
+	public boolean existsLeftEvent()
 	{
-		return getModuleEvent() != null;
+		return getLeftEvent() != null;
 	}
 
-	public void setChannelEventName(String name)
+	public void setRightEventName(String name)
 	{
 		if (name == null)
 		{
 			name = "";
 		}
-		channelEvent = name;
+		rightEvent = name;
 	}
 
-	public void setModuleEventName(String name)
+	public void setLeftEventName(String name)
 	{
 		if (name == null)
 		{
 			name = "";
 		}
-		moduleEvent = name;
+		leftEvent = name;
+	}
+
+	public TemplateComponent[] getComponents()
+	{
+		return new TemplateComponent[]{left,right};
+	}
+
+	public TemplateComponent getLeftComponent()
+	{
+		return left;
+	}
+
+	public TemplateComponent getRightComponent()
+	{
+		return right;
+	}
+
+	public boolean hasProperNeighbors()
+	{
+		return (left.getType()==TemplateComponent.TYPE_MODULE&&right.getType()==TemplateComponent.TYPE_CHANNEL)||
+		(left.getType()==TemplateComponent.TYPE_CHANNEL&&right.getType()==TemplateComponent.TYPE_MODULE);
 	}
 }
