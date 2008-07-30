@@ -9,7 +9,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import template.diagram.TemplateDiagram;
-import template.diagram.VisualComponent;
+import template.diagram.Entity;
 
 public class DiagramUndoableEdits
 {
@@ -39,7 +39,7 @@ public class DiagramUndoableEdits
 		}
 	}
 
-	public static class CreateComponentEdit extends AbstractDiagramUndoableEdit
+	public static class CreateEntityEdit extends AbstractDiagramUndoableEdit
 	{
 		private static final long serialVersionUID = 3487604066959821618L;
 
@@ -47,17 +47,17 @@ public class DiagramUndoableEdits
 
 		protected Point location;
 
-		protected VisualComponent component = null;
+		protected Entity entity = null;
 
-		public CreateComponentEdit(TemplateDiagram diagram, Point location)
+		public CreateEntityEdit(TemplateDiagram diagram, Point location)
 		{
 			this.diagram = diagram;
 			this.location = location;
 		}
 
-		public VisualComponent getComponent()
+		public Entity getEntity()
 		{
-			return component;
+			return entity;
 		}
 
 		@Override
@@ -67,30 +67,30 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotRedoException();
 			}
-			if (component == null)
+			if (entity == null)
 			{
-				component = diagram.createComponent(location);
+				entity = diagram.createEntity(location);
 			}
 			else
 			{
-				diagram.addComponent(component);
+				diagram.add(entity);
 			}
 		}
 
 		@Override
 		public void undo() throws CannotUndoException
 		{
-			if (component == null)
+			if (entity == null)
 			{
 				throw new CannotUndoException();
 			}
-			diagram.removeComponent(component);
+			diagram.remove(entity);
 		}
 
 		@Override
 		public boolean canUndo()
 		{
-			return (component != null);
+			return (entity != null);
 		}
 
 		@Override
@@ -108,11 +108,11 @@ public class DiagramUndoableEdits
 		{
 			if (usePluralDescription)
 			{
-				return Hub.string("TD_undoCreateComponents");
+				return Hub.string("TD_undoCreateEntities");
 			}
 			else
 			{
-				return Hub.string("TD_undoCreateComponent");
+				return Hub.string("TD_undoCreateEntity");
 			}
 		}
 	}

@@ -2,22 +2,22 @@ package template.diagram;
 
 import ides.api.core.Annotable;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 
 import template.model.TemplateComponent;
 
-public class VisualComponent extends DiagramElement
+public class Entity extends DiagramElement
 {
 	protected static final int INSET = 5;
 
 	protected TemplateComponent component;
 
-	private DiagramElementLayout layout;
-
 	private Rectangle bounds;
 
-	public VisualComponent(TemplateComponent component)
+	public Entity(TemplateComponent component)
 			throws MissingLayoutException
 	{
 		if (!component.hasAnnotation(Annotable.LAYOUT)
@@ -28,16 +28,16 @@ public class VisualComponent extends DiagramElement
 		this.component = component;
 		layout = (DiagramElementLayout)component
 				.getAnnotation(Annotable.LAYOUT);
-		computeBounds();
+		update();
 	}
 
-	public VisualComponent(TemplateComponent component,
+	public Entity(TemplateComponent component,
 			DiagramElementLayout layout)
 	{
 		this.component = component;
 		this.layout = layout;
 		component.setAnnotation(Annotable.LAYOUT, layout);
-		computeBounds();
+		update();
 	}
 
 	protected void computeBounds()
@@ -56,6 +56,7 @@ public class VisualComponent extends DiagramElement
 	@Override
 	public void draw(Graphics2D g2d)
 	{
+		g2d.setColor(Color.BLACK);
 		g2d.drawString(layout.label, (int)bounds.getMinX() + INSET, (int)bounds
 				.getMinY()
 				+ INSET);
@@ -101,11 +102,28 @@ public class VisualComponent extends DiagramElement
 			break;
 		}
 	}
+	
+	public void translate(Point delta)
+	{
+		super.translate(delta);
+		update();
+	}
+	
+	public void update()
+	{
+		computeBounds();
+	}
 
 	@Override
 	public Rectangle getBounds()
 	{
 		return bounds;
+	}
+
+	@Override
+	public boolean contains(Point p)
+	{
+		return bounds.contains(p);
 	}
 
 }

@@ -70,8 +70,7 @@ public class TemplateToolset implements Toolset
 
 		public boolean supportsZoom()
 		{
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 
 	}

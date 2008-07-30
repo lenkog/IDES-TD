@@ -352,6 +352,10 @@ public class TemplateDesign implements TemplateModel
 		{
 			return;
 		}
+		for(TemplateLink link:getAdjacentLinks(id))
+		{
+			removeLink(link.getId());
+		}
 		components.remove(getComponent(id));
 		fireTemplateModelStructureChanged(new TemplateModelMessage(this,id,
 				TemplateModelMessage.ELEMENT_COMPONENT,TemplateModelMessage.OP_REMOVE));

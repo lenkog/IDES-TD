@@ -19,26 +19,28 @@ public abstract class DiagramElement
 		return globalFontMetrics;
 	}
 
-	protected Point location;
+	protected DiagramElementLayout layout;
 
 	public Point getLocation()
 	{
-		return location;
+		return layout.location;
 	}
 
 	public void setLocation(Point location)
 	{
-		this.location = location;
+		layout.location = location;
 	}
 
 	public void translate(Point delta)
 	{
-		location.x += delta.x;
-		location.y += delta.y;
+		layout.location.x += delta.x;
+		layout.location.y += delta.y;
 	}
 
 	public abstract Rectangle getBounds();
 
 	public abstract void draw(Graphics2D g2d);
+	
+	public abstract boolean contains(Point p);
 
 }

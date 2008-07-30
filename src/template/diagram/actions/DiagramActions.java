@@ -11,35 +11,35 @@ import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
 import template.diagram.TemplateDiagram;
-import template.diagram.VisualComponent;
+import template.diagram.Entity;
 
 public class DiagramActions
 {
 
-	public static class CreateComponentAction extends AbstractDiagramAction
+	public static class CreateEntityAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 4318087259767201282L;
 		
 		protected TemplateDiagram diagram;
 		protected Point location;
-		protected VisualComponent[] buffer;
+		protected Entity[] buffer;
 		
-		public CreateComponentAction(TemplateDiagram diagram, Point location)
+		public CreateEntityAction(TemplateDiagram diagram, Point location)
 		{
 			this(null,diagram,location,null);
 		}
 		
-		public CreateComponentAction(TemplateDiagram diagram, Point location, VisualComponent[] buffer)
+		public CreateEntityAction(TemplateDiagram diagram, Point location, Entity[] buffer)
 		{
 			this(null,diagram,location,buffer);
 		}
 
-		public CreateComponentAction(CompoundEdit parent, Point location, TemplateDiagram diagram)
+		public CreateEntityAction(CompoundEdit parent, Point location, TemplateDiagram diagram)
 		{
 			this(parent,diagram,location,null);
 		}
 		
-		public CreateComponentAction(CompoundEdit parent, TemplateDiagram diagram, Point location, VisualComponent[] buffer)
+		public CreateEntityAction(CompoundEdit parent, TemplateDiagram diagram, Point location, Entity[] buffer)
 		{
 			this.parentEdit=parent;
 			this.diagram=diagram;
@@ -51,13 +51,13 @@ public class DiagramActions
 		{
 			if (diagram != null)
 			{
-				DiagramUndoableEdits.CreateComponentEdit edit = new DiagramUndoableEdits.CreateComponentEdit(
+				DiagramUndoableEdits.CreateEntityEdit edit = new DiagramUndoableEdits.CreateEntityEdit(
 						diagram,
 						location);
 				edit.redo();
 				if (buffer != null && buffer.length > 0)
 				{
-					buffer[0] = edit.getComponent();
+					buffer[0] = edit.getEntity();
 				}
 				postEditAdjustCanvas(diagram, edit);
 			}
@@ -67,8 +67,6 @@ public class DiagramActions
 	public static class ShiftDiagramInViewAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 2907001062138002843L;
-
-		protected static final int DIAGRAM_INSET = 10;
 
 		protected CompoundEdit parentEdit = null;
 
@@ -95,8 +93,8 @@ public class DiagramActions
 					UndoableEdit translation = new DiagramUndoableEdits.TranslateDiagramEdit(
 							diagram,
 							new Point(-bounds.x
-									+ DIAGRAM_INSET, -bounds.y
-									+ DIAGRAM_INSET));
+									+ TemplateDiagram.DESIRED_DIAGRAM_INSET, -bounds.y
+									+ TemplateDiagram.DESIRED_DIAGRAM_INSET));
 					translation.redo();
 					if (parentEdit != null)
 					{

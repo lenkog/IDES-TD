@@ -11,7 +11,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import template.model.InconsistentModificationException;
 import template.model.TemplateComponent;
+import template.model.TemplateLink;
 import template.model.TemplateModel;
 import template.model.TemplateModelMessage;
 import template.model.TemplateModelSubscriber;
@@ -87,7 +89,9 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		}
 	}
 
-	protected Set<VisualComponent> components = new HashSet<VisualComponent>();
+	public static final int DESIRED_DIAGRAM_INSET = 10;
+
+	protected Set<Entity> entities = new HashSet<Entity>();
 
 	protected Set<Connector> connectors = new HashSet<Connector>();
 
@@ -113,7 +117,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 	{
 		recoverLayout();
 		Set<DiagramElement> elements = new HashSet<DiagramElement>();
-		elements.addAll(components);
+		elements.addAll(entities);
 		elements.addAll(connectors);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -126,47 +130,89 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		return model;
 	}
 
-	public VisualComponent createComponent(Point location)
+	public Entity createEntity(Point location)
 	{
 		model.removeSubscriber(this);
 		TemplateComponent component = model.createComponent();
 		DiagramElementLayout layout = new DiagramElementLayout();
 		layout.location = location;
-		VisualComponent vcomponent = new VisualComponent(component, layout);
-		components.add(vcomponent);
+		Entity entity = new Entity(component, layout);
+		entities.add(entity);
 		model.addSubscriber(this);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
-				Arrays.asList(new DiagramElement[] { vcomponent }),
+				Arrays.asList(new DiagramElement[] { entity }),
 				TemplateDiagramMessage.OP_ADD));
-		return vcomponent;
+		return entity;
 	}
 
-	public void addComponent(VisualComponent component)
+	public void add(Entity entity)
 	{
-
+		if(entities.contains(entity))
+		{
+			return;
+		}
+		model.removeSubscriber(this);
+		try
+		{
+			model.addComponent(entity.getComponent());
+			entities.add(entity);
+		}
+		finally
+		{
+			model.addSubscriber(this);
+		}
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { entity }),
+				TemplateDiagramMessage.OP_ADD));
 	}
 
-	public void removeComponent(VisualComponent module)
+	public void remove(Entity entity)
 	{
-
+		if(!entities.contains(entity))
+		{
+			return;
+		}
+		model.removeSubscriber(this);
+		Collection<Connector> adjacent=getAdjacentConnectors(entity);
+		for(Connector c:adjacent)
+		{
+			connectors.remove(c);
+			for(TemplateLink link:c.getLinks())
+			{
+				model.removeLink(link.getId());
+			}
+		}
+		entities.remove(entity);
+		model.removeComponent(entity.getComponent().getId());
+		model.addSubscriber(this);
+		Collection<DiagramElement> removed=new HashSet<DiagramElement>(adjacent);
+		removed.add(entity);
+		fireDiagramChanged(new TemplateDiagramMessage(this, removed, TemplateDiagramMessage.OP_REMOVE));		
 	}
 
-	public VisualComponent getComponentAt(Point location)
+	public Entity getEntityAt(Point location)
 	{
+		for(Entity entity:entities)
+		{
+			if(entity.contains(location))
+			{
+				return entity;
+			}
+		}
 		return null;
 	}
 
-	public Collection<VisualComponent> getComponents()
+	public Collection<Entity> getEntities()
 	{
-		HashSet<VisualComponent> copy = new HashSet<VisualComponent>(components);
-		return copy;
+		return new HashSet<Entity>(entities);
 	}
 
-	public Collection<VisualComponent> getModules()
+	public Collection<Entity> getModules()
 	{
-		HashSet<VisualComponent> vmodules = new HashSet<VisualComponent>();
-		for (VisualComponent vcomponent : components)
+		HashSet<Entity> vmodules = new HashSet<Entity>();
+		for (Entity vcomponent : entities)
 		{
 			if (vcomponent.getComponent().getType() == TemplateComponent.TYPE_MODULE)
 			{
@@ -176,10 +222,10 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		return vmodules;
 	}
 
-	public Collection<VisualComponent> getChannels()
+	public Collection<Entity> getChannels()
 	{
-		HashSet<VisualComponent> vchannels = new HashSet<VisualComponent>();
-		for (VisualComponent vcomponent : components)
+		HashSet<Entity> vchannels = new HashSet<Entity>();
+		for (Entity vcomponent : entities)
 		{
 			if (vcomponent.getComponent().getType() == TemplateComponent.TYPE_CHANNEL)
 			{
@@ -189,19 +235,107 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		return vchannels;
 	}
 
-	public Connector addConnector(VisualComponent left, VisualComponent right)
+	public Collection<Connector> getAdjacentConnectors(Entity entity)
 	{
-		return null;
+		Collection<Connector> adjacent=new HashSet<Connector>();
+		for(Connector c:connectors)
+		{
+			if(entity==c.getLeftEntity()||entity==c.getRightEntity())
+			{
+				adjacent.add(c);
+			}
+		}
+		return adjacent;
+	}
+	
+	public Connector getConnector(Entity left, Entity right)
+	{
+		for(Connector c:connectors)
+		{
+			if((left==c.getLeftEntity()&&right==c.getRightEntity())||(left==c.getRightEntity()&&right==c.getLeftEntity()))
+			{
+				return c;
+			}
+		}
+		return null;		
+	}
+	
+	public Connector createConnector(Entity left, Entity right)
+	{
+		if(!(entities.contains(left)&&entities.contains(right)))
+		{
+			throw new InconsistentModificationException(Hub.string("TD_inconsistencyLinkInit"));
+		}
+		if(getConnector(left,right)!=null)
+		{
+			return getConnector(left,right);
+		}
+		model.removeSubscriber(this);
+		Connector c;
+		try
+		{
+			TemplateLink link = model.createLink(left.getComponent().getId(),right.getComponent().getId());
+			DiagramElementLayout layout = new DiagramElementLayout();
+			c = new Connector(left,right,Arrays.asList(new TemplateLink[]{link}),layout);
+			connectors.add(c);
+		}
+		finally
+		{
+			model.addSubscriber(this);
+		}
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { c }),
+				TemplateDiagramMessage.OP_ADD));
+		return c;
 	}
 
-	public void addConnector(Connector c)
+	public void add(Connector c)
 	{
-
+		if(!(entities.contains(c.getLeftEntity())&&entities.contains(c.getRightEntity())))
+		{
+			throw new InconsistentModificationException(Hub.string("TD_inconsistencyLinkInit"));
+		}
+		if(getConnector(c.getLeftEntity(),c.getRightEntity())!=null)
+		{
+			throw new InconsistentModificationException(Hub.string("TD_inconsistencyConnectorDup"));
+		}
+		model.removeSubscriber(this);
+		try
+		{
+			for(TemplateLink link:c.getLinks())
+			{
+				model.addLink(link);
+			}
+			connectors.add(c);
+		}
+		finally
+		{
+			model.addSubscriber(this);
+		}
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { c }),
+				TemplateDiagramMessage.OP_ADD));
 	}
 
-	public void removeConnector(Connector c)
+	public void remove(Connector c)
 	{
-
+		if(!connectors.contains(c))
+		{
+			return;
+		}
+		model.removeSubscriber(this);
+		for(TemplateLink link:c.getLinks())
+		{
+			model.removeLink(link.getId());
+		}
+		connectors.remove(c);
+		model.addSubscriber(this);
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { c }),
+				TemplateDiagramMessage.OP_REMOVE));
 	}
 
 	public Collection<Connector> getConnectors()
@@ -211,7 +345,13 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public Connector getConnectorAt(Point location)
 	{
-		Collection<Connector> connectors = getConnectors();
+		for(Connector c:connectors)
+		{
+			if(c.contains(location))
+			{
+				return c;
+			}
+		}
 		return null;
 	}
 
@@ -219,7 +359,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 	{
 		Rectangle bounds = getAnyElement() != null ? getAnyElement()
 				.getBounds() : new Rectangle();
-		for (VisualComponent module : components)
+		for (Entity module : entities)
 		{
 			bounds = bounds.union(module.getBounds());
 		}
@@ -232,16 +372,16 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	protected DiagramElement getAnyElement()
 	{
-		if (!components.isEmpty())
+		if (!entities.isEmpty())
 		{
-			return components.iterator().next();
+			return entities.iterator().next();
 		}
 		return null;
 	}
 
 	public void translate(Point delta)
 	{
-		for (VisualComponent module : components)
+		for (Entity module : entities)
 		{
 			module.translate(delta);
 		}
@@ -249,6 +389,14 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		{
 			c.translate(delta);
 		}
+		model.metadataChanged();
+		Set<DiagramElement> elements = new HashSet<DiagramElement>();
+		elements.addAll(entities);
+		elements.addAll(connectors);
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				elements,
+				TemplateDiagramMessage.OP_MODIFY));
 	}
 
 	public void draw(Graphics2D g2d)
@@ -257,7 +405,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		{
 			c.draw(g2d);
 		}
-		for (VisualComponent module : components)
+		for (Entity module : entities)
 		{
 			module.draw(g2d);
 		}
