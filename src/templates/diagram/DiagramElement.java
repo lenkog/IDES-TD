@@ -1,5 +1,6 @@
 package templates.diagram;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -31,8 +32,15 @@ public abstract class DiagramElement
 	{
 		return globalFont;
 	}
+	
+	protected static final Color COLOR_NORM=Color.BLACK;
+	protected static final Color COLOR_HILITE=Color.BLUE;
+	protected static final Color COLOR_SELECT=Color.RED;
+	protected static final Color COLOR_HILITESELECT=Color.MAGENTA;
 
 	protected DiagramElementLayout layout;
+	protected boolean highlight=false;
+	protected boolean selected=false;
 
 	public Point getLocation()
 	{
@@ -49,6 +57,16 @@ public abstract class DiagramElement
 		layout.location.x += delta.x;
 		layout.location.y += delta.y;
 	}
+	
+	public void setHighlight(boolean b)
+	{
+		highlight=b;
+	}
+	
+	public void setSelected(boolean b)
+	{
+		selected=b;
+	}
 
 	public abstract Rectangle getBounds();
 
@@ -56,4 +74,5 @@ public abstract class DiagramElement
 	
 	public abstract boolean contains(Point p);
 
+	public abstract boolean intersects(Rectangle r);
 }

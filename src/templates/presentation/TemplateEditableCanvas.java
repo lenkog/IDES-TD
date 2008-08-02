@@ -2,18 +2,34 @@ package templates.presentation;
 
 import ides.api.core.Hub;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.util.Collection;
+import java.util.HashSet;
 
+import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
+import templates.diagram.Connector;
+import templates.diagram.DiagramElement;
+import templates.diagram.Entity;
+import templates.diagram.actions.DiagramActions;
 import templates.model.TemplateModel;
 
 public class TemplateEditableCanvas extends TemplateCanvas implements MouseListener, MouseMotionListener
@@ -26,7 +42,18 @@ public class TemplateEditableCanvas extends TemplateCanvas implements MouseListe
 		public float zoom = 1;
 	}
 	
+	protected static final Stroke SELECTIONBOX_STROKE = new BasicStroke(
+			1,
+			BasicStroke.CAP_BUTT,
+			BasicStroke.JOIN_MITER,
+			10f,
+			new float[] { 3, 3 },
+			0f);
+	
+	protected boolean ignoreNextMouseEvent=false;
 	protected MouseInterpreter interpreter;
+	protected DiagramElement hilitedElement=null;
+	protected Rectangle selectionBox=null;
 	
 	public TemplateEditableCanvas(TemplateModel model)
 	{
@@ -44,6 +71,32 @@ public class TemplateEditableCanvas extends TemplateCanvas implements MouseListe
 		interpreter=new MouseInterpreter(this);	
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		// Custom actions that can be performed, sometimes undone.
+		String escAction = "esc";
+		// Undoable actions
+		String deleteAction = "deleteSelection";
+
+		// Associating key strokes with action names:
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke
+				.getKeyStroke(KeyEvent.VK_DELETE, 0),
+				deleteAction);
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke
+				.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				escAction);
+		// Associating the action names with operations:
+		getActionMap().put(deleteAction, new AbstractAction()
+		{
+			private static final long serialVersionUID = -2136095877399476978L;
+
+			public void actionPerformed(ActionEvent e)
+			{
+				if(!diagram.getSelection().isEmpty())
+				{
+					new DiagramActions.DeleteElementsAction(diagram,diagram.getSelection()).execute();
+				}
+			}
+		});
+//		getActionMap().put(escAction, escapeCommand);
 	}
 	
 	public JComponent getGUI()
@@ -64,6 +117,12 @@ public class TemplateEditableCanvas extends TemplateCanvas implements MouseListe
 			model.removeAnnotation(CANVAS_SETTINGS);
 		}
 		super.paint(g);
+		if(selectionBox!=null)
+		{
+			((Graphics2D)g).setStroke(SELECTIONBOX_STROKE);
+			g.setColor(Color.GRAY);
+			g.drawRect(selectionBox.x, selectionBox.y, selectionBox.width, selectionBox.height);
+		}
 	}
 	
 	public void refresh()
@@ -74,6 +133,8 @@ public class TemplateEditableCanvas extends TemplateCanvas implements MouseListe
 	
 	public void release()
 	{
+		removeHighlight();
+		diagram.clearSelection();
 		CanvasSettings canvasSettings = new CanvasSettings();
 		canvasSettings.viewport = getVisibleRect();
 		canvasSettings.zoom = scaleFactor;
@@ -97,46 +158,147 @@ public class TemplateEditableCanvas extends TemplateCanvas implements MouseListe
 				me.isPopupTrigger(),
 				me.getButton());
 	}
+	
+	public Point localToScreen(Point p)
+	{
+		Point ret=localToComponent(p);
+		SwingUtilities.convertPointToScreen(ret, this);
+		return ret;
+	}
+	
+	public Point localToComponent(Point p)
+	{
+		return new Point((int)(p.x*scaleFactor),(int)(p.y*scaleFactor));
+	}
 
+	public void setUIInteraction(boolean b)
+	{
+		ignoreNextMouseEvent=b;
+	}
+	
+	public void setSelectionBox(Rectangle r)
+	{
+		selectionBox=r;
+		if(selectionBox!=null)
+		{
+			Collection<DiagramElement> selected=new HashSet<DiagramElement>();
+			for(Connector c:diagram.getConnectors())
+			{
+				if(c.intersects(selectionBox))
+				{
+					selected.add(c);
+				}
+			}
+			for(Entity e:diagram.getEntities())
+			{
+				if(e.intersects(selectionBox))
+				{
+					selected.add(e);
+					selected.addAll(diagram.getAdjacentConnectors(e));
+				}
+			}
+			diagram.setSelection(selected);
+		}
+	}
+	
+	public Rectangle getSelectionBox()
+	{
+		return selectionBox;
+	}
+	
 	public void mouseClicked(MouseEvent arg0)
 	{
+		if(ignoreNextMouseEvent)
+		{
+			return;
+		}
 		arg0=transformMouseCoords(arg0);
 		interpreter.mouseClicked(arg0);
 	}
 	
 	public void mouseEntered(MouseEvent arg0)
 	{
+		if(ignoreNextMouseEvent)
+		{
+			return;
+		}
 		arg0=transformMouseCoords(arg0);
 		interpreter.mouseEntered(arg0);
 	}
 
 	public void mouseExited(MouseEvent arg0)
 	{
+		if(ignoreNextMouseEvent)
+		{
+			return;
+		}
 		arg0=transformMouseCoords(arg0);
 		interpreter.mouseExited(arg0);
 	}
 
 	public void mousePressed(MouseEvent arg0)
 	{
+		if(ignoreNextMouseEvent)
+		{
+			return;
+		}
+		requestFocus();
 		arg0=transformMouseCoords(arg0);
 		interpreter.mousePressed(arg0);
 	}
 
 	public void mouseReleased(MouseEvent arg0)
 	{
+		if(ignoreNextMouseEvent)
+		{
+			ignoreNextMouseEvent=false;
+			return;
+		}
 		arg0=transformMouseCoords(arg0);
 		interpreter.mouseReleased(arg0);
 	}
 
 	public void mouseDragged(MouseEvent e)
 	{
+		if(ignoreNextMouseEvent)
+		{
+			return;
+		}
 		e=transformMouseCoords(e);
 		interpreter.mouseDragged(e);
 	}
 
 	public void mouseMoved(MouseEvent e)
 	{
+		if(ignoreNextMouseEvent)
+		{
+			return;
+		}
 		e=transformMouseCoords(e);
 		interpreter.mouseMoved(e);
+	}
+	
+	public void highlight(DiagramElement element)
+	{
+		if(hilitedElement!=null)
+		{
+			hilitedElement.setHighlight(false);
+		}
+		hilitedElement=element;
+		hilitedElement.setHighlight(true);
+	}
+	
+	public DiagramElement getHighlightedElement()
+	{
+		return hilitedElement;
+	}
+	
+	public void removeHighlight()
+	{
+		if(hilitedElement!=null)
+		{
+			hilitedElement.setHighlight(false);
+		}
+		hilitedElement=null;
 	}
 }

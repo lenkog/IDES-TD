@@ -5,11 +5,14 @@ import ides.api.core.Hub;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
+import templates.diagram.Connector;
+import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
 
@@ -34,7 +37,7 @@ public class DiagramActions
 			this(null,diagram,location,buffer);
 		}
 
-		public CreateEntityAction(CompoundEdit parent, Point location, TemplateDiagram diagram)
+		public CreateEntityAction(CompoundEdit parent, TemplateDiagram diagram, Point location)
 		{
 			this(parent,diagram,location,null);
 		}
@@ -64,6 +67,135 @@ public class DiagramActions
 		}
 	}
 	
+	public static class DeleteElementsAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 4993580265901392619L;
+
+		protected TemplateDiagram diagram;
+		protected Collection<DiagramElement> elements;
+		
+		public DeleteElementsAction(TemplateDiagram diagram, Collection<DiagramElement> elements)
+		{
+			this(null,diagram,elements);
+		}
+		
+		public DeleteElementsAction(CompoundEdit parent, TemplateDiagram diagram, Collection<DiagramElement> elements)
+		{
+			this.parentEdit=parent;
+			this.diagram=diagram;
+			this.elements=elements;
+		}
+		
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				CompoundEdit allEdits=new CompoundEdit();
+				int connectors=0;
+				int entities=0;
+				for(DiagramElement element:elements)
+				{
+					if(element instanceof Connector)
+					{
+						//TODO
+						connectors++;
+					}
+				}
+				for(DiagramElement element:elements)
+				{
+					if(element instanceof Entity)
+					{
+						DiagramUndoableEdits.RemoveEntityEdit edit=new DiagramUndoableEdits.RemoveEntityEdit(diagram,(Entity)element);
+						edit.redo();
+						allEdits.addEdit(edit);
+						entities++;
+					}
+				}
+				if(entities>0&&connectors>0)
+				{
+					allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_undoRemoveElements")));
+				}
+				else if(entities>1)
+				{
+					allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_undoRemoveEntities")));
+				}
+				else if(connectors>1)
+				{
+					allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_undoRemoveConnectors")));
+				}
+				allEdits.end();
+				postEdit(allEdits);
+			}
+		}
+	}
+
+	public static class MovedSelectionAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = -1222866680866778507L;
+
+		protected TemplateDiagram diagram;
+		protected Point delta;
+		protected Collection<DiagramElement> selection;
+		
+		public MovedSelectionAction(TemplateDiagram diagram, Collection<DiagramElement> selection, Point delta)
+		{
+			this(null,diagram,selection,delta);
+		}
+
+		public MovedSelectionAction(CompoundEdit parent, TemplateDiagram diagram, Collection<DiagramElement> selection, Point delta)
+		{
+			this.parentEdit=parent;
+			this.diagram=diagram;
+			this.selection=selection;
+			this.delta=delta;
+		}
+		
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				DiagramUndoableEdits.MovedSelectionEdit edit = new DiagramUndoableEdits.MovedSelectionEdit(
+						diagram,
+						selection, delta);
+				postEditAdjustCanvas(diagram, edit);
+			}
+		}
+	}
+
+	public static class LabelEntityAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 6200645190959701337L;
+
+		protected TemplateDiagram diagram;
+		protected Entity entity;
+		protected String label;
+		
+		public LabelEntityAction(TemplateDiagram diagram, Entity entity, String label)
+		{
+			this(null,diagram,entity,label);
+		}
+
+		public LabelEntityAction(CompoundEdit parent, TemplateDiagram diagram, Entity entity, String label)
+		{
+			this.parentEdit=parent;
+			this.diagram=diagram;
+			this.entity=entity;
+			this.label=label;
+		}
+		
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				DiagramUndoableEdits.LabelEntityEdit edit = new DiagramUndoableEdits.LabelEntityEdit(
+						diagram,
+						entity,label);
+				edit.redo();
+				postEditAdjustCanvas(diagram, edit);
+			}
+		}
+	}
+
 	public static class ShiftDiagramInViewAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 2907001062138002843L;

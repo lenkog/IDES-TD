@@ -138,8 +138,7 @@ public class TemplateCanvas extends JComponent implements Presentation,
 
 	public void templateDiagramSelectionChanged(TemplateDiagramMessage message)
 	{
-		// TODO Auto-generated method stub
-
+		repaint();
 	}
 
 	public void refresh()

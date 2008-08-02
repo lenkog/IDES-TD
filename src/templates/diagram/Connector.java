@@ -126,4 +126,9 @@ public class Connector extends DiagramElement
 	{
 		return false;
 	}
+	
+	public boolean intersects(Rectangle r)
+	{
+		return false;
+	}
 }
