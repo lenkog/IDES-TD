@@ -11,9 +11,6 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -22,7 +19,6 @@ import templates.diagram.DiagramElement;
 import templates.diagram.TemplateDiagram;
 import templates.diagram.TemplateDiagramMessage;
 import templates.diagram.TemplateDiagramSubscriber;
-import templates.diagram.actions.DiagramActions;
 import templates.model.TemplateModel;
 
 public class TemplateCanvas extends JComponent implements Presentation,
@@ -37,9 +33,10 @@ public class TemplateCanvas extends JComponent implements Presentation,
 	protected TemplateModel model;
 
 	protected TemplateDiagram diagram;
-	
-	protected float scaleFactor=1;
-	protected boolean scaleToFit=true;
+
+	protected float scaleFactor = 1;
+
+	protected boolean scaleToFit = true;
 
 	public TemplateCanvas(TemplateModel model)
 	{
@@ -50,7 +47,8 @@ public class TemplateCanvas extends JComponent implements Presentation,
 		}
 		this.model = model;
 		DiagramElement.setGlobalFont(new JLabel().getFont());
-		DiagramElement.setGlobalFontMetrics(graphics.getFontMetrics(DiagramElement.getGlobalFont()));
+		DiagramElement.setGlobalFontMetrics(graphics
+				.getFontMetrics(DiagramElement.getGlobalFont()));
 		diagram = retrieveDiagram(model);
 		diagram.addSubscriber(this);
 	}
@@ -74,7 +72,7 @@ public class TemplateCanvas extends JComponent implements Presentation,
 	{
 		graphics = Hub.getMainWindow().getGraphics().create();
 	}
-	
+
 	public TemplateDiagram getDiagram()
 	{
 		return diagram;
@@ -98,7 +96,7 @@ public class TemplateCanvas extends JComponent implements Presentation,
 	public void release()
 	{
 		diagram.removeSubscriber(this);
-		if(diagram.getDiagramSubscribers().length==0)
+		if (diagram.getDiagramSubscribers().length == 0)
 		{
 			diagram.release();
 			model.removeAnnotation(DIAGRAM);
@@ -114,9 +112,9 @@ public class TemplateCanvas extends JComponent implements Presentation,
 	public Dimension getPreferredSize()
 	{
 		Rectangle bounds = diagram.getBounds();
-		return new Dimension((int)((bounds.width + bounds.x
-				+ TemplateDiagram.DESIRED_DIAGRAM_INSET)*scaleFactor), (int)((bounds.height
-				+ bounds.y + TemplateDiagram.DESIRED_DIAGRAM_INSET)*scaleFactor));
+		return new Dimension(
+				(int)((bounds.width + bounds.x + TemplateDiagram.DESIRED_DIAGRAM_INSET) * scaleFactor),
+				(int)((bounds.height + bounds.y + TemplateDiagram.DESIRED_DIAGRAM_INSET) * scaleFactor));
 	}
 
 	public void paint(Graphics g)
@@ -126,7 +124,7 @@ public class TemplateCanvas extends JComponent implements Presentation,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setColor(Color.WHITE);
 		g2d.fillRect(0, 0, getBounds().width, getBounds().height);
-		
+
 		g2d.scale(scaleFactor, scaleFactor);
 		diagram.draw(g2d);
 	}
@@ -146,12 +144,13 @@ public class TemplateCanvas extends JComponent implements Presentation,
 		if (scaleToFit && getParent() != null)
 		{
 			Insets ins = getParent().getInsets();
-			Rectangle diaBounds=new Rectangle(0,0).union(diagram.getBounds());
+			Rectangle diaBounds = new Rectangle(0, 0)
+					.union(diagram.getBounds());
 			float xScale = (float)(getParent().getWidth() - ins.left - ins.right)
-					/ (float)(diaBounds.width + diaBounds.x + 2*TemplateDiagram.DESIRED_DIAGRAM_INSET);
+					/ (float)(diaBounds.width + diaBounds.x + 2 * TemplateDiagram.DESIRED_DIAGRAM_INSET);
 			float yScale = (float)(getParent().getHeight() - ins.top - ins.bottom)
-					/ (float)(diaBounds.height + diaBounds.y + 2*TemplateDiagram.DESIRED_DIAGRAM_INSET);
-			scaleFactor=Math.min(xScale, yScale);
+					/ (float)(diaBounds.height + diaBounds.y + 2 * TemplateDiagram.DESIRED_DIAGRAM_INSET);
+			scaleFactor = Math.min(xScale, yScale);
 		}
 		revalidate();
 		repaint();

@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface TemplateModel extends DESModel, TemplateModelPublisher
 {
 	public Collection<TemplateComponent> getComponents();
-	
+
 	public Collection<TemplateComponent> getModules();
 
 	public Collection<TemplateComponent> getChannels();

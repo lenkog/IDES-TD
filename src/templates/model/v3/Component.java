@@ -35,8 +35,8 @@ public class Component implements TemplateComponent
 
 	protected long id;
 
-	protected int type=TemplateComponent.TYPE_INDETERMINATE;
-	
+	protected int type = TemplateComponent.TYPE_INDETERMINATE;
+
 	protected FSAModel fsa = null;
 
 	public Component(long id)
@@ -76,13 +76,13 @@ public class Component implements TemplateComponent
 
 	public void setType(int type)
 	{
-		if(type==TYPE_MODULE||type==TYPE_CHANNEL)
+		if (type == TYPE_MODULE || type == TYPE_CHANNEL)
 		{
-			this.type=type;
+			this.type = type;
 		}
 		else
 		{
-			this.type=TYPE_INDETERMINATE;
+			this.type = TYPE_INDETERMINATE;
 		}
 	}
 }

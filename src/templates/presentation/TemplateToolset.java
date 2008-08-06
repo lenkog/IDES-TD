@@ -10,7 +10,6 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JToolBar;
 
-import templates.diagram.TemplateDiagram;
 import templates.model.TemplateModel;
 
 public class TemplateToolset implements Toolset
@@ -19,14 +18,15 @@ public class TemplateToolset implements Toolset
 	{
 
 		TemplateModel model;
+
 		Presentation canvas;
-		
+
 		public TemplateUID(TemplateModel model)
 		{
-			this.model=model;
-			canvas=new TemplateEditableCanvas(model);
+			this.model = model;
+			canvas = new TemplateEditableCanvas(model);
 		}
-		
+
 		public Presentation[] getLeftPanePresentations()
 		{
 			// TODO Auto-generated method stub
@@ -36,7 +36,7 @@ public class TemplateToolset implements Toolset
 		public Presentation[] getMainPanePresentations()
 		{
 			// TODO Auto-generated method stub
-			return new Presentation[] {canvas};
+			return new Presentation[] { canvas };
 		}
 
 		public JMenu[] getMenus()
@@ -79,7 +79,7 @@ public class TemplateToolset implements Toolset
 	public Presentation getModelThumbnail(DESModel model, int width, int height)
 			throws UnsupportedModelException
 	{
-		if(!(model instanceof TemplateModel))
+		if (!(model instanceof TemplateModel))
 		{
 			throw new UnsupportedModelException();
 		}
@@ -89,7 +89,7 @@ public class TemplateToolset implements Toolset
 	public UIDescriptor getUIElements(DESModel model)
 			throws UnsupportedModelException
 	{
-		if(!(model instanceof TemplateModel))
+		if (!(model instanceof TemplateModel))
 		{
 			throw new UnsupportedModelException();
 		}

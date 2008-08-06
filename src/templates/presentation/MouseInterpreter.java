@@ -28,6 +28,10 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 
 	protected boolean draggedSelection = false;
 
+	protected boolean creatingConnector = false;
+
+	protected Entity connectorOrigin = null;
+
 	public MouseInterpreter(TemplateEditableCanvas canvas)
 	{
 		this.canvas = canvas;
@@ -40,6 +44,17 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		{
 			if (arg0.getClickCount() == 1)
 			{
+				if (mouseDownOn != null && mouseDownOn instanceof Entity)
+				{
+					int whichPart = ((Entity)mouseDownOn).whereisPoint(arg0
+							.getPoint());
+					if (whichPart == Entity.ON_PORT)
+					{
+						canvas.startConnector(arg0.getPoint());
+						creatingConnector = true;
+						connectorOrigin = (Entity)mouseDownOn;
+					}
+				}
 			}
 			else if (arg0.getClickCount() == 2)
 			{
@@ -89,6 +104,23 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 
 	public void mousePressed(MouseEvent arg0)
 	{
+		if (creatingConnector)
+		{
+			canvas.finishConnector();
+			creatingConnector = false;
+			if (diagram.getEntityAt(arg0.getPoint()) != null)
+			{
+				Entity connectorEnd = (Entity)diagram.getEntityAt(arg0
+						.getPoint());
+				if (connectorEnd != connectorOrigin)
+				{
+					new DiagramActions.CreateConnectorAction(
+							diagram,
+							connectorOrigin,
+							connectorEnd).execute();
+				}
+			}
+		}
 		if (arg0.getClickCount() == 1)
 		{
 			mouseDownAt = arg0.getPoint();
@@ -128,7 +160,7 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 					lastDragLocation.x - mouseDownAt.x,
 					lastDragLocation.y - mouseDownAt.y));
 		}
-		if(canvas.getSelectionBox()!=null)
+		if (canvas.getSelectionBox() != null)
 		{
 			canvas.setSelectionBox(null);
 			canvas.repaint();
@@ -153,15 +185,24 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 					element.translate(new Point(arg0.getPoint().x
 							- lastDragLocation.x, arg0.getPoint().y
 							- lastDragLocation.y));
+					if (element instanceof Entity)
+					{
+						for (Connector c : diagram
+								.getAdjacentConnectors((Entity)element))
+						{
+							c.update();
+						}
+					}
 				}
 				canvas.repaint();
 			}
 		}
 		else
 		{
-			canvas.setSelectionBox(new Rectangle(Math.min(mouseDownAt.x, arg0.getX()),
-					Math.min(mouseDownAt.y, arg0.getY()),Math.abs(mouseDownAt.x-arg0.getX()),
-					Math.abs(mouseDownAt.y-arg0.getY())));
+			canvas.setSelectionBox(new Rectangle(Math.min(mouseDownAt.x, arg0
+					.getX()), Math.min(mouseDownAt.y, arg0.getY()), Math
+					.abs(mouseDownAt.x - arg0.getX()), Math.abs(mouseDownAt.y
+					- arg0.getY())));
 			canvas.repaint();
 		}
 		lastDragLocation = arg0.getPoint();
@@ -197,6 +238,10 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 					canvas.repaint();
 				}
 			}
+		}
+		if (creatingConnector)
+		{
+			canvas.repaint();
 		}
 	}
 

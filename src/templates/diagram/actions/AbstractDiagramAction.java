@@ -17,7 +17,6 @@ public abstract class AbstractDiagramAction extends AbstractAction
 
 	protected boolean usePluralDescription = false;
 
-
 	public AbstractDiagramAction()
 	{
 		super();
@@ -49,12 +48,14 @@ public abstract class AbstractDiagramAction extends AbstractAction
 		}
 	}
 
-	protected void postEditAdjustCanvas(TemplateDiagram diagram, UndoableEdit edit)
+	protected void postEditAdjustCanvas(TemplateDiagram diagram,
+			UndoableEdit edit)
 	{
 		postEdit(addBoundsAdjust(diagram, edit));
 	}
 
-	protected UndoableEdit addBoundsAdjust(TemplateDiagram diagram, UndoableEdit edit)
+	protected UndoableEdit addBoundsAdjust(TemplateDiagram diagram,
+			UndoableEdit edit)
 	{
 		CompoundEdit adjEdit = new CompoundEdit();
 		adjEdit.addEdit(edit);

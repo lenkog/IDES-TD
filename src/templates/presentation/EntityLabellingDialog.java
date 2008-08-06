@@ -35,9 +35,10 @@ public class EntityLabellingDialog extends EscapeDialog
 	private static final long serialVersionUID = -9128357609584017316L;
 
 	private static EntityLabellingDialog me = null;
-	
-	protected static Entity entity=null;
-	protected static TemplateEditableCanvas canvas=null;
+
+	protected static Entity entity = null;
+
+	protected static TemplateEditableCanvas canvas = null;
 
 	// the main job will be handled by commitListener on focusLost
 	protected Action enterListener = new AbstractAction()
@@ -55,9 +56,12 @@ public class EntityLabellingDialog extends EscapeDialog
 	{
 		public void focusLost(FocusEvent e)
 		{
-			if (canvas!=null && !area.getText().equals(entity.getLabel()))
+			if (canvas != null && !area.getText().equals(entity.getLabel()))
 			{
-				new DiagramActions.LabelEntityAction(canvas.getDiagram(),entity,area.getText()).execute();
+				new DiagramActions.LabelEntityAction(
+						canvas.getDiagram(),
+						entity,
+						area.getText()).execute();
 			}
 			me.setVisible(false);
 		}
@@ -114,7 +118,7 @@ public class EntityLabellingDialog extends EscapeDialog
 	public static void showAndLabel(TemplateEditableCanvas canvas, Entity entity)
 	{
 		canvas.setUIInteraction(true);
-		EntityLabellingDialog.canvas= canvas;
+		EntityLabellingDialog.canvas = canvas;
 		EntityLabellingDialog.entity = entity;
 		Point p = new Point(entity.getLocation().x, entity.getLocation().y);
 		instance();

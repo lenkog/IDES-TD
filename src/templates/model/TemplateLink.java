@@ -6,7 +6,7 @@ import ides.api.plugin.model.DESElement;
 public interface TemplateLink extends DESElement
 {
 	public TemplateComponent getLeftComponent();
-	
+
 	public TemplateComponent getRightComponent();
 
 	public TemplateComponent[] getComponents();
@@ -16,7 +16,7 @@ public interface TemplateLink extends DESElement
 	public TemplateComponent getModule();
 
 	public TemplateComponent getChannel();
-	
+
 	public String getLeftEventName();
 
 	public boolean existsLeftEvent();

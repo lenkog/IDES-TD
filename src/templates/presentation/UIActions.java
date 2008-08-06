@@ -2,12 +2,10 @@ package templates.presentation;
 
 import ides.api.core.Hub;
 
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 
 import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
@@ -19,20 +17,20 @@ public class UIActions
 	{
 		private static final long serialVersionUID = 5645153856255010227L;
 
-//		private static ImageIcon icon = new ImageIcon();
+		// private static ImageIcon icon = new ImageIcon();
 
 		protected TemplateEditableCanvas canvas;
 
 		private Entity entity;
 
-		public LabelAction(TemplateEditableCanvas canvas,Entity entity)
+		public LabelAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comLabelEntity"));
-//			icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
-//					.getResource("images/icons/edit_delete.gif")));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintLabelEntity"));
-			this.canvas=canvas;
-			this.entity=entity;
+			this.canvas = canvas;
+			this.entity = entity;
 		}
 
 		public void actionPerformed(ActionEvent evt)
@@ -46,25 +44,26 @@ public class UIActions
 	{
 		private static final long serialVersionUID = 5645153856255010227L;
 
-//		private static ImageIcon icon = new ImageIcon();
+		// private static ImageIcon icon = new ImageIcon();
 
 		protected TemplateEditableCanvas canvas;
 
 		private Entity entity;
 
-		public DeleteAction(TemplateEditableCanvas canvas,Entity entity)
+		public DeleteAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comDeleteEntity"));
-//			icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
-//					.getResource("images/icons/edit_delete.gif")));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintDeleteEntity"));
-			this.canvas=canvas;
-			this.entity=entity;
+			this.canvas = canvas;
+			this.entity = entity;
 		}
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			new DiagramActions.DeleteElementsAction(canvas.getDiagram(), Arrays.asList(new DiagramElement[]{entity})).execute();
+			new DiagramActions.DeleteElementsAction(canvas.getDiagram(), Arrays
+					.asList(new DiagramElement[] { entity })).execute();
 		}
 
 	}

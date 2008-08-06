@@ -22,34 +22,39 @@ public class DiagramActions
 	public static class CreateEntityAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 4318087259767201282L;
-		
+
 		protected TemplateDiagram diagram;
+
 		protected Point location;
+
 		protected Entity[] buffer;
-		
+
 		public CreateEntityAction(TemplateDiagram diagram, Point location)
 		{
-			this(null,diagram,location,null);
-		}
-		
-		public CreateEntityAction(TemplateDiagram diagram, Point location, Entity[] buffer)
-		{
-			this(null,diagram,location,buffer);
+			this(null, diagram, location, null);
 		}
 
-		public CreateEntityAction(CompoundEdit parent, TemplateDiagram diagram, Point location)
+		public CreateEntityAction(TemplateDiagram diagram, Point location,
+				Entity[] buffer)
 		{
-			this(parent,diagram,location,null);
+			this(null, diagram, location, buffer);
 		}
-		
-		public CreateEntityAction(CompoundEdit parent, TemplateDiagram diagram, Point location, Entity[] buffer)
+
+		public CreateEntityAction(CompoundEdit parent, TemplateDiagram diagram,
+				Point location)
 		{
-			this.parentEdit=parent;
-			this.diagram=diagram;
-			this.location=location;
-			this.buffer=buffer;
+			this(parent, diagram, location, null);
 		}
-		
+
+		public CreateEntityAction(CompoundEdit parent, TemplateDiagram diagram,
+				Point location, Entity[] buffer)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.location = location;
+			this.buffer = buffer;
+		}
+
 		public void actionPerformed(ActionEvent e)
 		{
 			if (diagram != null)
@@ -66,62 +71,132 @@ public class DiagramActions
 			}
 		}
 	}
-	
+
+	public static class CreateConnectorAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 6870236352320831902L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity left;
+
+		protected Entity right;
+
+		protected Connector[] buffer;
+
+		public CreateConnectorAction(TemplateDiagram diagram, Entity left,
+				Entity right)
+		{
+			this(null, diagram, left, right, null);
+		}
+
+		public CreateConnectorAction(TemplateDiagram diagram, Entity left,
+				Entity right, Connector[] buffer)
+		{
+			this(null, diagram, left, right, buffer);
+		}
+
+		public CreateConnectorAction(CompoundEdit parent,
+				TemplateDiagram diagram, Entity left, Entity right)
+		{
+			this(parent, diagram, left, right, null);
+		}
+
+		public CreateConnectorAction(CompoundEdit parent,
+				TemplateDiagram diagram, Entity left, Entity right,
+				Connector[] buffer)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.left = left;
+			this.right = right;
+			this.buffer = buffer;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				DiagramUndoableEdits.CreateConnectorEdit edit = new DiagramUndoableEdits.CreateConnectorEdit(
+						diagram,
+						left,
+						right);
+				edit.redo();
+				if (buffer != null && buffer.length > 0)
+				{
+					buffer[0] = edit.getConnector();
+				}
+				postEditAdjustCanvas(diagram, edit);
+			}
+		}
+	}
+
 	public static class DeleteElementsAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 4993580265901392619L;
 
 		protected TemplateDiagram diagram;
+
 		protected Collection<DiagramElement> elements;
-		
-		public DeleteElementsAction(TemplateDiagram diagram, Collection<DiagramElement> elements)
+
+		public DeleteElementsAction(TemplateDiagram diagram,
+				Collection<DiagramElement> elements)
 		{
-			this(null,diagram,elements);
+			this(null, diagram, elements);
 		}
-		
-		public DeleteElementsAction(CompoundEdit parent, TemplateDiagram diagram, Collection<DiagramElement> elements)
+
+		public DeleteElementsAction(CompoundEdit parent,
+				TemplateDiagram diagram, Collection<DiagramElement> elements)
 		{
-			this.parentEdit=parent;
-			this.diagram=diagram;
-			this.elements=elements;
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.elements = elements;
 		}
-		
+
 		public void actionPerformed(ActionEvent e)
 		{
 			if (diagram != null)
 			{
-				CompoundEdit allEdits=new CompoundEdit();
-				int connectors=0;
-				int entities=0;
-				for(DiagramElement element:elements)
+				CompoundEdit allEdits = new CompoundEdit();
+				int connectors = 0;
+				int entities = 0;
+				for (DiagramElement element : elements)
 				{
-					if(element instanceof Connector)
+					if (element instanceof Connector)
 					{
-						//TODO
+						// TODO
 						connectors++;
 					}
 				}
-				for(DiagramElement element:elements)
+				for (DiagramElement element : elements)
 				{
-					if(element instanceof Entity)
+					if (element instanceof Entity)
 					{
-						DiagramUndoableEdits.RemoveEntityEdit edit=new DiagramUndoableEdits.RemoveEntityEdit(diagram,(Entity)element);
+						DiagramUndoableEdits.RemoveEntityEdit edit = new DiagramUndoableEdits.RemoveEntityEdit(
+								diagram,
+								(Entity)element);
 						edit.redo();
 						allEdits.addEdit(edit);
 						entities++;
 					}
 				}
-				if(entities>0&&connectors>0)
+				if (entities > 0 && connectors > 0)
 				{
-					allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_undoRemoveElements")));
+					allEdits
+							.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(
+									Hub.string("TD_undoRemoveElements")));
 				}
-				else if(entities>1)
+				else if (entities > 1)
 				{
-					allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_undoRemoveEntities")));
+					allEdits
+							.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(
+									Hub.string("TD_undoRemoveEntities")));
 				}
-				else if(connectors>1)
+				else if (connectors > 1)
 				{
-					allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_undoRemoveConnectors")));
+					allEdits
+							.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(
+									Hub.string("TD_undoRemoveConnectors")));
 				}
 				allEdits.end();
 				postEdit(allEdits);
@@ -134,29 +209,35 @@ public class DiagramActions
 		private static final long serialVersionUID = -1222866680866778507L;
 
 		protected TemplateDiagram diagram;
+
 		protected Point delta;
+
 		protected Collection<DiagramElement> selection;
-		
-		public MovedSelectionAction(TemplateDiagram diagram, Collection<DiagramElement> selection, Point delta)
+
+		public MovedSelectionAction(TemplateDiagram diagram,
+				Collection<DiagramElement> selection, Point delta)
 		{
-			this(null,diagram,selection,delta);
+			this(null, diagram, selection, delta);
 		}
 
-		public MovedSelectionAction(CompoundEdit parent, TemplateDiagram diagram, Collection<DiagramElement> selection, Point delta)
+		public MovedSelectionAction(CompoundEdit parent,
+				TemplateDiagram diagram, Collection<DiagramElement> selection,
+				Point delta)
 		{
-			this.parentEdit=parent;
-			this.diagram=diagram;
-			this.selection=selection;
-			this.delta=delta;
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.selection = selection;
+			this.delta = delta;
 		}
-		
+
 		public void actionPerformed(ActionEvent e)
 		{
 			if (diagram != null)
 			{
 				DiagramUndoableEdits.MovedSelectionEdit edit = new DiagramUndoableEdits.MovedSelectionEdit(
 						diagram,
-						selection, delta);
+						selection,
+						delta);
 				postEditAdjustCanvas(diagram, edit);
 			}
 		}
@@ -167,29 +248,34 @@ public class DiagramActions
 		private static final long serialVersionUID = 6200645190959701337L;
 
 		protected TemplateDiagram diagram;
+
 		protected Entity entity;
+
 		protected String label;
-		
-		public LabelEntityAction(TemplateDiagram diagram, Entity entity, String label)
+
+		public LabelEntityAction(TemplateDiagram diagram, Entity entity,
+				String label)
 		{
-			this(null,diagram,entity,label);
+			this(null, diagram, entity, label);
 		}
 
-		public LabelEntityAction(CompoundEdit parent, TemplateDiagram diagram, Entity entity, String label)
+		public LabelEntityAction(CompoundEdit parent, TemplateDiagram diagram,
+				Entity entity, String label)
 		{
-			this.parentEdit=parent;
-			this.diagram=diagram;
-			this.entity=entity;
-			this.label=label;
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.entity = entity;
+			this.label = label;
 		}
-		
+
 		public void actionPerformed(ActionEvent e)
 		{
 			if (diagram != null)
 			{
 				DiagramUndoableEdits.LabelEntityEdit edit = new DiagramUndoableEdits.LabelEntityEdit(
 						diagram,
-						entity,label);
+						entity,
+						label);
 				edit.redo();
 				postEditAdjustCanvas(diagram, edit);
 			}
@@ -209,7 +295,8 @@ public class DiagramActions
 			this(null, diagram);
 		}
 
-		public ShiftDiagramInViewAction(CompoundEdit parentEdit, TemplateDiagram diagram)
+		public ShiftDiagramInViewAction(CompoundEdit parentEdit,
+				TemplateDiagram diagram)
 		{
 			this.parentEdit = parentEdit;
 			this.diagram = diagram;
@@ -224,9 +311,11 @@ public class DiagramActions
 				{
 					UndoableEdit translation = new DiagramUndoableEdits.TranslateDiagramEdit(
 							diagram,
-							new Point(-bounds.x
-									+ TemplateDiagram.DESIRED_DIAGRAM_INSET, -bounds.y
-									+ TemplateDiagram.DESIRED_DIAGRAM_INSET));
+							new Point(
+									-bounds.x
+											+ TemplateDiagram.DESIRED_DIAGRAM_INSET,
+									-bounds.y
+											+ TemplateDiagram.DESIRED_DIAGRAM_INSET));
 					translation.redo();
 					if (parentEdit != null)
 					{
@@ -245,5 +334,5 @@ public class DiagramActions
 			actionPerformed(null);
 		}
 	}
-	
+
 }

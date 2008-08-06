@@ -99,8 +99,8 @@ public class TemplateDiagram implements TemplateModelSubscriber
 	protected Set<Connector> connectors = new HashSet<Connector>();
 
 	protected TemplateModel model;
-	
-	protected Collection<DiagramElement> selection=new HashSet<DiagramElement>();
+
+	protected Collection<DiagramElement> selection = new HashSet<DiagramElement>();
 
 	public TemplateDiagram(TemplateModel m)
 	{
@@ -111,14 +111,15 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	protected void recoverLayout()
 	{
-		if(DiagramElement.getGlobalFont()==null)
+		if (DiagramElement.getGlobalFont() == null)
 		{
 			DiagramElement.setGlobalFont(new JLabel().getFont());
 		}
 		if (DiagramElement.getGlobalFontMetrics() == null)
 		{
 			DiagramElement.setGlobalFontMetrics(Hub
-					.getMainWindow().getGraphics().getFontMetrics(DiagramElement.getGlobalFont()));
+					.getMainWindow().getGraphics()
+					.getFontMetrics(DiagramElement.getGlobalFont()));
 		}
 	}
 
@@ -138,7 +139,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 	{
 		return model;
 	}
-	
+
 	public void release()
 	{
 		model.removeSubscriber(this);
@@ -150,7 +151,8 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		TemplateComponent component = model.createComponent();
 		DiagramElementLayout layout = new DiagramElementLayout();
 		layout.location = location;
-		layout.label=Hub.string("TD_untitledEntityPrefix")+" "+component.getId();
+		layout.label = Hub.string("TD_untitledEntityPrefix") + " "
+				+ component.getId();
 		Entity entity = new Entity(component, layout);
 		entities.add(entity);
 		model.addSubscriber(this);
@@ -163,7 +165,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public void add(Entity entity)
 	{
-		if(entities.contains(entity))
+		if (entities.contains(entity))
 		{
 			return;
 		}
@@ -185,17 +187,17 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public void remove(Entity entity)
 	{
-		if(!entities.contains(entity))
+		if (!entities.contains(entity))
 		{
 			return;
 		}
 		clearSelection();
 		model.removeSubscriber(this);
-		Collection<Connector> adjacent=getAdjacentConnectors(entity);
-		for(Connector c:adjacent)
+		Collection<Connector> adjacent = getAdjacentConnectors(entity);
+		for (Connector c : adjacent)
 		{
 			connectors.remove(c);
-			for(TemplateLink link:c.getLinks())
+			for (TemplateLink link : c.getLinks())
 			{
 				model.removeLink(link.getId());
 			}
@@ -203,23 +205,30 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		entities.remove(entity);
 		model.removeComponent(entity.getComponent().getId());
 		model.addSubscriber(this);
-		Collection<DiagramElement> removed=new HashSet<DiagramElement>(adjacent);
+		Collection<DiagramElement> removed = new HashSet<DiagramElement>(
+				adjacent);
 		removed.add(entity);
-		fireDiagramChanged(new TemplateDiagramMessage(this, removed, TemplateDiagramMessage.OP_REMOVE));		
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				removed,
+				TemplateDiagramMessage.OP_REMOVE));
 	}
-	
+
 	public void labelEntity(Entity entity, String label)
 	{
 		entity.setLabel(label);
 		model.metadataChanged();
-		fireDiagramChanged(new TemplateDiagramMessage(this,Arrays.asList(new DiagramElement[]{entity}),TemplateDiagramMessage.OP_MODIFY));
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { entity }),
+				TemplateDiagramMessage.OP_MODIFY));
 	}
 
 	public Entity getEntityAt(Point location)
 	{
-		for(Entity entity:entities)
+		for (Entity entity : entities)
 		{
-			if(entity.contains(location))
+			if (entity.contains(location))
 			{
 				return entity;
 			}
@@ -260,46 +269,51 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public Collection<Connector> getAdjacentConnectors(Entity entity)
 	{
-		Collection<Connector> adjacent=new HashSet<Connector>();
-		for(Connector c:connectors)
+		Collection<Connector> adjacent = new HashSet<Connector>();
+		for (Connector c : connectors)
 		{
-			if(entity==c.getLeftEntity()||entity==c.getRightEntity())
+			if (entity == c.getLeftEntity() || entity == c.getRightEntity())
 			{
 				adjacent.add(c);
 			}
 		}
 		return adjacent;
 	}
-	
+
 	public Connector getConnector(Entity left, Entity right)
 	{
-		for(Connector c:connectors)
+		for (Connector c : connectors)
 		{
-			if((left==c.getLeftEntity()&&right==c.getRightEntity())||(left==c.getRightEntity()&&right==c.getLeftEntity()))
+			if ((left == c.getLeftEntity() && right == c.getRightEntity())
+					|| (left == c.getRightEntity() && right == c
+							.getLeftEntity()))
 			{
 				return c;
 			}
 		}
-		return null;		
+		return null;
 	}
-	
+
 	public Connector createConnector(Entity left, Entity right)
 	{
-		if(!(entities.contains(left)&&entities.contains(right)))
+		if (!(entities.contains(left) && entities.contains(right)))
 		{
-			throw new InconsistentModificationException(Hub.string("TD_inconsistencyLinkInit"));
+			throw new InconsistentModificationException(Hub
+					.string("TD_inconsistencyLinkInit"));
 		}
-		if(getConnector(left,right)!=null)
+		if (getConnector(left, right) != null)
 		{
-			return getConnector(left,right);
+			return getConnector(left, right);
 		}
 		model.removeSubscriber(this);
 		Connector c;
 		try
 		{
-			TemplateLink link = model.createLink(left.getComponent().getId(),right.getComponent().getId());
+			TemplateLink link = model.createLink(left.getComponent().getId(),
+					right.getComponent().getId());
 			DiagramElementLayout layout = new DiagramElementLayout();
-			c = new Connector(left,right,Arrays.asList(new TemplateLink[]{link}),layout);
+			c = new Connector(left, right, Arrays
+					.asList(new TemplateLink[] { link }), layout);
 			connectors.add(c);
 		}
 		finally
@@ -315,18 +329,21 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public void add(Connector c)
 	{
-		if(!(entities.contains(c.getLeftEntity())&&entities.contains(c.getRightEntity())))
+		if (!(entities.contains(c.getLeftEntity()) && entities.contains(c
+				.getRightEntity())))
 		{
-			throw new InconsistentModificationException(Hub.string("TD_inconsistencyLinkInit"));
+			throw new InconsistentModificationException(Hub
+					.string("TD_inconsistencyLinkInit"));
 		}
-		if(getConnector(c.getLeftEntity(),c.getRightEntity())!=null)
+		if (getConnector(c.getLeftEntity(), c.getRightEntity()) != null)
 		{
-			throw new InconsistentModificationException(Hub.string("TD_inconsistencyConnectorDup"));
+			throw new InconsistentModificationException(Hub
+					.string("TD_inconsistencyConnectorDup"));
 		}
 		model.removeSubscriber(this);
 		try
 		{
-			for(TemplateLink link:c.getLinks())
+			for (TemplateLink link : c.getLinks())
 			{
 				model.addLink(link);
 			}
@@ -344,13 +361,13 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public void remove(Connector c)
 	{
-		if(!connectors.contains(c))
+		if (!connectors.contains(c))
 		{
 			return;
 		}
 		clearSelection();
 		model.removeSubscriber(this);
-		for(TemplateLink link:c.getLinks())
+		for (TemplateLink link : c.getLinks())
 		{
 			model.removeLink(link.getId());
 		}
@@ -369,9 +386,9 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public Connector getConnectorAt(Point location)
 	{
-		for(Connector c:connectors)
+		for (Connector c : connectors)
 		{
-			if(c.contains(location))
+			if (c.contains(location))
 			{
 				return c;
 			}
@@ -422,22 +439,40 @@ public class TemplateDiagram implements TemplateModelSubscriber
 				elements,
 				TemplateDiagramMessage.OP_MODIFY));
 	}
-	
-	public void translate(Collection<DiagramElement> elements,Point delta)
+
+	public void translate(Collection<DiagramElement> elements, Point delta)
 	{
-		for(DiagramElement element:elements)
+		for (DiagramElement element : elements)
 		{
 			element.translate(delta);
 		}
+		for (DiagramElement element : elements)
+		{
+			if (element instanceof Entity)
+			{
+				for (Connector c : getAdjacentConnectors((Entity)element))
+				{
+					c.update();
+				}
+			}
+		}
 		model.metadataChanged();
-		fireDiagramChanged(new TemplateDiagramMessage(this,elements,TemplateDiagramMessage.OP_MODIFY));
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				elements,
+				TemplateDiagramMessage.OP_MODIFY));
 	}
-	
-	public void commitTranslation(Collection<DiagramElement> elements,Point delta)
+
+	public void commitTranslation(Collection<DiagramElement> elements,
+			Point delta)
 	{
-		new DiagramActions.MovedSelectionAction(this,elements,delta).execute();
+		new DiagramActions.MovedSelectionAction(this, elements, delta)
+				.execute();
 		model.metadataChanged();
-		fireDiagramChanged(new TemplateDiagramMessage(this,elements,TemplateDiagramMessage.OP_MODIFY));
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				elements,
+				TemplateDiagramMessage.OP_MODIFY));
 	}
 
 	public void draw(Graphics2D g2d)
@@ -452,42 +487,49 @@ public class TemplateDiagram implements TemplateModelSubscriber
 			module.draw(g2d);
 		}
 	}
-	
+
 	public void setSelection(Collection<DiagramElement> selection)
 	{
-		if(this.selection.containsAll(selection)&&selection.containsAll(this.selection))
+		if (this.selection.containsAll(selection)
+				&& selection.containsAll(this.selection))
 		{
 			return;
 		}
-		for(DiagramElement element:this.selection)
+		for (DiagramElement element : this.selection)
 		{
 			element.setSelected(false);
 		}
 		this.selection.clear();
 		this.selection.addAll(selection);
-		for(DiagramElement element:this.selection)
+		for (DiagramElement element : this.selection)
 		{
 			element.setSelected(true);
 		}
-		fireDiagramSelectionChanged(new TemplateDiagramMessage(this,this.selection,TemplateDiagramMessage.OP_MODIFY));
+		fireDiagramSelectionChanged(new TemplateDiagramMessage(
+				this,
+				this.selection,
+				TemplateDiagramMessage.OP_MODIFY));
 	}
-	
+
 	public Collection<DiagramElement> getSelection()
 	{
 		return new HashSet<DiagramElement>(selection);
 	}
-	
+
 	public void clearSelection()
 	{
-		if(selection.isEmpty())
+		if (selection.isEmpty())
 		{
 			return;
 		}
-		for(DiagramElement element:selection)
+		for (DiagramElement element : selection)
 		{
 			element.setSelected(false);
 		}
 		selection.clear();
-		fireDiagramSelectionChanged(new TemplateDiagramMessage(this,selection,TemplateDiagramMessage.OP_MODIFY));
+		fireDiagramSelectionChanged(new TemplateDiagramMessage(
+				this,
+				selection,
+				TemplateDiagramMessage.OP_MODIFY));
 	}
 }

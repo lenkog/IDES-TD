@@ -9,10 +9,10 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
-import templates.diagram.TemplateDiagramMessage;
 
 public class DiagramUndoableEdits
 {
@@ -120,6 +120,88 @@ public class DiagramUndoableEdits
 		}
 	}
 
+	public static class CreateConnectorEdit extends AbstractDiagramUndoableEdit
+	{
+		private static final long serialVersionUID = 5291595117868352443L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity left;
+
+		protected Entity right;
+
+		protected Connector connector = null;
+
+		public CreateConnectorEdit(TemplateDiagram diagram, Entity left,
+				Entity right)
+		{
+			this.diagram = diagram;
+			this.left = left;
+			this.right = right;
+		}
+
+		public Connector getConnector()
+		{
+			return connector;
+		}
+
+		@Override
+		public void redo() throws CannotRedoException
+		{
+			if (left == null || right == null)
+			{
+				throw new CannotRedoException();
+			}
+			if (connector == null)
+			{
+				connector = diagram.createConnector(left, right);
+			}
+			else
+			{
+				diagram.add(connector);
+			}
+		}
+
+		@Override
+		public void undo() throws CannotUndoException
+		{
+			if (connector == null)
+			{
+				throw new CannotUndoException();
+			}
+			diagram.remove(connector);
+		}
+
+		@Override
+		public boolean canUndo()
+		{
+			return (connector != null);
+		}
+
+		@Override
+		public boolean canRedo()
+		{
+			return (left != null && right != null);
+		}
+
+		/**
+		 * Returns the name that should be displayed besides the Undo/Redo menu
+		 * items, so the user knows which action will be undone/redone.
+		 */
+		@Override
+		public String getPresentationName()
+		{
+			if (usePluralDescription)
+			{
+				return Hub.string("TD_undoCreateConnectors");
+			}
+			else
+			{
+				return Hub.string("TD_undoCreateConnector");
+			}
+		}
+	}
+
 	public static class RemoveEntityEdit extends AbstractDiagramUndoableEdit
 	{
 		private static final long serialVersionUID = 4636040678454819006L;
@@ -197,10 +279,11 @@ public class DiagramUndoableEdits
 
 		protected Collection<DiagramElement> selection = null;
 
-		public MovedSelectionEdit(TemplateDiagram diagram, Collection<DiagramElement> selection, Point delta)
+		public MovedSelectionEdit(TemplateDiagram diagram,
+				Collection<DiagramElement> selection, Point delta)
 		{
 			this.diagram = diagram;
-			this.selection=selection;
+			this.selection = selection;
 			this.delta = delta;
 		}
 
@@ -213,7 +296,7 @@ public class DiagramUndoableEdits
 		@Override
 		public void undo() throws CannotUndoException
 		{
-			diagram.translate(selection, new Point(-delta.x,-delta.y));
+			diagram.translate(selection, new Point(-delta.x, -delta.y));
 		}
 
 		@Override
@@ -248,15 +331,16 @@ public class DiagramUndoableEdits
 		protected Entity entity;
 
 		protected String oldLabel;
-		
+
 		protected String newLabel;
 
-		public LabelEntityEdit(TemplateDiagram diagram, Entity entity, String label)
+		public LabelEntityEdit(TemplateDiagram diagram, Entity entity,
+				String label)
 		{
 			this.diagram = diagram;
-			this.entity=entity;
-			oldLabel=entity.getLabel();
-			newLabel=label;
+			this.entity = entity;
+			oldLabel = entity.getLabel();
+			newLabel = label;
 		}
 
 		@Override
@@ -293,7 +377,7 @@ public class DiagramUndoableEdits
 			return Hub.string("TD_undoLabelEntity");
 		}
 	}
-	
+
 	public static class TranslateDiagramEdit extends
 			AbstractDiagramUndoableEdit
 	{

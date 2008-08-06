@@ -3,8 +3,6 @@ package templates.diagram;
 import ides.api.core.Annotable;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -12,14 +10,14 @@ import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.util.Vector;
 
-import javax.swing.Box;
-
 import templates.model.TemplateComponent;
 
 public class Entity extends DiagramElement
 {
 	protected class LabelBox extends Rectangle
 	{
+		private static final long serialVersionUID = -3359948297694123889L;
+
 		protected Vector<String> lines = new Vector<String>();
 
 		public LabelBox(Vector<String> lines)
@@ -128,18 +126,10 @@ public class Entity extends DiagramElement
 	@Override
 	public void draw(Graphics2D g2d)
 	{
-		// if(selected&&highlight)
-		// {
-		// g2d.setColor(COLOR_HILITESELECT);
-		// }
 		if (selected)
 		{
 			g2d.setColor(COLOR_SELECT);
 		}
-		// else if(highlight)
-		// {
-		// g2d.setColor(COLOR_HILITE);
-		// }
 		else
 		{
 			g2d.setColor(COLOR_NORM);
@@ -321,5 +311,18 @@ public class Entity extends DiagramElement
 		}
 		layout.label = label;
 		update();
+	}
+
+	public Point[] getPorts()
+	{
+		return new Point[] {
+				new Point((int)ports[0].getCenterX(), (int)ports[0]
+						.getCenterY()),
+				new Point((int)ports[1].getCenterX(), (int)ports[1]
+						.getCenterY()),
+				new Point((int)ports[2].getCenterX(), (int)ports[2]
+						.getCenterY()),
+				new Point((int)ports[3].getCenterX(), (int)ports[3]
+						.getCenterY()) };
 	}
 }

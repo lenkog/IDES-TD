@@ -70,11 +70,11 @@ public class Link implements TemplateLink
 
 	public TemplateComponent getChannel()
 	{
-		if(left.getType()==TemplateComponent.TYPE_CHANNEL)
+		if (left.getType() == TemplateComponent.TYPE_CHANNEL)
 		{
 			return left;
 		}
-		else if(right.getType()==TemplateComponent.TYPE_CHANNEL)
+		else if (right.getType() == TemplateComponent.TYPE_CHANNEL)
 		{
 			return right;
 		}
@@ -104,11 +104,11 @@ public class Link implements TemplateLink
 
 	public TemplateComponent getModule()
 	{
-		if(left.getType()==TemplateComponent.TYPE_MODULE)
+		if (left.getType() == TemplateComponent.TYPE_MODULE)
 		{
 			return left;
 		}
-		else if(right.getType()==TemplateComponent.TYPE_MODULE)
+		else if (right.getType() == TemplateComponent.TYPE_MODULE)
 		{
 			return right;
 		}
@@ -166,7 +166,7 @@ public class Link implements TemplateLink
 
 	public TemplateComponent[] getComponents()
 	{
-		return new TemplateComponent[]{left,right};
+		return new TemplateComponent[] { left, right };
 	}
 
 	public TemplateComponent getLeftComponent()
@@ -181,7 +181,9 @@ public class Link implements TemplateLink
 
 	public boolean hasProperNeighbors()
 	{
-		return (left.getType()==TemplateComponent.TYPE_MODULE&&right.getType()==TemplateComponent.TYPE_CHANNEL)||
-		(left.getType()==TemplateComponent.TYPE_CHANNEL&&right.getType()==TemplateComponent.TYPE_MODULE);
+		return (left.getType() == TemplateComponent.TYPE_MODULE && right
+				.getType() == TemplateComponent.TYPE_CHANNEL)
+				|| (left.getType() == TemplateComponent.TYPE_CHANNEL && right
+						.getType() == TemplateComponent.TYPE_MODULE);
 	}
 }

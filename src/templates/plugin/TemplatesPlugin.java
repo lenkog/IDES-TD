@@ -49,9 +49,8 @@ public class TemplatesPlugin implements Plugin
 		ModelManager.instance().registerModel(TemplateDesign.myDescriptor);
 
 		// Toolsets
-		ToolsetManager
-				.instance().registerToolset(TemplateModel.class,
-						new TemplateToolset());
+		ToolsetManager.instance().registerToolset(TemplateModel.class,
+				new TemplateToolset());
 	}
 
 	public void unload()

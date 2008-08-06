@@ -10,7 +10,7 @@ import java.awt.Rectangle;
 public abstract class DiagramElement
 {
 	protected static FontMetrics globalFontMetrics = null;
-	
+
 	protected static Font globalFont = null;
 
 	public static void setGlobalFontMetrics(FontMetrics fm)
@@ -32,15 +32,19 @@ public abstract class DiagramElement
 	{
 		return globalFont;
 	}
-	
-	protected static final Color COLOR_NORM=Color.BLACK;
-	protected static final Color COLOR_HILITE=Color.BLUE;
-	protected static final Color COLOR_SELECT=Color.RED;
-	protected static final Color COLOR_HILITESELECT=Color.MAGENTA;
+
+	protected static final Color COLOR_NORM = Color.BLACK;
+
+	// protected static final Color COLOR_HILITE=Color.BLUE;
+	protected static final Color COLOR_SELECT = Color.RED;
+
+	// protected static final Color COLOR_HILITESELECT=Color.MAGENTA;
 
 	protected DiagramElementLayout layout;
-	protected boolean highlight=false;
-	protected boolean selected=false;
+
+	protected boolean highlight = false;
+
+	protected boolean selected = false;
 
 	public Point getLocation()
 	{
@@ -57,21 +61,21 @@ public abstract class DiagramElement
 		layout.location.x += delta.x;
 		layout.location.y += delta.y;
 	}
-	
+
 	public void setHighlight(boolean b)
 	{
-		highlight=b;
+		highlight = b;
 	}
-	
+
 	public void setSelected(boolean b)
 	{
-		selected=b;
+		selected = b;
 	}
 
 	public abstract Rectangle getBounds();
 
 	public abstract void draw(Graphics2D g2d);
-	
+
 	public abstract boolean contains(Point p);
 
 	public abstract boolean intersects(Rectangle r);
