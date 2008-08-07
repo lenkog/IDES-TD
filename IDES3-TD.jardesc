@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="IDES3-TD/template.plugin.TemplatePlugin.jar"/>
+    <jar path="IDES3-TD/templates.plugin.TemplatesPlugin.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/IDES3-TD/IDES3-TD.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
