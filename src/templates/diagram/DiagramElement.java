@@ -1,11 +1,13 @@
 package templates.diagram;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 
 public abstract class DiagramElement
 {
@@ -39,6 +41,16 @@ public abstract class DiagramElement
 	protected static final Color COLOR_SELECT = Color.RED;
 
 	// protected static final Color COLOR_HILITESELECT=Color.MAGENTA;
+
+	protected static final Stroke LINE_STROKE = new BasicStroke(1);
+	protected static final Stroke FAT_LINE_STROKE = new BasicStroke(2);
+	protected static final Stroke MARKER_STROKE = new BasicStroke(
+			1,
+			BasicStroke.CAP_BUTT,
+			BasicStroke.JOIN_MITER,
+			10f,
+			new float[] { 1, 2 },
+			0f);
 
 	protected DiagramElementLayout layout;
 

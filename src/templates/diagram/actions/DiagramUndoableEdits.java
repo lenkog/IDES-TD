@@ -269,6 +269,73 @@ public class DiagramUndoableEdits
 		}
 	}
 
+	public static class RemoveConnectorEdit extends AbstractDiagramUndoableEdit
+	{
+		private static final long serialVersionUID = 800729106482826023L;
+
+		protected TemplateDiagram diagram;
+
+		protected Connector connector = null;
+
+		public RemoveConnectorEdit(TemplateDiagram diagram, Connector connector)
+		{
+			this.diagram = diagram;
+			this.connector = connector;
+		}
+
+		@Override
+		public void redo() throws CannotRedoException
+		{
+			if (connector == null)
+			{
+				throw new CannotRedoException();
+			}
+			else
+			{
+				diagram.remove(connector);
+			}
+		}
+
+		@Override
+		public void undo() throws CannotUndoException
+		{
+			if (connector == null)
+			{
+				throw new CannotUndoException();
+			}
+			diagram.add(connector);
+		}
+
+		@Override
+		public boolean canUndo()
+		{
+			return (connector != null);
+		}
+
+		@Override
+		public boolean canRedo()
+		{
+			return (connector != null);
+		}
+
+		/**
+		 * Returns the name that should be displayed besides the Undo/Redo menu
+		 * items, so the user knows which action will be undone/redone.
+		 */
+		@Override
+		public String getPresentationName()
+		{
+			if (usePluralDescription)
+			{
+				return Hub.string("TD_undoRemoveConnectors");
+			}
+			else
+			{
+				return Hub.string("TD_undoRemoveConnector");
+			}
+		}
+	}
+
 	public static class MovedSelectionEdit extends AbstractDiagramUndoableEdit
 	{
 		private static final long serialVersionUID = 6345901897825712351L;

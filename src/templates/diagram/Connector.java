@@ -122,10 +122,16 @@ public class Connector extends DiagramElement
 		{
 			g2d.setColor(COLOR_NORM);
 		}
+		g2d.setStroke(LINE_STROKE);
 		g2d.drawLine((int)line.getX1(),
 				(int)line.getY1(),
 				(int)line.getX2(),
 				(int)line.getY2());
+		if(highlight)
+		{
+			g2d.setStroke(MARKER_STROKE);
+			g2d.drawRect((int)Math.min(line.getX1(),line.getX2()), (int)Math.min(line.getY1(),line.getY2()), (int)Math.abs(line.getX1()-line.getX2()), (int)Math.abs(line.getY2()-line.getY1()));
+		}
 	}
 
 	public void translate(Point delta)

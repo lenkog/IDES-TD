@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 
 import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
@@ -44,15 +45,29 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		{
 			if (arg0.getClickCount() == 1)
 			{
-				if (mouseDownOn != null && mouseDownOn instanceof Entity)
+				if (mouseDownOn != null)
 				{
-					int whichPart = ((Entity)mouseDownOn).whereisPoint(arg0
-							.getPoint());
-					if (whichPart == Entity.ON_PORT)
+					Collection<DiagramElement> elements = new HashSet<DiagramElement>();
+					elements.add(mouseDownOn);
+					if (mouseDownOn instanceof Entity)
 					{
-						canvas.startConnector(arg0.getPoint());
-						creatingConnector = true;
-						connectorOrigin = (Entity)mouseDownOn;
+						elements.addAll(diagram
+								.getAdjacentConnectors((Entity)mouseDownOn));
+					}
+					diagram.setSelection(elements);
+				}
+				if (!creatingConnector)
+				{
+					if (mouseDownOn != null && mouseDownOn instanceof Entity)
+					{
+						int whichPart = ((Entity)mouseDownOn).whereisPoint(arg0
+								.getPoint());
+						if (whichPart == Entity.ON_PORT)
+						{
+							canvas.startConnector(arg0.getPoint());
+							creatingConnector = true;
+							connectorOrigin = (Entity)mouseDownOn;
+						}
 					}
 				}
 			}
@@ -107,12 +122,12 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		if (creatingConnector)
 		{
 			canvas.finishConnector();
-			creatingConnector = false;
 			if (diagram.getEntityAt(arg0.getPoint()) != null)
 			{
 				Entity connectorEnd = (Entity)diagram.getEntityAt(arg0
 						.getPoint());
-				if (connectorEnd != connectorOrigin)
+				if (connectorEnd != connectorOrigin
+						&& diagram.getConnector(connectorOrigin, connectorEnd) == null)
 				{
 					new DiagramActions.CreateConnectorAction(
 							diagram,
@@ -121,38 +136,42 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 				}
 			}
 		}
-		if (arg0.getClickCount() == 1)
+		mouseDownAt = arg0.getPoint();
+		if (diagram.getConnectorAt(arg0.getPoint()) != null)
 		{
-			mouseDownAt = arg0.getPoint();
-			if (diagram.getConnectorAt(arg0.getPoint()) != null)
+			mouseDownOn = diagram.getConnectorAt(arg0.getPoint());
+			if (!diagram.getSelection().contains(mouseDownOn))
 			{
-				mouseDownOn = diagram.getConnectorAt(arg0.getPoint());
-				if (!diagram.getSelection().contains(mouseDownOn))
-				{
-					diagram.setSelection(Arrays
-							.asList(new DiagramElement[] { mouseDownOn }));
-				}
+				diagram.setSelection(Arrays
+						.asList(new DiagramElement[] { mouseDownOn }));
 			}
-			else if (diagram.getEntityAt(arg0.getPoint()) != null)
+		}
+		else if (diagram.getEntityAt(arg0.getPoint()) != null)
+		{
+			mouseDownOn = diagram.getEntityAt(arg0.getPoint());
+			if (!diagram.getSelection().contains(mouseDownOn))
 			{
-				mouseDownOn = diagram.getEntityAt(arg0.getPoint());
-				if (!diagram.getSelection().contains(mouseDownOn))
-				{
-					diagram.setSelection(Arrays
-							.asList(new DiagramElement[] { mouseDownOn }));
-				}
+				Collection<DiagramElement> elements = new HashSet<DiagramElement>();
+				elements.addAll(diagram
+						.getAdjacentConnectors((Entity)mouseDownOn));
+				elements.add(mouseDownOn);
+				diagram.setSelection(elements);
 			}
-			else
-			// there's nothing under the mouse cursor
-			{
-				mouseDownOn = null;
-				diagram.clearSelection();
-			}
+		}
+		else
+		// there's nothing under the mouse cursor
+		{
+			mouseDownOn = null;
+			diagram.clearSelection();
 		}
 	}
 
 	public void mouseReleased(MouseEvent arg0)
 	{
+		if (creatingConnector)
+		{
+			creatingConnector = false;
+		}
 		if (draggedSelection)
 		{
 			draggedSelection = false;
@@ -177,16 +196,25 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		if (mouseDownOn != null)
 		{
 			Collection<DiagramElement> selection = diagram.getSelection();
-			if (!selection.isEmpty())
+			boolean hasEntities=false;
+			for(DiagramElement element : selection)
+			{
+				if(element instanceof Entity)
+				{
+					hasEntities=true;
+					break;
+				}
+			}
+			if (!selection.isEmpty()&&hasEntities)
 			{
 				draggedSelection = true;
 				for (DiagramElement element : selection)
 				{
-					element.translate(new Point(arg0.getPoint().x
-							- lastDragLocation.x, arg0.getPoint().y
-							- lastDragLocation.y));
 					if (element instanceof Entity)
 					{
+						element.translate(new Point(arg0.getPoint().x
+								- lastDragLocation.x, arg0.getPoint().y
+								- lastDragLocation.y));
 						for (Connector c : diagram
 								.getAdjacentConnectors((Entity)element))
 						{

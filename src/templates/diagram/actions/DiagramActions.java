@@ -164,7 +164,11 @@ public class DiagramActions
 				{
 					if (element instanceof Connector)
 					{
-						// TODO
+						DiagramUndoableEdits.RemoveConnectorEdit edit = new DiagramUndoableEdits.RemoveConnectorEdit(
+								diagram,
+								(Connector)element);
+						edit.redo();
+						allEdits.addEdit(edit);
 						connectors++;
 					}
 				}

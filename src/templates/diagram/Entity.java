@@ -2,7 +2,6 @@ package templates.diagram;
 
 import ides.api.core.Annotable;
 
-import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -58,16 +57,6 @@ public class Entity extends DiagramElement
 	protected static final int BOX_DISTANCE = 10;
 
 	private static final int PORT_RADIUS = 5;
-
-	protected static final Stroke LINE_STROKE = new BasicStroke(2);
-
-	protected static final Stroke MARKER_STROKE = new BasicStroke(
-			1,
-			BasicStroke.CAP_BUTT,
-			BasicStroke.JOIN_MITER,
-			10f,
-			new float[] { 1, 2 },
-			0f);
 
 	public final static int ON_NADA = 0;
 
@@ -135,7 +124,7 @@ public class Entity extends DiagramElement
 			g2d.setColor(COLOR_NORM);
 		}
 		Stroke oldStroke = g2d.getStroke();
-		g2d.setStroke(LINE_STROKE);
+		g2d.setStroke(FAT_LINE_STROKE);
 		g2d.drawRect(layout.location.x - BOX_DISTANCE, layout.location.y
 				- BOX_DISTANCE, BOX_DISTANCE * 2, BOX_DISTANCE * 2);
 		g2d.setStroke(oldStroke);
