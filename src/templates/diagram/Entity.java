@@ -25,7 +25,7 @@ public class Entity extends DiagramElement
 			int maxWidth = 0;
 			for (String line : lines)
 			{
-				maxWidth = Math.max(maxWidth, globalFontMetrics
+				maxWidth = Math.max(maxWidth, getGlobalFontMetrics()
 						.stringWidth(line));
 			}
 			width = maxWidth;
@@ -35,7 +35,7 @@ public class Entity extends DiagramElement
 			}
 			else
 			{
-				height = lines.size() * globalFontMetrics.getHeight();
+				height = lines.size() * getGlobalFontMetrics().getHeight();
 			}
 		}
 
@@ -43,10 +43,10 @@ public class Entity extends DiagramElement
 		{
 			for (int i = 0; i < lines.size(); ++i)
 			{
-				int deltaX = (width - globalFontMetrics.stringWidth(lines
+				int deltaX = (width - getGlobalFontMetrics().stringWidth(lines
 						.elementAt(i))) / 2;
-				int deltaY = globalFontMetrics.getHeight() * (i + 1)
-						- globalFontMetrics.getDescent();
+				int deltaY = getGlobalFontMetrics().getHeight() * (i + 1)
+						- getGlobalFontMetrics().getDescent();
 				g2d.drawString(lines.elementAt(i), x + deltaX + 1, y + deltaY);
 			}
 		}
@@ -174,7 +174,7 @@ public class Entity extends DiagramElement
 			for (i = wordsConsumed; i < words.length; ++i)
 			{
 				line += words[i];
-				if (globalFontMetrics.stringWidth(line) > maxWidth)
+				if (getGlobalFontMetrics().stringWidth(line) > maxWidth)
 				{
 					break;
 				}

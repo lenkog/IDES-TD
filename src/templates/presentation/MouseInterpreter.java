@@ -87,6 +87,10 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 						EntityLabellingDialog.showAndLabel(canvas,
 								(Entity)mouseDownOn);
 					}
+					else if(whichPart==Entity.ON_ICON)
+					{
+						AssignFSADialog.showAndAssign(canvas, (Entity)mouseDownOn);
+					}
 				}
 			}
 		}

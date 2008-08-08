@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -11,18 +12,27 @@ import java.awt.Stroke;
 
 public abstract class DiagramElement
 {
-	protected static FontMetrics globalFontMetrics = null;
+	protected static Graphics globalFontRenderer = null;
 
 	protected static Font globalFont = null;
 
-	public static void setGlobalFontMetrics(FontMetrics fm)
+	public static void setGlobalFontRenderer(Graphics g)
 	{
-		globalFontMetrics = fm;
+		globalFontRenderer = g;
+	}
+
+	public static Graphics getGlobalFontRenderer()
+	{
+		return globalFontRenderer;
 	}
 
 	public static FontMetrics getGlobalFontMetrics()
 	{
-		return globalFontMetrics;
+		if(globalFontRenderer==null||globalFont==null)
+		{
+			return null;
+		}
+		return globalFontRenderer.getFontMetrics(globalFont);
 	}
 
 	public static void setGlobalFont(Font f)

@@ -47,8 +47,7 @@ public class TemplateCanvas extends JComponent implements Presentation,
 		}
 		this.model = model;
 		DiagramElement.setGlobalFont(new JLabel().getFont());
-		DiagramElement.setGlobalFontMetrics(graphics
-				.getFontMetrics(DiagramElement.getGlobalFont()));
+		DiagramElement.setGlobalFontRenderer(graphics);
 		diagram = retrieveDiagram(model);
 		diagram.addSubscriber(this);
 	}

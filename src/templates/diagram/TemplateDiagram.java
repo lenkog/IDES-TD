@@ -115,11 +115,10 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		{
 			DiagramElement.setGlobalFont(new JLabel().getFont());
 		}
-		if (DiagramElement.getGlobalFontMetrics() == null)
+		if (DiagramElement.getGlobalFontRenderer() == null)
 		{
-			DiagramElement.setGlobalFontMetrics(Hub
-					.getMainWindow().getGraphics()
-					.getFontMetrics(DiagramElement.getGlobalFont()));
+			DiagramElement.setGlobalFontRenderer(Hub
+					.getMainWindow().getGraphics());
 		}
 	}
 

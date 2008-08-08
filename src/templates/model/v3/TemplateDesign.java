@@ -144,7 +144,7 @@ public class TemplateDesign implements TemplateModel
 		public Image getIcon()
 		{
 			return Toolkit.getDefaultToolkit().createImage(Hub
-					.getResource("images/icons/model_template.gif"));
+					.getLocalResource(TemplateDesignDescriptor.class,"images/icons/model_template.gif"));
 		}
 
 		public Class<TemplateModel> getMainPerspective()
