@@ -1,11 +1,14 @@
 package templates.model;
 
+import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.DESModel;
 
 import java.util.Collection;
 
 public interface TemplateModel extends DESModel, TemplateModelPublisher
 {
+	public static String FSA_NAME_PREFIX = "TD:";
+
 	public Collection<TemplateComponent> getComponents();
 
 	public Collection<TemplateComponent> getModules();
@@ -37,4 +40,8 @@ public interface TemplateModel extends DESModel, TemplateModelPublisher
 	public boolean existsLink(long leftId, long rightId);
 
 	public Collection<TemplateLink> getLinks(long leftId, long rightId);
+
+	public void assignFSA(long componentId, FSAModel fsa);
+
+	public void removeFSA(long componentId);
 }

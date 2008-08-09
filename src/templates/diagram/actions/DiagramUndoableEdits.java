@@ -1,6 +1,7 @@
 package templates.diagram.actions;
 
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
 
 import java.awt.Point;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
+import templates.model.TemplateModel;
 
 public class DiagramUndoableEdits
 {
@@ -492,6 +494,97 @@ public class DiagramUndoableEdits
 		public String getPresentationName()
 		{
 			return Hub.string("TD_undoTranslateDiagram");
+		}
+	}
+
+	public static class AssignFSAEdit extends AbstractDiagramUndoableEdit
+	{
+		private static final long serialVersionUID = 3692931034352868517L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity entity = null;
+
+		protected FSAModel oldModel = null;
+
+		protected FSAModel newModel = null;
+
+		public AssignFSAEdit(TemplateDiagram diagram, Entity entity,
+				FSAModel newModel)
+		{
+			this.diagram = diagram;
+			this.entity = entity;
+			this.oldModel = entity.getComponent().getModel();
+			this.newModel = newModel;
+		}
+
+		public Entity getEntity()
+		{
+			return entity;
+		}
+
+		@Override
+		public void redo() throws CannotRedoException
+		{
+			if (entity == null)
+			{
+				throw new CannotRedoException();
+			}
+			if (entity.getComponent().getModel() != null)
+			{
+				entity.getComponent().getModel().removeSubscriber(diagram);
+			}
+			diagram.getModel().assignFSA(entity.getComponent().getId(),
+					newModel);
+			if (newModel != null)
+			{
+				newModel.setName(TemplateModel.FSA_NAME_PREFIX
+						+ entity.getLabel());
+				newModel.addSubscriber(diagram);
+			}
+		}
+
+		@Override
+		public void undo() throws CannotUndoException
+		{
+			if (entity == null)
+			{
+				throw new CannotUndoException();
+			}
+			if (entity.getComponent().getModel() != null)
+			{
+				entity.getComponent().getModel().removeSubscriber(diagram);
+			}
+			diagram.getModel().assignFSA(entity.getComponent().getId(),
+					oldModel);
+			if (oldModel != null)
+			{
+				oldModel.setName(TemplateModel.FSA_NAME_PREFIX
+						+ entity.getLabel());
+				oldModel.addSubscriber(diagram);
+			}
+		}
+
+		@Override
+		public boolean canUndo()
+		{
+			return (entity != null);
+		}
+
+		@Override
+		public boolean canRedo()
+		{
+			return (entity != null);
+		}
+
+		/**
+		 * Returns the name that should be displayed besides the Undo/Redo menu
+		 * items, so the user knows which action will be undone/redone.
+		 */
+		@Override
+		public String getPresentationName()
+		{
+			return Hub.string("TD_undoAssignFSA");
 		}
 	}
 }

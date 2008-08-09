@@ -1,5 +1,8 @@
 package templates.presentation;
 
+import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
+
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -87,9 +90,23 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 						EntityLabellingDialog.showAndLabel(canvas,
 								(Entity)mouseDownOn);
 					}
-					else if(whichPart==Entity.ON_ICON)
+					else if (whichPart == Entity.ON_ICON)
 					{
-						AssignFSADialog.showAndAssign(canvas, (Entity)mouseDownOn);
+						if (((Entity)mouseDownOn).getComponent().getModel() == null)
+						{
+							AssignFSADialog.showAndAssign(canvas,
+									(Entity)mouseDownOn);
+						}
+						else
+						{
+							FSAModel fsa = ((Entity)mouseDownOn)
+									.getComponent().getModel();
+							if (Hub.getWorkspace().getModel(fsa.getName()) != fsa)
+							{
+								Hub.getWorkspace().addModel(fsa);
+							}
+							Hub.getWorkspace().setActiveModel(fsa.getName());
+						}
 					}
 				}
 			}
@@ -200,16 +217,16 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		if (mouseDownOn != null)
 		{
 			Collection<DiagramElement> selection = diagram.getSelection();
-			boolean hasEntities=false;
-			for(DiagramElement element : selection)
+			boolean hasEntities = false;
+			for (DiagramElement element : selection)
 			{
-				if(element instanceof Entity)
+				if (element instanceof Entity)
 				{
-					hasEntities=true;
+					hasEntities = true;
 					break;
 				}
 			}
-			if (!selection.isEmpty()&&hasEntities)
+			if (!selection.isEmpty() && hasEntities)
 			{
 				draggedSelection = true;
 				for (DiagramElement element : selection)

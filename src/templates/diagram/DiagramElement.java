@@ -28,7 +28,7 @@ public abstract class DiagramElement
 
 	public static FontMetrics getGlobalFontMetrics()
 	{
-		if(globalFontRenderer==null||globalFont==null)
+		if (globalFontRenderer == null || globalFont == null)
 		{
 			return null;
 		}
@@ -53,7 +53,9 @@ public abstract class DiagramElement
 	// protected static final Color COLOR_HILITESELECT=Color.MAGENTA;
 
 	protected static final Stroke LINE_STROKE = new BasicStroke(1);
+
 	protected static final Stroke FAT_LINE_STROKE = new BasicStroke(2);
+
 	protected static final Stroke MARKER_STROKE = new BasicStroke(
 			1,
 			BasicStroke.CAP_BUTT,

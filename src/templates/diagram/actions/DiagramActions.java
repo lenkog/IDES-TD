@@ -1,6 +1,8 @@
 package templates.diagram.actions;
 
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
+import ides.api.plugin.model.ModelManager;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -15,6 +17,7 @@ import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
+import templates.model.TemplateModel;
 
 public class DiagramActions
 {
@@ -281,7 +284,7 @@ public class DiagramActions
 						entity,
 						label);
 				edit.redo();
-				postEditAdjustCanvas(diagram, edit);
+				postEditAdjustCanvas(diagram.getModel(), diagram, edit);
 			}
 		}
 	}
@@ -339,4 +342,110 @@ public class DiagramActions
 		}
 	}
 
+	public static class AssignNewFSAAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 9167035481992348194L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity entity;
+
+		protected FSAModel[] buffer;
+
+		public AssignNewFSAAction(TemplateDiagram diagram, Entity entity)
+		{
+			this(null, diagram, entity, null);
+		}
+
+		public AssignNewFSAAction(TemplateDiagram diagram, Entity entity,
+				FSAModel[] buffer)
+		{
+			this(null, diagram, entity, buffer);
+		}
+
+		public AssignNewFSAAction(CompoundEdit parent, TemplateDiagram diagram,
+				Entity entity)
+		{
+			this(parent, diagram, entity, null);
+		}
+
+		public AssignNewFSAAction(CompoundEdit parent, TemplateDiagram diagram,
+				Entity entity, FSAModel[] buffer)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.entity = entity;
+			this.buffer = buffer;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				FSAModel newModel = ModelManager
+						.instance().createModel(FSAModel.class);
+				if (newModel == null)
+				{
+					Hub.getNoticeManager().postErrorTemporary(Hub
+							.string("TD_shortFSAnotSupported"),
+							Hub.string("TD_FSAnotSupported"));
+				}
+				else
+				{
+					newModel.setName(TemplateModel.FSA_NAME_PREFIX
+							+ entity.getLabel());
+					DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
+							diagram,
+							entity,
+							newModel);
+					edit.redo();
+					if (buffer != null && buffer.length > 0)
+					{
+						buffer[0] = newModel;
+					}
+					postEdit(edit);
+				}
+			}
+		}
+	}
+
+	public static class AssignFSAAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 7311186809287532347L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity entity;
+
+		protected FSAModel fsa;
+
+		public AssignFSAAction(TemplateDiagram diagram, Entity entity,
+				FSAModel fsa)
+		{
+			this(null, diagram, entity, fsa);
+		}
+
+		public AssignFSAAction(CompoundEdit parent, TemplateDiagram diagram,
+				Entity entity, FSAModel fsa)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.entity = entity;
+			this.fsa = fsa;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				fsa.setName(TemplateModel.FSA_NAME_PREFIX + entity.getLabel());
+				DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
+						diagram,
+						entity,
+						fsa);
+				edit.redo();
+				postEdit(edit);
+			}
+		}
+	}
 }

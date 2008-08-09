@@ -1,6 +1,7 @@
 package templates.model.v3;
 
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.DESModelMessage;
 import ides.api.plugin.model.DESModelSubscriber;
 import ides.api.plugin.model.DESModelType;
@@ -20,7 +21,7 @@ import templates.model.TemplateModel;
 import templates.model.TemplateModelMessage;
 import templates.model.TemplateModelSubscriber;
 
-public class TemplateDesign implements TemplateModel
+public class TemplateDesign implements TemplateModel, DESModelSubscriber
 {
 	protected Hashtable<String, Object> annotations = new Hashtable<String, Object>();
 
@@ -144,7 +145,8 @@ public class TemplateDesign implements TemplateModel
 		public Image getIcon()
 		{
 			return Toolkit.getDefaultToolkit().createImage(Hub
-					.getLocalResource(TemplateDesignDescriptor.class,"images/icons/model_template.gif"));
+					.getLocalResource(TemplateDesignDescriptor.class,
+							"images/icons/model_template.gif"));
 		}
 
 		public Class<TemplateModel> getMainPerspective()
@@ -216,6 +218,10 @@ public class TemplateDesign implements TemplateModel
 			freeComponentId = component.getId() + 1;
 		}
 		components.add(component);
+		if (component.getModel() != null)
+		{
+			component.getModel().addSubscriber(this);
+		}
 		fireTemplateModelStructureChanged(new TemplateModelMessage(
 				this,
 				component.getId(),
@@ -368,7 +374,12 @@ public class TemplateDesign implements TemplateModel
 		{
 			removeLink(link.getId());
 		}
-		components.remove(getComponent(id));
+		TemplateComponent c = getComponent(id);
+		if (c.getModel() != null)
+		{
+			c.getModel().removeSubscriber(this);
+		}
+		components.remove(c);
 		fireTemplateModelStructureChanged(new TemplateModelMessage(
 				this,
 				id,
@@ -481,5 +492,93 @@ public class TemplateDesign implements TemplateModel
 			}
 		}
 		return ret;
+	}
+
+	protected TemplateComponent getComponentWithFSA(FSAModel fsa)
+	{
+		if (fsa == null)
+		{
+			return null;
+		}
+		for (TemplateComponent component : components)
+		{
+			if (component.getModel() == fsa)
+			{
+				return component;
+			}
+		}
+		return null;
+	}
+
+	public void modelNameChanged(DESModelMessage arg0)
+	{
+	}
+
+	public void saveStatusChanged(DESModelMessage arg0)
+	{
+		if (!(arg0.getSource() instanceof FSAModel))
+		{
+			return;
+		}
+		TemplateComponent c = getComponentWithFSA((FSAModel)arg0.getSource());
+		if (c == null)
+		{
+			return;
+		}
+		if (arg0.getSource().needsSave())
+		{
+			arg0.getSource().removeSubscriber(this);
+			arg0.getSource().modelSaved();
+			arg0.getSource().addSubscriber(this);
+			setNeedsSave(true);
+		}
+	}
+
+	public void assignFSA(long componentId, FSAModel fsa)
+	{
+		if (getComponentWithFSA(fsa) != null)
+		{
+			throw new InconsistentModificationException(Hub
+					.string("TD_inconsistencyFSADup"));
+		}
+		TemplateComponent c = getComponent(componentId);
+		if (c != null)
+		{
+			if (c.getModel() != null)
+			{
+				c.getModel().removeSubscriber(this);
+			}
+			c.setModel(fsa);
+			if (fsa != null)
+			{
+				fsa.modelSaved();
+				fsa.addSubscriber(this);
+			}
+			fireTemplateModelStructureChanged(new TemplateModelMessage(
+					this,
+					componentId,
+					TemplateModelMessage.ELEMENT_COMPONENT,
+					TemplateModelMessage.OP_MODIFY));
+			setNeedsSave(true);
+		}
+	}
+
+	public void removeFSA(long componentId)
+	{
+		TemplateComponent c = getComponent(componentId);
+		if (c != null)
+		{
+			if (c.getModel() != null)
+			{
+				c.getModel().removeSubscriber(this);
+			}
+			c.setModel(null);
+			fireTemplateModelStructureChanged(new TemplateModelMessage(
+					this,
+					componentId,
+					TemplateModelMessage.ELEMENT_COMPONENT,
+					TemplateModelMessage.OP_MODIFY));
+			setNeedsSave(true);
+		}
 	}
 }

@@ -5,9 +5,10 @@ import ides.api.core.Annotable;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.util.Vector;
+
+import javax.swing.Icon;
 
 import templates.model.TemplateComponent;
 
@@ -54,8 +55,6 @@ public class Entity extends DiagramElement
 
 	protected static final int LABEL_SPACING = 5;
 
-	protected static final int BOX_DISTANCE = 10;
-
 	private static final int PORT_RADIUS = 5;
 
 	public final static int ON_NADA = 0;
@@ -69,6 +68,8 @@ public class Entity extends DiagramElement
 	protected TemplateComponent component;
 
 	private Rectangle bounds;
+
+	private SimpleIcon icon = new SimpleIcon();
 
 	private LabelBox labelBox;
 
@@ -98,13 +99,12 @@ public class Entity extends DiagramElement
 	protected void computeBounds()
 	{
 		bounds = new Rectangle(
-				layout.location.x - BOX_DISTANCE,
-				layout.location.y - BOX_DISTANCE,
-				2 * BOX_DISTANCE,
-				2 * BOX_DISTANCE)
-				.union(labelBox).union(ports[0].getBounds()).union(ports[1]
-						.getBounds()).union(ports[2].getBounds())
-				.union(ports[3].getBounds());
+				layout.location.x - icon.getIconWidth() / 2,
+				layout.location.y - icon.getIconHeight() / 2,
+				icon.getIconWidth(),
+				icon.getIconHeight()).union(labelBox).union(ports[0]
+				.getBounds()).union(ports[1].getBounds()).union(ports[2]
+				.getBounds()).union(ports[3].getBounds());
 	}
 
 	public TemplateComponent getComponent()
@@ -123,11 +123,11 @@ public class Entity extends DiagramElement
 		{
 			g2d.setColor(COLOR_NORM);
 		}
-		Stroke oldStroke = g2d.getStroke();
-		g2d.setStroke(FAT_LINE_STROKE);
-		g2d.drawRect(layout.location.x - BOX_DISTANCE, layout.location.y
-				- BOX_DISTANCE, BOX_DISTANCE * 2, BOX_DISTANCE * 2);
-		g2d.setStroke(oldStroke);
+		icon.selected = selected;
+		icon.paintIcon(null,
+				g2d,
+				layout.location.x - icon.getIconWidth() / 2,
+				layout.location.y - icon.getIconHeight() / 2);
 		labelBox.draw(g2d);
 		if (highlight)
 		{
@@ -163,7 +163,7 @@ public class Entity extends DiagramElement
 
 	public void update()
 	{
-		int maxWidth = 6 * BOX_DISTANCE;
+		int maxWidth = 3 * icon.getIconWidth();
 		String[] words = layout.label.split(" ");
 		Vector<String> lines = new Vector<String>();
 		int wordsConsumed = 0;
@@ -205,21 +205,23 @@ public class Entity extends DiagramElement
 		}
 		labelBox = new LabelBox(lines);
 		int deltaX = -(labelBox.width / 2);
-		int deltaY = BOX_DISTANCE + LABEL_SPACING;
+		int deltaY = icon.getIconHeight() / 2 + LABEL_SPACING;
 		labelBox.x = layout.location.x + deltaX;
 		labelBox.y = layout.location.y + deltaY;
 		ports[0] = new Ellipse2D.Float(
-				layout.location.x - BOX_DISTANCE - 2 * PORT_RADIUS - 1,
+				layout.location.x - icon.getIconWidth() / 2 - 2 * PORT_RADIUS
+						- 1,
 				layout.location.y - PORT_RADIUS,
 				2 * PORT_RADIUS,
 				2 * PORT_RADIUS);
 		ports[1] = new Ellipse2D.Float(
 				layout.location.x - PORT_RADIUS,
-				layout.location.y - BOX_DISTANCE - 2 * PORT_RADIUS - 1,
+				layout.location.y - icon.getIconHeight() / 2 - 2 * PORT_RADIUS
+						- 1,
 				2 * PORT_RADIUS,
 				2 * PORT_RADIUS);
 		ports[2] = new Ellipse2D.Float(
-				layout.location.x + BOX_DISTANCE + 1,
+				layout.location.x + icon.getIconWidth() / 2 + 1,
 				layout.location.y - PORT_RADIUS,
 				2 * PORT_RADIUS,
 				2 * PORT_RADIUS);
@@ -245,10 +247,10 @@ public class Entity extends DiagramElement
 				|| ports[1].contains(p)
 				|| ports[2].contains(p)
 				|| ports[3].contains(p)
-				|| (p.x >= layout.location.x - BOX_DISTANCE
-						&& p.x <= layout.location.x + BOX_DISTANCE
-						&& p.y >= layout.location.y - BOX_DISTANCE && p.y <= layout.location.y
-						+ BOX_DISTANCE);
+				|| (p.x >= layout.location.x - icon.getIconWidth() / 2
+						&& p.x <= layout.location.x + icon.getIconWidth() / 2
+						&& p.y >= layout.location.y - icon.getIconHeight() / 2 && p.y <= layout.location.y
+						+ icon.getIconHeight() / 2);
 	}
 
 	public boolean intersects(Rectangle r)
@@ -259,10 +261,10 @@ public class Entity extends DiagramElement
 				|| ports[2].intersects(r)
 				|| ports[3].intersects(r)
 				|| new Rectangle(
-						layout.location.x - BOX_DISTANCE,
-						layout.location.y - BOX_DISTANCE,
-						2 * BOX_DISTANCE,
-						2 * BOX_DISTANCE).intersects(r);
+						layout.location.x - icon.getIconWidth() / 2,
+						layout.location.y - icon.getIconHeight() / 2,
+						icon.getIconWidth(),
+						icon.getIconHeight()).intersects(r);
 	}
 
 	public int whereisPoint(Point p)
@@ -313,5 +315,10 @@ public class Entity extends DiagramElement
 						.getCenterY()),
 				new Point((int)ports[3].getCenterX(), (int)ports[3]
 						.getCenterY()) };
+	}
+
+	public Icon getIcon()
+	{
+		return icon.clone();
 	}
 }

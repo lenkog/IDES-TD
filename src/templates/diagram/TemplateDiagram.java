@@ -1,6 +1,9 @@
 package templates.diagram;
 
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
+import ides.api.plugin.model.DESModelMessage;
+import ides.api.plugin.model.DESModelSubscriber;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -21,7 +24,8 @@ import templates.model.TemplateModel;
 import templates.model.TemplateModelMessage;
 import templates.model.TemplateModelSubscriber;
 
-public class TemplateDiagram implements TemplateModelSubscriber
+public class TemplateDiagram implements TemplateModelSubscriber,
+		DESModelSubscriber
 {
 	/**
 	 * FSAGraphPublisher part which maintains a collection of, and sends change
@@ -106,7 +110,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 	{
 		model = m;
 		recoverLayout();
-		m.addSubscriber(this);
+		m.addSubscriber((TemplateModelSubscriber)this);
 	}
 
 	protected void recoverLayout()
@@ -141,12 +145,12 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public void release()
 	{
-		model.removeSubscriber(this);
+		model.removeSubscriber((TemplateModelSubscriber)this);
 	}
 
 	public Entity createEntity(Point location)
 	{
-		model.removeSubscriber(this);
+		model.removeSubscriber((TemplateModelSubscriber)this);
 		TemplateComponent component = model.createComponent();
 		DiagramElementLayout layout = new DiagramElementLayout();
 		layout.location = location;
@@ -154,7 +158,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 				+ component.getId();
 		Entity entity = new Entity(component, layout);
 		entities.add(entity);
-		model.addSubscriber(this);
+		model.addSubscriber((TemplateModelSubscriber)this);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
 				Arrays.asList(new DiagramElement[] { entity }),
@@ -168,15 +172,19 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		{
 			return;
 		}
-		model.removeSubscriber(this);
+		model.removeSubscriber((TemplateModelSubscriber)this);
 		try
 		{
 			model.addComponent(entity.getComponent());
 			entities.add(entity);
+			if (entity.getComponent().getModel() != null)
+			{
+				entity.getComponent().getModel().addSubscriber(this);
+			}
 		}
 		finally
 		{
-			model.addSubscriber(this);
+			model.addSubscriber((TemplateModelSubscriber)this);
 		}
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -191,7 +199,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 			return;
 		}
 		clearSelection();
-		model.removeSubscriber(this);
+		model.removeSubscriber((TemplateModelSubscriber)this);
 		Collection<Connector> adjacent = getAdjacentConnectors(entity);
 		for (Connector c : adjacent)
 		{
@@ -203,9 +211,13 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		}
 		entities.remove(entity);
 		model.removeComponent(entity.getComponent().getId());
-		model.addSubscriber(this);
+		model.addSubscriber((TemplateModelSubscriber)this);
 		Collection<DiagramElement> removed = new HashSet<DiagramElement>(
 				adjacent);
+		if (entity.getComponent().getModel() != null)
+		{
+			entity.getComponent().getModel().removeSubscriber(this);
+		}
 		removed.add(entity);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -216,6 +228,14 @@ public class TemplateDiagram implements TemplateModelSubscriber
 	public void labelEntity(Entity entity, String label)
 	{
 		entity.setLabel(label);
+		if (entity.getComponent().getModel() != null)
+		{
+			entity.getComponent().getModel().removeSubscriber(this);
+			entity
+					.getComponent().getModel()
+					.setName(TemplateModel.FSA_NAME_PREFIX + label);
+			entity.getComponent().getModel().addSubscriber(this);
+		}
 		model.metadataChanged();
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -304,7 +324,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		{
 			return getConnector(left, right);
 		}
-		model.removeSubscriber(this);
+		model.removeSubscriber((TemplateModelSubscriber)this);
 		Connector c;
 		try
 		{
@@ -317,7 +337,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		}
 		finally
 		{
-			model.addSubscriber(this);
+			model.addSubscriber((TemplateModelSubscriber)this);
 		}
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -339,7 +359,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 			throw new InconsistentModificationException(Hub
 					.string("TD_inconsistencyConnectorDup"));
 		}
-		model.removeSubscriber(this);
+		model.removeSubscriber((TemplateModelSubscriber)this);
 		try
 		{
 			for (TemplateLink link : c.getLinks())
@@ -350,7 +370,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		}
 		finally
 		{
-			model.addSubscriber(this);
+			model.addSubscriber((TemplateModelSubscriber)this);
 		}
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -365,13 +385,13 @@ public class TemplateDiagram implements TemplateModelSubscriber
 			return;
 		}
 		clearSelection();
-		model.removeSubscriber(this);
+		model.removeSubscriber((TemplateModelSubscriber)this);
 		for (TemplateLink link : c.getLinks())
 		{
 			model.removeLink(link.getId());
 		}
 		connectors.remove(c);
-		model.addSubscriber(this);
+		model.addSubscriber((TemplateModelSubscriber)this);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
 				Arrays.asList(new DiagramElement[] { c }),
@@ -530,5 +550,39 @@ public class TemplateDiagram implements TemplateModelSubscriber
 				this,
 				selection,
 				TemplateDiagramMessage.OP_MODIFY));
+	}
+
+	public Entity getEntityWithFSA(FSAModel fsa)
+	{
+		for (Entity e : entities)
+		{
+			if (e.getComponent().getModel() == fsa)
+			{
+				return e;
+			}
+		}
+		return null;
+	}
+
+	public void modelNameChanged(DESModelMessage arg0)
+	{
+		if (!(arg0.getSource() instanceof FSAModel))
+		{
+			return;
+		}
+		Entity e = getEntityWithFSA((FSAModel)arg0.getSource());
+		if (e == null)
+		{
+			return;
+		}
+		new DiagramActions.LabelEntityAction(this, e, arg0
+				.getSource().getName()
+				.startsWith(TemplateModel.FSA_NAME_PREFIX) ? arg0
+				.getSource().getName().substring(TemplateModel.FSA_NAME_PREFIX
+						.length()) : arg0.getSource().getName()).execute();
+	}
+
+	public void saveStatusChanged(DESModelMessage arg0)
+	{
 	}
 }

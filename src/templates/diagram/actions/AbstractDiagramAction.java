@@ -1,6 +1,7 @@
 package templates.diagram.actions;
 
 import ides.api.core.Hub;
+import ides.api.plugin.model.DESModel;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -34,6 +35,11 @@ public abstract class AbstractDiagramAction extends AbstractAction
 
 	protected void postEdit(UndoableEdit edit)
 	{
+		postEdit(null, edit);
+	}
+
+	protected void postEdit(DESModel model, UndoableEdit edit)
+	{
 		if (usePluralDescription && edit instanceof AbstractDiagramUndoableEdit)
 		{
 			((AbstractDiagramUndoableEdit)edit).setLastOfMultiple(true);
@@ -44,14 +50,27 @@ public abstract class AbstractDiagramAction extends AbstractAction
 		}
 		else
 		{
-			Hub.getUndoManager().addEdit(edit);
+			if (model == null)
+			{
+				Hub.getUndoManager().addEdit(edit);
+			}
+			else
+			{
+				Hub.getUndoManager().addEdit(model, edit);
+			}
 		}
 	}
 
 	protected void postEditAdjustCanvas(TemplateDiagram diagram,
 			UndoableEdit edit)
 	{
-		postEdit(addBoundsAdjust(diagram, edit));
+		postEditAdjustCanvas(null, diagram, edit);
+	}
+
+	protected void postEditAdjustCanvas(DESModel model,
+			TemplateDiagram diagram, UndoableEdit edit)
+	{
+		postEdit(model, addBoundsAdjust(diagram, edit));
 	}
 
 	protected UndoableEdit addBoundsAdjust(TemplateDiagram diagram,
