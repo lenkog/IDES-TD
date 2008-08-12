@@ -124,11 +124,7 @@ public class Entity extends DiagramElement
 			g2d.setColor(COLOR_NORM);
 		}
 		icon.selected = selected;
-		icon.paintIcon(null,
-				g2d,
-				layout.location.x - icon.getIconWidth() / 2,
-				layout.location.y - icon.getIconHeight() / 2);
-		labelBox.draw(g2d);
+		drawCore(g2d);
 		if (highlight)
 		{
 			g2d.setStroke(MARKER_STROKE);
@@ -153,6 +149,22 @@ public class Entity extends DiagramElement
 					(int)ports[3].getWidth(),
 					(int)ports[3].getHeight());
 		}
+	}
+	
+	public void drawPlain(Graphics2D g2d)
+	{
+		g2d.setColor(COLOR_NORM);
+		icon.selected=false;
+		drawCore(g2d);
+	}
+	
+	private void drawCore(Graphics2D g2d)
+	{
+		icon.paintIcon(null,
+				g2d,
+				layout.location.x - icon.getIconWidth() / 2,
+				layout.location.y - icon.getIconHeight() / 2);
+		labelBox.draw(g2d);		
 	}
 
 	public void translate(Point delta)

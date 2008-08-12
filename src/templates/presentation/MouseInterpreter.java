@@ -81,32 +81,41 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 					new DiagramActions.CreateEntityAction(diagram, arg0
 							.getPoint()).execute();
 				}
-				else if (mouseDownOn != null && mouseDownOn instanceof Entity)
+				else
 				{
-					int whichPart = ((Entity)mouseDownOn).whereisPoint(arg0
-							.getPoint());
-					if (whichPart == Entity.ON_LABEL)
+					if (mouseDownOn instanceof Entity)
 					{
-						EntityLabellingDialog.showAndLabel(canvas,
-								(Entity)mouseDownOn);
-					}
-					else if (whichPart == Entity.ON_ICON)
-					{
-						if (((Entity)mouseDownOn).getComponent().getModel() == null)
+						int whichPart = ((Entity)mouseDownOn).whereisPoint(arg0
+								.getPoint());
+						if (whichPart == Entity.ON_LABEL)
 						{
-							AssignFSADialog.showAndAssign(canvas,
+							EntityLabellingDialog.showAndLabel(canvas,
 									(Entity)mouseDownOn);
 						}
-						else
+						else if (whichPart == Entity.ON_ICON)
 						{
-							FSAModel fsa = ((Entity)mouseDownOn)
-									.getComponent().getModel();
-							if (Hub.getWorkspace().getModel(fsa.getName()) != fsa)
+							if (((Entity)mouseDownOn).getComponent().getModel() == null)
 							{
-								Hub.getWorkspace().addModel(fsa);
+								AssignFSADialog.showAndAssign(canvas,
+										(Entity)mouseDownOn);
 							}
-							Hub.getWorkspace().setActiveModel(fsa.getName());
+							else
+							{
+								FSAModel fsa = ((Entity)mouseDownOn)
+										.getComponent().getModel();
+								if (Hub.getWorkspace().getModel(fsa.getName()) != fsa)
+								{
+									Hub.getWorkspace().addModel(fsa);
+								}
+								Hub
+										.getWorkspace().setActiveModel(fsa
+												.getName());
+							}
 						}
+					}
+					else if (mouseDownOn instanceof Connector)
+					{
+						AssignEventsDialog.showAndAssign(canvas, (Connector)mouseDownOn);
 					}
 				}
 			}
@@ -115,12 +124,24 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		{
 			if (arg0.getClickCount() == 1)
 			{
-				if (mouseDownOn != null && mouseDownOn instanceof Entity)
+				if (mouseDownOn == null)
 				{
-					Point p = canvas.localToComponent(arg0.getPoint());
-					new EntityPopup(canvas, (Entity)mouseDownOn).show(canvas,
-							p.x,
-							p.y);
+
+				}
+				else
+				{
+					if (mouseDownOn instanceof Entity)
+					{
+						Point p = canvas.localToComponent(arg0.getPoint());
+						new EntityPopup(canvas, (Entity)mouseDownOn)
+								.show(canvas, p.x, p.y);
+					}
+					else if (mouseDownOn instanceof Connector)
+					{
+						Point p = canvas.localToComponent(arg0.getPoint());
+						new ConnectorPopup(canvas, (Connector)mouseDownOn)
+								.show(canvas, p.x, p.y);
+					}
 				}
 			}
 		}

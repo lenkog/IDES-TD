@@ -324,21 +324,9 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		{
 			return getConnector(left, right);
 		}
-		model.removeSubscriber((TemplateModelSubscriber)this);
-		Connector c;
-		try
-		{
-			TemplateLink link = model.createLink(left.getComponent().getId(),
-					right.getComponent().getId());
-			DiagramElementLayout layout = new DiagramElementLayout();
-			c = new Connector(left, right, Arrays
-					.asList(new TemplateLink[] { link }), layout);
-			connectors.add(c);
-		}
-		finally
-		{
-			model.addSubscriber((TemplateModelSubscriber)this);
-		}
+		DiagramElementLayout layout = new DiagramElementLayout();
+		Connector c = new Connector(left, right, new HashSet<TemplateLink>(), layout);
+		connectors.add(c);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
 				Arrays.asList(new DiagramElement[] { c }),
