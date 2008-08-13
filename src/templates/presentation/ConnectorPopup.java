@@ -3,7 +3,6 @@ package templates.presentation;
 import javax.swing.JPopupMenu;
 
 import templates.diagram.Connector;
-import templates.diagram.Entity;
 
 public class ConnectorPopup extends JPopupMenu
 {

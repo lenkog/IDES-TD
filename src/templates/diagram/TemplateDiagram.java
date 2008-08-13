@@ -325,7 +325,11 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 			return getConnector(left, right);
 		}
 		DiagramElementLayout layout = new DiagramElementLayout();
-		Connector c = new Connector(left, right, new HashSet<TemplateLink>(), layout);
+		Connector c = new Connector(
+				left,
+				right,
+				new HashSet<TemplateLink>(),
+				layout);
 		connectors.add(c);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,

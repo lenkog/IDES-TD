@@ -51,7 +51,8 @@ public class UIActions
 
 		private DiagramElement element;
 
-		public DeleteAction(TemplateEditableCanvas canvas, DiagramElement element)
+		public DeleteAction(TemplateEditableCanvas canvas,
+				DiagramElement element)
 		{
 			super(Hub.string("TD_comDelete"));
 			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
@@ -79,7 +80,8 @@ public class UIActions
 
 		private Connector connector;
 
-		public AssignEventsAction(TemplateEditableCanvas canvas, Connector connector)
+		public AssignEventsAction(TemplateEditableCanvas canvas,
+				Connector connector)
 		{
 			super(Hub.string("TD_comAssignEvents"));
 			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub

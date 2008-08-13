@@ -115,7 +115,8 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 					}
 					else if (mouseDownOn instanceof Connector)
 					{
-						AssignEventsDialog.showAndAssign(canvas, (Connector)mouseDownOn);
+						AssignEventsDialog.showAndAssign(canvas,
+								(Connector)mouseDownOn);
 					}
 				}
 			}

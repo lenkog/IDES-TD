@@ -150,21 +150,21 @@ public class Entity extends DiagramElement
 					(int)ports[3].getHeight());
 		}
 	}
-	
+
 	public void drawPlain(Graphics2D g2d)
 	{
 		g2d.setColor(COLOR_NORM);
-		icon.selected=false;
+		icon.selected = false;
 		drawCore(g2d);
 	}
-	
+
 	private void drawCore(Graphics2D g2d)
 	{
 		icon.paintIcon(null,
 				g2d,
 				layout.location.x - icon.getIconWidth() / 2,
 				layout.location.y - icon.getIconHeight() / 2);
-		labelBox.draw(g2d);		
+		labelBox.draw(g2d);
 	}
 
 	public void translate(Point delta)
