@@ -2,7 +2,9 @@ package templates.presentation;
 
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAEvent;
+import ides.api.model.fsa.FSAModel;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -11,23 +13,33 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Line2D;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
+import javax.swing.undo.CompoundEdit;
 
 import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
+import templates.diagram.Entity;
+import templates.diagram.TemplateDiagram;
+import templates.diagram.actions.DiagramActions;
+import templates.diagram.actions.DiagramUndoableEdits;
 import templates.model.TemplateLink;
 
 public class EventLinker extends JComponent implements MouseMotionListener,
@@ -35,38 +47,111 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 {
 	private static final long serialVersionUID = -4822009760932585969L;
 
+	protected class EventLabel extends Rectangle implements
+			Comparable<EventLabel>
+	{
+		private static final long serialVersionUID = 2717683995578252705L;
+
+		public Entity mom;
+
+		public String name;
+
+		public boolean isInModel = false;
+
+		public EventLabel(Entity mom, String name)
+		{
+			this.mom = mom;
+			this.name = name;
+			height = metrics.getHeight();
+			width = metrics.stringWidth(name);
+		}
+
+		public void paint(Graphics2D g2d)
+		{
+			g2d.drawString(name, x, y + metrics.getAscent());
+		}
+
+		public int compareTo(EventLabel arg0)
+		{
+			if (mom != arg0.mom)
+			{
+				return new Integer(mom.hashCode()).compareTo(arg0.mom
+						.hashCode());
+			}
+			return name.compareTo(arg0.name);
+		}
+
+		public boolean equals(Object o)
+		{
+			return this == o;
+		}
+	}
+
+	protected class LabelLink extends Line2D.Float
+	{
+		private static final long serialVersionUID = 3684262819232368097L;
+
+		EventLabel leftSide;
+
+		EventLabel rightSide;
+
+		public LabelLink(EventLabel leftSide, EventLabel rightSide)
+		{
+			this.leftSide = leftSide;
+			this.rightSide = rightSide;
+		}
+
+		public boolean contains(Point p)
+		{
+			return ptSegDist(p.x, p.y) <= LINK_SENSITIVITY;
+		}
+
+		public void paint(Graphics2D g2d)
+		{
+			x1 = leftSide.x + leftSide.width + LINK_SPACING + 1;
+			y1 = leftSide.y + leftSide.height / 2;
+			x2 = rightSide.x - LINK_SPACING - 1;
+			y2 = rightSide.y + rightSide.height / 2;
+			g2d.draw(this);
+		}
+
+		public boolean equals(Object o)
+		{
+			return this == o;
+		}
+	}
+
 	protected static final int EVENT_SPACING = 2;
 
-	protected static final int LINK_SPACING = 2;
+	protected static final int LINK_SPACING = 4;
+
+	protected static final int LINK_SENSITIVITY = 3;
 
 	protected static final int MIN_LINK_WIDTH = 100;
 
+	protected static final int MIN_HEIGHT = 250;
+
 	protected static final int NOTE_SPACE = 10;
+
+	protected static final Color SELECTED_COLOR = Color.RED;
 
 	private static Image exclamation;
 
 	protected boolean isLeftLeft;
 
+	protected TemplateDiagram diagram;
+
 	protected Connector connector;
 
 	protected FontMetrics metrics;
 
-	protected Vector<String> leftEvents = new Vector<String>();
+	protected Set<EventLabel> labels = new HashSet<EventLabel>();
 
-	protected Set<String> leftMissingEvents = new HashSet<String>();
+	protected Set<LabelLink> links = new HashSet<LabelLink>();
 
-	protected Set<String> leftExtraEvents = new HashSet<String>();
-
-	protected Vector<String> rightEvents = new Vector<String>();
-
-	protected Set<String> rightMissingEvents = new HashSet<String>();
-
-	protected Set<String> rightExtraEvents = new HashSet<String>();
-
-	protected Map<String, String> softLinks = new HashMap<String, String>();
-
-	public EventLinker(Connector connector)
+	public EventLinker(TemplateDiagram diagram, Connector connector)
 	{
+		this.diagram = diagram;
 		this.connector = connector;
 		metrics = DiagramElement.getGlobalFontMetrics();
 		try
@@ -79,6 +164,12 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		{
 			throw new RuntimeException(e);
 		}
+		String deleteAction = "deleteLink";
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke
+				.getKeyStroke(KeyEvent.VK_DELETE, 0),
+				deleteAction);
+		getActionMap().put(deleteAction, deleteSelectedLink);
+
 		if (connector.getLeftEntity().getLocation().x > connector
 				.getRightEntity().getLocation().x)
 		{
@@ -88,19 +179,10 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		{
 			isLeftLeft = true;
 		}
-		for (TemplateLink link : connector.getLinks())
-		{
-			softLinks.put(link.getLeftEventName(), link.getRightEventName());
-		}
-		addMouseMotionListener(this);
-		addMouseListener(this);
-		update();
-	}
-
-	public void update()
-	{
 		Set<String> leftSet = new HashSet<String>();
 		Set<String> rightSet = new HashSet<String>();
+		Set<String> leftMissingEvents = new HashSet<String>();
+		Set<String> rightMissingEvents = new HashSet<String>();
 		for (TemplateLink link : connector.getLinks())
 		{
 			leftSet.add(link.getLeftEventName());
@@ -108,10 +190,6 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 			rightSet.add(link.getRightEventName());
 			rightMissingEvents.add(link.getRightEventName());
 		}
-		leftSet.addAll(leftExtraEvents);
-		leftMissingEvents.addAll(leftExtraEvents);
-		rightSet.addAll(rightExtraEvents);
-		rightMissingEvents.addAll(rightExtraEvents);
 		if (connector.getLeftEntity().getComponent().hasModel())
 		{
 			for (Iterator<FSAEvent> i = connector
@@ -134,103 +212,137 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				rightMissingEvents.remove(name);
 			}
 		}
-		leftEvents.clear();
-		rightEvents.clear();
-		leftEvents.addAll(leftSet);
-		rightEvents.addAll(rightSet);
-		Collections.sort(leftEvents);
-		Collections.sort(rightEvents);
+		for (String event : leftSet)
+		{
+			EventLabel label = new EventLabel(connector.getLeftEntity(), event);
+			label.isInModel = !leftMissingEvents.contains(event);
+			labels.add(label);
+		}
+		for (String event : rightSet)
+		{
+			EventLabel label = new EventLabel(connector.getRightEntity(), event);
+			label.isInModel = !rightMissingEvents.contains(event);
+			labels.add(label);
+		}
+		for (TemplateLink link : connector.getLinks())
+		{
+			EventLabel left = getLabel(link.getLeftEventName(), connector
+					.getLeftEntity());
+			EventLabel right = getLabel(link.getRightEventName(), connector
+					.getRightEntity());
+			links.add(new LabelLink(
+					isLeftLeft ? left : right,
+					isLeftLeft ? right : left));
+		}
+		addMouseMotionListener(this);
+		addMouseListener(this);
+		update();
+	}
+
+	public void update()
+	{
+		Vector<EventLabel> leftSideLabels = new Vector<EventLabel>();
+		Vector<EventLabel> rightSideLabels = new Vector<EventLabel>();
+		for (EventLabel label : labels)
+		{
+			if (label.mom == (isLeftLeft ? connector.getLeftEntity()
+					: connector.getRightEntity()))
+			{
+				leftSideLabels.add(label);
+			}
+			else
+			{
+				rightSideLabels.add(label);
+			}
+		}
+		Collections.sort(leftSideLabels);
+		Collections.sort(rightSideLabels);
+		int maxWidth = getMaxLabelWidth();
+		int linkWidth = Math.max(MIN_LINK_WIDTH, getSize().width - 2 * maxWidth
+				- 2 * NOTE_SPACE);
+		for (int i = 0; i < leftSideLabels.size(); ++i)
+		{
+			EventLabel label = leftSideLabels.elementAt(i);
+			label.x = maxWidth - label.width + NOTE_SPACE;
+			label.y = i * (metrics.getHeight() + 2 * EVENT_SPACING);
+		}
+		for (int i = 0; i < rightSideLabels.size(); ++i)
+		{
+			EventLabel label = rightSideLabels.elementAt(i);
+			label.x = maxWidth + linkWidth + NOTE_SPACE;
+			label.y = i * (metrics.getHeight() + 2 * EVENT_SPACING);
+		}
 		revalidate();
 		repaint();
 	}
 
-	public void leftAddExtraEvent(String name)
+	protected EventLabel getLabel(String name, Entity mom)
 	{
-		leftExtraEvents.add(name);
-		update();
-	}
-
-	public void rightAddExtraEvent(String name)
-	{
-		rightExtraEvents.add(name);
-		update();
-	}
-
-	protected int getMaxEventWidth()
-	{
-		int maxWidth = 0;
-		for (String name : leftEvents)
+		for (EventLabel label : labels)
 		{
-			if (metrics.stringWidth(name) > maxWidth)
+			if (label.name.equals(name) && label.mom == mom)
 			{
-				maxWidth = metrics.stringWidth(name);
+				return label;
 			}
 		}
-		for (String name : rightEvents)
+		return null;
+	}
+
+	public void addExtraLeftEvent(String name)
+	{
+		if (getLabel(name, connector.getLeftEntity()) == null)
 		{
-			if (metrics.stringWidth(name) > maxWidth)
+			EventLabel label = new EventLabel(connector.getLeftEntity(), name);
+			label.isInModel = false;
+			labels.add(label);
+			update();
+		}
+	}
+
+	public void addExtraRightEvent(String name)
+	{
+		if (getLabel(name, connector.getRightEntity()) == null)
+		{
+			EventLabel label = new EventLabel(connector.getRightEntity(), name);
+			label.isInModel = false;
+			labels.add(label);
+			update();
+		}
+	}
+
+	protected int getMaxLabelWidth()
+	{
+		int maxWidth = 0;
+		for (EventLabel label : labels)
+		{
+			if (label.width > maxWidth)
 			{
-				maxWidth = metrics.stringWidth(name);
+				maxWidth = label.width;
 			}
 		}
 		return maxWidth;
 	}
 
-	protected Rectangle getBoundsLeft(String event)
+	protected int getLabelMaxY()
 	{
-		int idx = leftEvents.indexOf(event);
-		if (idx >= 0)
+		int maxY = 0;
+		for (EventLabel label : labels)
 		{
-			int maxWidth = getMaxEventWidth();
-			int linkWidth = Math.max(MIN_LINK_WIDTH, getSize().width - 2
-					* maxWidth - 2 * NOTE_SPACE);
-			int y = idx * (metrics.getHeight() + 2 * EVENT_SPACING);
-			int x = isLeftLeft ? maxWidth
-					- metrics.stringWidth(leftEvents.elementAt(idx))
-					+ NOTE_SPACE : maxWidth + linkWidth + NOTE_SPACE;
-			return new Rectangle(x, y, metrics.stringWidth(leftEvents
-					.elementAt(idx)), metrics.getHeight());
-		}
-		return null;
-	}
-
-	protected Rectangle getBoundsRight(String event)
-	{
-		int idx = rightEvents.indexOf(event);
-		if (idx >= 0)
-		{
-			int maxWidth = getMaxEventWidth();
-			int linkWidth = Math.max(MIN_LINK_WIDTH, getSize().width - 2
-					* maxWidth - 2 * NOTE_SPACE);
-			int y = idx * (metrics.getHeight() + 2 * EVENT_SPACING);
-			int x = isLeftLeft ? maxWidth + linkWidth + NOTE_SPACE : maxWidth
-					- metrics.stringWidth(rightEvents.elementAt(idx))
-					+ NOTE_SPACE;
-			return new Rectangle(x, y, metrics.stringWidth(rightEvents
-					.elementAt(idx)), metrics.getHeight());
-		}
-		return null;
-	}
-
-	protected String getLeftEventAt(Point p)
-	{
-		for (String event : leftEvents)
-		{
-			if (getBoundsLeft(event).contains(p))
+			if (label.y + label.height > maxY)
 			{
-				return event;
+				maxY = label.y + label.height;
 			}
 		}
-		return null;
+		return maxY;
 	}
 
-	protected String getRightEventAt(Point p)
+	protected EventLabel getLabelAt(Point p)
 	{
-		for (String event : rightEvents)
+		for (EventLabel label : labels)
 		{
-			if (getBoundsRight(event).contains(p))
+			if (label.contains(p))
 			{
-				return event;
+				return label;
 			}
 		}
 		return null;
@@ -238,9 +350,9 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 
 	public Dimension getPreferredSize()
 	{
-		return new Dimension(2 * getMaxEventWidth() + MIN_LINK_WIDTH + 2
-				* NOTE_SPACE, Math.max(leftEvents.size(), rightEvents.size())
-				* (metrics.getHeight() + 2 * EVENT_SPACING));
+		return new Dimension(2 * getMaxLabelWidth() + MIN_LINK_WIDTH + 2
+				* NOTE_SPACE, Math.max(MIN_HEIGHT, getLabelMaxY()
+				+ EVENT_SPACING));
 	}
 
 	public void paint(Graphics g)
@@ -250,88 +362,131 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		Point mouse = getMousePosition();
 		g2d.setFont(DiagramElement.getGlobalFont());
-		for (String event : leftEvents)
+		for (EventLabel label : labels)
 		{
-			Rectangle r = getBoundsLeft(event);
-			g2d.drawString(event, r.x, r.y + metrics.getAscent());
-			if (leftMissingEvents.contains(event))
+			label.paint(g2d);
+			if (!label.isInModel)
 			{
-				int x = isLeftLeft ? r.x - NOTE_SPACE : r.x
-						+ metrics.stringWidth(event);
-				g2d.drawImage(exclamation, x, r.y, null);
+				int x = (isLeftLeft && label.mom == connector.getLeftEntity())
+						|| (!isLeftLeft && label.mom == connector
+								.getRightEntity()) ? label.x - NOTE_SPACE
+						: label.x + label.width;
+				g2d.drawImage(exclamation, x, label.y, null);
+			}
+			if (mouse != null && label.contains(mouse))
+			{
+				g2d.drawRect(label.x - 2,
+						label.y,
+						label.width + 2,
+						label.height);
 			}
 		}
-		for (String event : rightEvents)
+		for (LabelLink link : links)
 		{
-			Rectangle r = getBoundsRight(event);
-			g2d.drawString(event, r.x, r.y + metrics.getAscent());
-			if (rightMissingEvents.contains(event))
+			if (link != selectedLink)
 			{
-				int x = isLeftLeft ? r.x + metrics.stringWidth(event) : r.x
-						- NOTE_SPACE;
-				g2d.drawImage(exclamation, x, r.y, null);
+				link.paint(g2d);
 			}
 		}
-		for (String leftEvent : softLinks.keySet())
+		if (selectedLink != null)
 		{
-			Rectangle l = getBoundsLeft(leftEvent);
-			Rectangle r = getBoundsRight(softLinks.get(leftEvent));
-			g2d.drawLine(isLeftLeft ? l.x + l.width + LINK_SPACING : l.x
-					- LINK_SPACING, l.y + l.height / 2, isLeftLeft ? r.x
-					- LINK_SPACING : r.x + r.width + LINK_SPACING, r.y
-					+ r.height / 2);
+			Color temp = g2d.getColor();
+			g2d.setColor(SELECTED_COLOR);
+			selectedLink.paint(g2d);
+			g2d.setColor(temp);
 		}
-		if (mouse != null)
+		if (mouseDownOn != null)
 		{
-			String event = getLeftEventAt(mouse);
-			if (event != null)
-			{
-				Rectangle r = getBoundsLeft(event);
-				g2d.drawRect(r.x - 2, r.y, r.width + 2, r.height);
-			}
-			else
-			{
-				event = getRightEventAt(mouse);
-				if (event != null)
-				{
-					Rectangle r = getBoundsRight(event);
-					g2d.drawRect(r.x - 2, r.y, r.width + 2, r.height);
-				}
-			}
-			if (mouseDownOn != null)
-			{
-				Rectangle r = mouseDownOnLeft ? getBoundsLeft(mouseDownOn)
-						: getBoundsRight(mouseDownOn);
-				if (mouseDownOnLeft)
-				{
-					g2d.drawLine(isLeftLeft ? r.x + r.width + LINK_SPACING
-							: r.x - LINK_SPACING,
-							r.y + r.height / 2,
-							mouse.x,
-							mouse.y);
-				}
-				else
-				{
-					g2d.drawLine(isLeftLeft ? r.x - LINK_SPACING : r.x
-							+ r.width + LINK_SPACING,
-							r.y + r.height / 2,
-							mouse.x,
-							mouse.y);
-				}
-			}
+			int x = (isLeftLeft && mouseDownOn.mom == connector.getLeftEntity())
+					|| (!isLeftLeft && mouseDownOn.mom == connector
+							.getRightEntity()) ? mouseDownOn.x
+					+ mouseDownOn.width + LINK_SPACING : mouseDownOn.x
+					- LINK_SPACING;
+			g2d.drawLine(x,
+					mouseDownOn.y + mouseDownOn.height / 2,
+					mouse.x,
+					mouse.y);
 		}
 	}
 
-	protected String mouseDownOn = null;
-
-	protected boolean mouseDownOnLeft = true;
+	protected EventLabel mouseDownOn = null;
 
 	protected boolean wasDragging = false;
 
-	protected void linkEvents(String leftEvent, String rightEvent)
+	protected LabelLink selectedLink = null;
+
+	protected void linkLabels(EventLabel first, EventLabel second)
 	{
-		softLinks.put(leftEvent, rightEvent);
+		EventLabel leftSide;
+		EventLabel rightSide;
+		if ((isLeftLeft && first.mom == connector.getLeftEntity())
+				|| (!isLeftLeft && first.mom == connector.getRightEntity()))
+		{
+			leftSide = first;
+			rightSide = second;
+		}
+		else
+		{
+			leftSide = second;
+			rightSide = first;
+		}
+		unlinkLabel(leftSide);
+		unlinkLabel(rightSide);
+		links.add(new LabelLink(leftSide, rightSide));
+		repaint();
 	}
+
+	public void unlinkLabel(EventLabel label)
+	{
+		LabelLink linkToRemove = null;
+		for (LabelLink link : links)
+		{
+			if (link.leftSide == label || link.rightSide == label)
+			{
+				linkToRemove = link;
+				break;
+			}
+		}
+		if (linkToRemove != null)
+		{
+			links.remove(linkToRemove);
+		}
+		repaint();
+	}
+
+	Action deleteSelectedLink = new AbstractAction(Hub.string("TD_delete"))
+	{
+		private static final long serialVersionUID = -1716730133755582880L;
+
+		public void actionPerformed(ActionEvent arg0)
+		{
+			if (selectedLink != null)
+			{
+				unlinkLabel(selectedLink.leftSide);
+				selectedLink = null;
+				repaint();
+			}
+		}
+	};
+
+	protected class AddEventToModel extends AbstractAction
+	{
+		private static final long serialVersionUID = 4282137800712913380L;
+
+		protected EventLabel label;
+
+		public AddEventToModel(EventLabel label)
+		{
+			super(Hub.string("TD_addToModel"));
+			this.label = label;
+		}
+
+		public void actionPerformed(ActionEvent arg0)
+		{
+			label.isInModel = true;
+			repaint();
+		}
+	};
 
 	public void mouseDragged(MouseEvent arg0)
 	{
@@ -346,9 +501,36 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 
 	public void mouseClicked(MouseEvent arg0)
 	{
+		for (LabelLink link : links)
+		{
+			if (link.contains(arg0.getPoint()))
+			{
+				selectedLink = link;
+				repaint();
+				break;
+			}
+		}
 		if (arg0.getButton() == MouseEvent.BUTTON3)
 		{
-
+			if (selectedLink != null)
+			{
+				JPopupMenu popup = new JPopupMenu();
+				popup.add(deleteSelectedLink);
+				popup.show(arg0.getComponent(), arg0.getPoint().x, arg0
+						.getPoint().y);
+			}
+			else
+			{
+				EventLabel label = getLabelAt(arg0.getPoint());
+				if (label != null && !label.isInModel
+						&& label.mom.getComponent().hasModel())
+				{
+					JPopupMenu popup = new JPopupMenu();
+					popup.add(new AddEventToModel(getLabelAt(arg0.getPoint())));
+					popup.show(arg0.getComponent(), arg0.getPoint().x, arg0
+							.getPoint().y);
+				}
+			}
 		}
 	}
 
@@ -362,40 +544,24 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 
 	public void mousePressed(MouseEvent arg0)
 	{
+		requestFocus();
+		selectedLink = null;
 		if (arg0.getButton() != MouseEvent.BUTTON1)
 		{
 			mouseDownOn = null;
 			repaint();
 			return;
 		}
-		String choice = null;
-		boolean leftSide = true;
-		String event = getLeftEventAt(arg0.getPoint());
-		if (event != null)
-		{
-			choice = event;
-			leftSide = true;
-		}
-		else
-		{
-			event = getRightEventAt(arg0.getPoint());
-			if (event != null)
-			{
-				choice = event;
-				leftSide = false;
-			}
-		}
+		EventLabel choice = getLabelAt(arg0.getPoint());
 		if (mouseDownOn == null)
 		{
 			mouseDownOn = choice;
-			mouseDownOnLeft = leftSide;
 		}
 		else
 		{
-			if (choice != null && mouseDownOnLeft != leftSide)
+			if (choice != null && mouseDownOn.mom != choice.mom)
 			{
-				linkEvents(leftSide ? choice : mouseDownOn,
-						leftSide ? mouseDownOn : choice);
+				linkLabels(mouseDownOn, choice);
 			}
 			mouseDownOn = null;
 		}
@@ -406,31 +572,92 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 	{
 		if (wasDragging && mouseDownOn != null)
 		{
-			String choice = null;
-			boolean leftSide = true;
-			String event = getLeftEventAt(arg0.getPoint());
-			if (event != null)
+			EventLabel choice = getLabelAt(arg0.getPoint());
+			if (choice != null && mouseDownOn.mom != choice.mom)
 			{
-				choice = event;
-				leftSide = true;
-			}
-			else
-			{
-				event = getRightEventAt(arg0.getPoint());
-				if (event != null)
-				{
-					choice = event;
-					leftSide = false;
-				}
-			}
-			if (choice != null && mouseDownOnLeft != leftSide)
-			{
-				linkEvents(leftSide ? choice : mouseDownOn,
-						leftSide ? mouseDownOn : choice);
+				linkLabels(mouseDownOn, choice);
 			}
 			mouseDownOn = null;
 		}
 		wasDragging = false;
 		repaint();
+	}
+
+	public void commitChanges()
+	{
+		Set<String> leftEvents = new HashSet<String>();
+		Set<String> rightEvents = new HashSet<String>();
+		if (connector.getLeftEntity().getComponent().hasModel())
+		{
+			for (Iterator<FSAEvent> i = connector
+					.getLeftEntity().getComponent().getModel()
+					.getEventIterator(); i.hasNext();)
+			{
+				leftEvents.add(i.next().getSymbol());
+			}
+		}
+		if (connector.getRightEntity().getComponent().hasModel())
+		{
+			for (Iterator<FSAEvent> i = connector
+					.getRightEntity().getComponent().getModel()
+					.getEventIterator(); i.hasNext();)
+			{
+				rightEvents.add(i.next().getSymbol());
+			}
+		}
+		for (EventLabel label : labels)
+		{
+			if (label.mom == connector.getLeftEntity()
+					&& connector.getLeftEntity().getComponent().hasModel())
+			{
+				if (!leftEvents.contains(label.name) && label.isInModel)
+				{
+					FSAModel model = connector
+							.getLeftEntity().getComponent().getModel();
+					model.add(model.assembleEvent(label.name));
+				}
+			}
+			else if (label.mom == connector.getRightEntity()
+					&& connector.getRightEntity().getComponent().hasModel())
+			{
+				if (!rightEvents.contains(label.name) && label.isInModel)
+				{
+					FSAModel model = connector
+							.getRightEntity().getComponent().getModel();
+					model.add(model.assembleEvent(label.name));
+				}
+			}
+		}
+		CompoundEdit edit = new CompoundEdit();
+		for (LabelLink link : links)
+		{
+			String leftEvent = isLeftLeft ? link.leftSide.name
+					: link.rightSide.name;
+			String rightEvent = isLeftLeft ? link.rightSide.name
+					: link.leftSide.name;
+			boolean found = false;
+			for (TemplateLink tlink : connector.getLinks())
+			{
+				if (tlink.getLeftEventName().equals(leftEvent)
+						&& tlink.getRightEventName().equals(rightEvent))
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				new DiagramActions.AddLinkAction(
+						edit,
+						diagram,
+						connector,
+						leftEvent,
+						rightEvent).execute();
+			}
+		}
+		edit.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub
+				.string("TD_undoSetLinkedEvents")));
+		edit.end();
+		Hub.getUndoManager().addEdit(edit);
 	}
 }

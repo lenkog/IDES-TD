@@ -14,6 +14,7 @@ import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
+import templates.model.TemplateLink;
 import templates.model.TemplateModel;
 
 public class DiagramUndoableEdits
@@ -201,6 +202,72 @@ public class DiagramUndoableEdits
 			{
 				return Hub.string("TD_undoCreateConnector");
 			}
+		}
+	}
+
+	public static class AddLinkEdit extends AbstractDiagramUndoableEdit
+	{
+		private static final long serialVersionUID = -22893051179719542L;
+
+		protected TemplateDiagram diagram;
+
+		protected Connector connector;
+
+		protected String leftEvent;
+
+		protected String rightEvent;
+
+		protected TemplateLink link = null;
+
+		public AddLinkEdit(TemplateDiagram diagram, Connector connector,
+				String leftEvent, String rightEvent)
+		{
+			this.diagram = diagram;
+			this.connector = connector;
+			this.leftEvent = leftEvent;
+			this.rightEvent = rightEvent;
+		}
+
+		@Override
+		public void redo() throws CannotRedoException
+		{
+			if (connector == null || leftEvent == null || rightEvent == null)
+			{
+				throw new CannotRedoException();
+			}
+			link = diagram.addLink(connector, leftEvent, rightEvent);
+		}
+
+		@Override
+		public void undo() throws CannotUndoException
+		{
+			if (connector == null || link == null)
+			{
+				throw new CannotUndoException();
+			}
+			diagram.removeLink(connector, link);
+		}
+
+		@Override
+		public boolean canUndo()
+		{
+			return (connector != null && link != null);
+		}
+
+		@Override
+		public boolean canRedo()
+		{
+			return (connector != null && leftEvent != null && rightEvent != null);
+		}
+
+		/**
+		 * Returns the name that should be displayed besides the Undo/Redo menu
+		 * items, so the user knows which action will be undone/redone.
+		 */
+		@Override
+		public String getPresentationName()
+		{
+			return Hub.string("TD_undoSetLinkedEvents");
 		}
 	}
 

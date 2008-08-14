@@ -134,6 +134,49 @@ public class DiagramActions
 		}
 	}
 
+	public static class AddLinkAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = -8377001331734586265L;
+
+		protected TemplateDiagram diagram;
+
+		protected Connector connector;
+
+		protected String leftEvent;
+
+		protected String rightEvent;
+
+		public AddLinkAction(TemplateDiagram diagram, Connector connector,
+				String leftEvent, String rightEvent)
+		{
+			this(null, diagram, connector, leftEvent, rightEvent);
+		}
+
+		public AddLinkAction(CompoundEdit parent, TemplateDiagram diagram,
+				Connector connector, String leftEvent, String rightEvent)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.connector = connector;
+			this.leftEvent = leftEvent;
+			this.rightEvent = rightEvent;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				DiagramUndoableEdits.AddLinkEdit edit = new DiagramUndoableEdits.AddLinkEdit(
+						diagram,
+						connector,
+						leftEvent,
+						rightEvent);
+				edit.redo();
+				postEditAdjustCanvas(diagram, edit);
+			}
+		}
+	}
+
 	public static class DeleteElementsAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 4993580265901392619L;

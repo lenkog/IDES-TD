@@ -390,6 +390,55 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				TemplateDiagramMessage.OP_REMOVE));
 	}
 
+	public TemplateLink addLink(Connector c, String leftEvent, String rightEvent)
+	{
+		if (!connectors.contains(c))
+		{
+			return null;
+		}
+		model.removeSubscriber((TemplateModelSubscriber)this);
+		TemplateLink link;
+		try
+		{
+			link = model.createLink(c.getLeftEntity().getComponent().getId(), c
+					.getRightEntity().getComponent().getId());
+			link.setLeftEventName(leftEvent);
+			link.setRightEventName(rightEvent);
+			c.addLink(link);
+		}
+		finally
+		{
+			model.addSubscriber((TemplateModelSubscriber)this);
+		}
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { c }),
+				TemplateDiagramMessage.OP_MODIFY));
+		return link;
+	}
+
+	public void removeLink(Connector c, TemplateLink link)
+	{
+		if (!connectors.contains(c))
+		{
+			return;
+		}
+		model.removeSubscriber((TemplateModelSubscriber)this);
+		try
+		{
+			c.removeLink(link);
+			model.removeLink(link.getId());
+		}
+		finally
+		{
+			model.addSubscriber((TemplateModelSubscriber)this);
+		}
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { c }),
+				TemplateDiagramMessage.OP_MODIFY));
+	}
+
 	public Collection<Connector> getConnectors()
 	{
 		return new HashSet<Connector>(connectors);

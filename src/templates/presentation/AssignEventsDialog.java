@@ -27,6 +27,7 @@ import templates.diagram.Entity;
 
 public class AssignEventsDialog extends EscapeDialog
 {
+	private static final long serialVersionUID = 6519071057585162972L;
 
 	private static AssignEventsDialog me = null;
 
@@ -143,11 +144,11 @@ public class AssignEventsDialog extends EscapeDialog
 				{
 					if (isLeftLeft)
 					{
-						linker.leftAddExtraEvent(leftName.getText());
+						linker.addExtraLeftEvent(leftName.getText());
 					}
 					else
 					{
-						linker.rightAddExtraEvent(leftName.getText());
+						linker.addExtraRightEvent(leftName.getText());
 					}
 					leftName.setText("");
 				}
@@ -164,11 +165,11 @@ public class AssignEventsDialog extends EscapeDialog
 				{
 					if (!isLeftLeft)
 					{
-						linker.leftAddExtraEvent(rightName.getText());
+						linker.addExtraLeftEvent(rightName.getText());
 					}
 					else
 					{
-						linker.rightAddExtraEvent(rightName.getText());
+						linker.addExtraRightEvent(rightName.getText());
 					}
 					rightName.setText("");
 				}
@@ -226,6 +227,7 @@ public class AssignEventsDialog extends EscapeDialog
 		canvas.setUIInteraction(false);
 		setVisible(false);
 		linkerPanel.removeAll();
+		linker.commitChanges();
 		linker = null;
 		leftIcon.removeAll();
 		rightIcon.removeAll();
@@ -270,7 +272,7 @@ public class AssignEventsDialog extends EscapeDialog
 		linkerPanel.removeAll();
 		leftIcon.removeAll();
 		rightIcon.removeAll();
-		linker = new EventLinker(connector);
+		linker = new EventLinker(canvas.getDiagram(), connector);
 		linkerPanel.add(linker);
 		if (isLeftLeft)
 		{

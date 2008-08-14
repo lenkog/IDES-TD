@@ -85,9 +85,7 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 		interpreter = new MouseInterpreter(this);
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		// Custom actions that can be performed, sometimes undone.
 		String escAction = "esc";
-		// Undoable actions
 		String deleteAction = "deleteSelection";
 
 		// Associating key strokes with action names:
