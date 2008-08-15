@@ -54,8 +54,8 @@ public class Link implements TemplateLink
 					.string("TD_inconsistencyLinkInit"));
 		}
 		this.id = id;
-		this.left = right;
-		this.right = left;
+		this.left = left;
+		this.right = right;
 	}
 
 	public long getId()

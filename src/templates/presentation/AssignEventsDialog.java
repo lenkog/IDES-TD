@@ -3,6 +3,7 @@ package templates.presentation;
 import ides.api.core.Hub;
 import ides.api.utilities.EscapeDialog;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -13,13 +14,19 @@ import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import templates.diagram.Connector;
@@ -104,15 +111,9 @@ public class AssignEventsDialog extends EscapeDialog
 			}
 		});
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		// this.setMinimumSize(new Dimension(300, 10));
 
-		Box mainBox = Box.createHorizontalBox();
+		Box mainBox = Box.createVerticalBox();
 		mainBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-		mainBox.add(leftIcon);
-		mainBox.add(Box.createRigidArea(new Dimension(5, 0)));
-
-		Box listBox = Box.createVerticalBox();
 
 		Box newBox = Box.createHorizontalBox();
 		leftName.setMaximumSize(new Dimension(
@@ -134,8 +135,7 @@ public class AssignEventsDialog extends EscapeDialog
 				instance().getRootPane().setDefaultButton(null);
 			}
 		});
-		newBox.add(leftName);
-		leftAdd = new JButton(Hub.string("TD_add"));
+		leftAdd = new JButton(Hub.string("TD_addEvent"));
 		leftAdd.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -155,8 +155,9 @@ public class AssignEventsDialog extends EscapeDialog
 			}
 		});
 		newBox.add(leftAdd);
+		newBox.add(leftName);
 		newBox.add(Box.createRigidArea(new Dimension(10, 0)));
-		rightAdd = new JButton(Hub.string("TD_add"));
+		rightAdd = new JButton(Hub.string("TD_addEvent"));
 		rightAdd.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -175,7 +176,6 @@ public class AssignEventsDialog extends EscapeDialog
 				}
 			}
 		});
-		newBox.add(rightAdd);
 		rightName.addFocusListener(new FocusListener()
 		{
 
@@ -190,16 +190,69 @@ public class AssignEventsDialog extends EscapeDialog
 			}
 		});
 		newBox.add(rightName);
+		newBox.add(rightAdd);
 
-		listBox.add(newBox);
-		listBox.add(Box.createRigidArea(new Dimension(0, 5)));
+		mainBox.add(newBox);
+		mainBox.add(Box.createRigidArea(new Dimension(0, 5)));
+		
+		Box listBox = Box.createHorizontalBox();
 
+		listBox.add(leftIcon);
+		listBox.add(Box.createRigidArea(new Dimension(5, 0)));
 		listBox.add(new JScrollPane(linkerPanel));
+		listBox.add(Box.createRigidArea(new Dimension(5, 0)));
+		listBox.add(rightIcon);
+
 		mainBox.add(listBox);
+		mainBox.add(Box.createRigidArea(new Dimension(0, 5)));
+		
+		Box buttonBox=Box.createHorizontalBox();
+		buttonBox.add(Box.createHorizontalGlue());
+		buttonBox.add(new JButton(new AbstractAction(Hub.string("TD_comDeleteAllLinks"))
+		{
+			private static final long serialVersionUID = 2680899991712228777L;
 
-		mainBox.add(Box.createRigidArea(new Dimension(5, 0)));
-		mainBox.add(rightIcon);
+			public void actionPerformed(ActionEvent e)
+			{
+				linker.unlinkAll();
+			}
+		}));
+		buttonBox.add(Box.createRigidArea(new Dimension(10,0)));
+		buttonBox.add(new JButton(new AbstractAction(Hub.string("TD_comMatchEvents"))
+		{
+			private static final long serialVersionUID = 1783903218138278716L;
 
+			public void actionPerformed(ActionEvent e)
+			{
+				linker.matchEvents();
+			}
+		}));
+		buttonBox.add(Box.createHorizontalGlue());
+		
+		mainBox.add(buttonBox);
+		mainBox.add(Box.createRigidArea(new Dimension(0, 5)));
+		
+		Box infoBox=Box.createHorizontalBox();
+		infoBox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		JLabel iconLabel=new JLabel();
+		try
+		{
+			iconLabel.setIcon(new ImageIcon(ImageIO.read(Hub.getLocalResource(AssignEventsDialog.class,"images/icons/exclamation.gif"))));
+		}catch(IOException e){}
+		iconLabel.setAlignmentY(JComponent.TOP_ALIGNMENT);
+		infoBox.add(iconLabel);
+		JTextArea area=new JTextArea();
+		area.setFont(iconLabel.getFont());
+		area.setBackground(iconLabel.getBackground());
+		area.setText(Hub.string("TD_eventIconExplain1")+" "+Hub.string("TD_eventIconExplain2")+" "+Hub.string("TD_eventAssignExplain"));
+		area.setLineWrap(true);
+		area.setEditable(false);
+		area.setWrapStyleWord(true);
+		area.setAlignmentY(JComponent.TOP_ALIGNMENT);
+		infoBox.add(area);
+		
+		mainBox.add(infoBox);
+		
 		getContentPane().add(mainBox);
 
 	}
@@ -224,18 +277,14 @@ public class AssignEventsDialog extends EscapeDialog
 	public void onEscapeEvent()
 	{
 		Hub.getMainWindow().removeWindowListener(onFocusLost);
-		canvas.setUIInteraction(false);
 		setVisible(false);
-		linkerPanel.removeAll();
 		linker.commitChanges();
+		canvas.setUIInteraction(false);
+		linkerPanel.removeAll();
 		linker = null;
 		leftIcon.removeAll();
 		rightIcon.removeAll();
 	}
-
-	protected static Entity leftEntity;
-
-	protected static Entity rightEntity;
 
 	protected static JPanel leftIcon = new JPanel();
 

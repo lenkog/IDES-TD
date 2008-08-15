@@ -172,7 +172,7 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 				if (connectorEnd != connectorOrigin
 						&& diagram.getConnector(connectorOrigin, connectorEnd) == null)
 				{
-					new DiagramActions.CreateConnectorAction(
+					new DiagramActions.CreateAndMatchConnectorAction(
 							diagram,
 							connectorOrigin,
 							connectorEnd).execute();

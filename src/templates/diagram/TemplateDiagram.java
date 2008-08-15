@@ -4,6 +4,7 @@ import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.DESModelMessage;
 import ides.api.plugin.model.DESModelSubscriber;
+import ides.api.plugin.model.ModelManager;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -158,6 +159,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				+ component.getId();
 		Entity entity = new Entity(component, layout);
 		entities.add(entity);
+		component.setModel(ModelManager.instance().createModel(FSAModel.class,TemplateModel.FSA_NAME_PREFIX+layout.label));
 		model.addSubscriber((TemplateModelSubscriber)this);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -390,7 +392,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				TemplateDiagramMessage.OP_REMOVE));
 	}
 
-	public TemplateLink addLink(Connector c, String leftEvent, String rightEvent)
+	public TemplateLink createLink(Connector c, String leftEvent, String rightEvent)
 	{
 		if (!connectors.contains(c))
 		{
@@ -415,6 +417,28 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				Arrays.asList(new DiagramElement[] { c }),
 				TemplateDiagramMessage.OP_MODIFY));
 		return link;
+	}
+
+	public void addLink(Connector c, TemplateLink link)
+	{
+		if (!connectors.contains(c))
+		{
+			return;
+		}
+		model.removeSubscriber((TemplateModelSubscriber)this);
+		try
+		{
+			model.addLink(link);
+			c.addLink(link);
+		}
+		finally
+		{
+			model.addSubscriber((TemplateModelSubscriber)this);
+		}
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { c }),
+				TemplateDiagramMessage.OP_MODIFY));
 	}
 
 	public void removeLink(Connector c, TemplateLink link)

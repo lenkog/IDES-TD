@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.undo.CompoundEdit;
@@ -17,7 +18,9 @@ import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
+import templates.model.TemplateLink;
 import templates.model.TemplateModel;
+import templates.presentation.Helpers;
 
 public class DiagramActions
 {
@@ -133,6 +136,68 @@ public class DiagramActions
 			}
 		}
 	}
+	
+	public static class CreateAndMatchConnectorAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 2328335456634040094L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity left;
+
+		protected Entity right;
+
+		protected Connector[] buffer;
+
+		public CreateAndMatchConnectorAction(TemplateDiagram diagram, Entity left,
+				Entity right)
+		{
+			this(null, diagram, left, right, null);
+		}
+
+		public CreateAndMatchConnectorAction(TemplateDiagram diagram, Entity left,
+				Entity right, Connector[] buffer)
+		{
+			this(null, diagram, left, right, buffer);
+		}
+
+		public CreateAndMatchConnectorAction(CompoundEdit parent,
+				TemplateDiagram diagram, Entity left, Entity right)
+		{
+			this(parent, diagram, left, right, null);
+		}
+
+		public CreateAndMatchConnectorAction(CompoundEdit parent,
+				TemplateDiagram diagram, Entity left, Entity right,
+				Connector[] buffer)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.left = left;
+			this.right = right;
+			this.buffer = buffer;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				CompoundEdit allEdits=new CompoundEdit();
+				Connector[] myBuffer=new Connector[1];
+				new CreateConnectorAction(allEdits,diagram,left,right,myBuffer).execute();
+				String undoLabel=allEdits.getPresentationName();
+				new MatchEventsAction(allEdits,diagram,myBuffer[0]).execute();
+				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(undoLabel));
+				allEdits.end();
+				if (buffer != null && buffer.length > 0)
+				{
+					buffer[0] = myBuffer[0];
+				}
+				postEditAdjustCanvas(diagram, allEdits);
+			}
+		}
+	}
+
 
 	public static class AddLinkAction extends AbstractDiagramAction
 	{
@@ -254,6 +319,51 @@ public class DiagramActions
 		}
 	}
 
+	public static class RemoveLinksAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = -1134740009176987043L;
+
+		protected TemplateDiagram diagram;
+
+		protected Connector connector;
+
+		protected Collection<TemplateLink> links;
+
+		public RemoveLinksAction(TemplateDiagram diagram, Connector connector,
+				Collection<TemplateLink> links)
+		{
+			this(null, diagram, connector, links);
+		}
+
+		public RemoveLinksAction(CompoundEdit parent, TemplateDiagram diagram,
+				Connector connector, Collection<TemplateLink> links)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.connector = connector;
+			this.links=links;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null&&!links.isEmpty())
+			{
+				CompoundEdit allEdits=new CompoundEdit();
+				for(TemplateLink link:links)
+				{
+				DiagramUndoableEdits.RemoveLinkEdit edit = new DiagramUndoableEdits.RemoveLinkEdit(
+						diagram,
+						connector,
+						link);
+				edit.redo();
+				allEdits.addEdit(edit);
+				}
+				allEdits.end();
+				postEditAdjustCanvas(diagram, allEdits);
+			}
+		}
+	}
+
 	public static class MovedSelectionAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = -1222866680866778507L;
@@ -328,6 +438,50 @@ public class DiagramActions
 						label);
 				edit.redo();
 				postEditAdjustCanvas(diagram.getModel(), diagram, edit);
+			}
+		}
+	}
+
+	public static class MatchEventsAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 897761928605656221L;
+
+		protected TemplateDiagram diagram;
+
+		protected Connector connector;
+
+		public MatchEventsAction(TemplateDiagram diagram, Connector connector)
+		{
+			this(null, diagram, connector);
+		}
+
+		public MatchEventsAction(CompoundEdit parent, TemplateDiagram diagram,
+				Connector connector)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.connector = connector;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				Set<String> matches=Helpers.matchEvents(connector);
+				CompoundEdit allEdits=new CompoundEdit();
+				new RemoveLinksAction(allEdits,diagram,connector,connector.getLinks()).execute();
+				for(String name:matches)
+				{
+				DiagramUndoableEdits.AddLinkEdit edit = new DiagramUndoableEdits.AddLinkEdit(
+						diagram,
+						connector,
+						name,name);
+				edit.redo();
+				allEdits.addEdit(edit);
+				}
+				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_comMatchEvents")));
+				allEdits.end();
+				postEditAdjustCanvas(diagram, allEdits);
 			}
 		}
 	}
@@ -437,6 +591,15 @@ public class DiagramActions
 				{
 					newModel.setName(TemplateModel.FSA_NAME_PREFIX
 							+ entity.getLabel());
+					//add all linked events
+					for(Connector c:diagram.getAdjacentConnectors(entity))
+					{
+						for(TemplateLink link:c.getLinks())
+						{
+							String event=c.getLeftEntity()==entity?link.getLeftEventName():link.getRightEventName();
+							newModel.add(newModel.assembleEvent(event));
+						}
+					}
 					DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 							diagram,
 							entity,

@@ -61,7 +61,9 @@ public class Connector extends DiagramElement
 			this.sideIsLeft = isSideLeft;
 			for (TemplateLink link : getLinks())
 			{
-				events.add(isSideLeft ? new EventPair(
+				TemplateComponent component=isSideLeft?getLeftEntity().getComponent():
+					getRightEntity().getComponent();
+				events.add(link.getLeftComponent()==component ? new EventPair(
 						link.getLeftEventName(),
 						link.getRightEventName()) : new EventPair(link
 						.getRightEventName(), link.getLeftEventName()));
@@ -243,6 +245,7 @@ public class Connector extends DiagramElement
 						.string("TD_inconsistencyConnecting"));
 			}
 			links.add(link);
+			link.setAnnotation(Annotable.LAYOUT, layout);
 			update();
 		}
 	}

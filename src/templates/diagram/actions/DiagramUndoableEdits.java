@@ -5,6 +5,7 @@ import ides.api.model.fsa.FSAModel;
 
 import java.awt.Point;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -235,7 +236,14 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotRedoException();
 			}
-			link = diagram.addLink(connector, leftEvent, rightEvent);
+			if(link==null)
+			{
+				link = diagram.createLink(connector, leftEvent, rightEvent);
+			}
+			else
+			{
+				diagram.addLink(connector,link);
+			}
 		}
 
 		@Override
@@ -402,6 +410,67 @@ public class DiagramUndoableEdits
 			{
 				return Hub.string("TD_undoRemoveConnector");
 			}
+		}
+	}
+
+	public static class RemoveLinkEdit extends AbstractDiagramUndoableEdit
+	{
+		private static final long serialVersionUID = 3808507510444869728L;
+
+		protected TemplateDiagram diagram;
+
+		protected Connector connector=null;
+
+		protected TemplateLink link = null;
+
+		public RemoveLinkEdit(TemplateDiagram diagram, Connector connector,
+				TemplateLink link)
+		{
+			this.diagram = diagram;
+			this.connector = connector;
+			this.link=link;
+		}
+
+		@Override
+		public void redo() throws CannotRedoException
+		{
+			if (connector == null || link == null)
+			{
+				throw new CannotRedoException();
+			}
+			diagram.removeLink(connector, link);
+		}
+
+		@Override
+		public void undo() throws CannotUndoException
+		{
+			if (connector == null || link == null)
+			{
+				throw new CannotUndoException();
+			}
+			diagram.addLink(connector, link);
+		}
+
+		@Override
+		public boolean canUndo()
+		{
+			return (connector != null && link != null);
+		}
+
+		@Override
+		public boolean canRedo()
+		{
+			return (connector != null && link!=null);
+		}
+
+		/**
+		 * Returns the name that should be displayed besides the Undo/Redo menu
+		 * items, so the user knows which action will be undone/redone.
+		 */
+		@Override
+		public String getPresentationName()
+		{
+			return Hub.string("TD_undoSetLinkedEvents");
 		}
 	}
 
