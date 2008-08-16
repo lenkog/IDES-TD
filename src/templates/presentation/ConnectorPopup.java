@@ -12,9 +12,9 @@ public class ConnectorPopup extends JPopupMenu
 	{
 		super();
 		add(new UIActions.AssignEventsAction(canvas, connector));
-		add(new UIActions.MatchEventsAction(canvas,connector));
+		add(new UIActions.MatchEventsAction(canvas, connector));
 		addSeparator();
-		add(new UIActions.DeleteAllLinksAction(canvas,connector));
+		add(new UIActions.DeleteAllLinksAction(canvas, connector));
 		add(new UIActions.DeleteAction(canvas, connector));
 		pack();
 	}

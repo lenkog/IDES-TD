@@ -98,7 +98,7 @@ public class UIActions
 			AssignEventsDialog.showAndAssign(canvas, connector);
 		}
 	}
-	
+
 	public static class AssignFSAAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 5869946508125826812L;
@@ -109,8 +109,7 @@ public class UIActions
 
 		private Entity entity;
 
-		public AssignFSAAction(TemplateEditableCanvas canvas,
-				Entity entity)
+		public AssignFSAAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comAssignFSA"));
 			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
@@ -122,7 +121,7 @@ public class UIActions
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			AssignFSADialog.showAndAssign(canvas,entity);
+			AssignFSADialog.showAndAssign(canvas, entity);
 		}
 	}
 
@@ -144,19 +143,24 @@ public class UIActions
 			// .getResource("images/icons/edit_delete.gif")));
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintDeleteAllLinks"));
 			this.canvas = canvas;
-			this.connector=connector;
+			this.connector = connector;
 		}
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			CompoundEdit allEdits=new CompoundEdit();
-			new DiagramActions.RemoveLinksAction(allEdits,canvas.getDiagram(),connector,connector.getLinks()).execute();
-			allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_comDeleteAllLinks")));
+			CompoundEdit allEdits = new CompoundEdit();
+			new DiagramActions.RemoveLinksAction(
+					allEdits,
+					canvas.getDiagram(),
+					connector,
+					connector.getLinks()).execute();
+			allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub
+					.string("TD_comDeleteAllLinks")));
 			allEdits.end();
 			Hub.getUndoManager().addEdit(allEdits);
 		}
 	}
-	
+
 	public static class MatchEventsAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 621843884453574726L;
@@ -175,12 +179,13 @@ public class UIActions
 			// .getResource("images/icons/edit_delete.gif")));
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintMatchEvents"));
 			this.canvas = canvas;
-			this.connector=connector;
+			this.connector = connector;
 		}
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			new DiagramActions.MatchEventsAction(canvas.getDiagram(),connector).execute();
+			new DiagramActions.MatchEventsAction(canvas.getDiagram(), connector)
+					.execute();
 		}
 	}
 }

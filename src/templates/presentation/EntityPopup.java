@@ -12,7 +12,7 @@ public class EntityPopup extends JPopupMenu
 	{
 		super();
 		add(new UIActions.LabelAction(canvas, entity));
-		add(new UIActions.AssignFSAAction(canvas,entity));
+		add(new UIActions.AssignFSAAction(canvas, entity));
 		addSeparator();
 		add(new UIActions.DeleteAction(canvas, entity));
 		pack();

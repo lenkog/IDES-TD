@@ -149,8 +149,8 @@ public class AssignFSADialog extends EscapeDialog
 					canvas.getDiagram(),
 					entity,
 					model).execute();
-//			Hub.getWorkspace().addModel(model[0]);
-//			Hub.getWorkspace().setActiveModel(model[0].getName());
+			// Hub.getWorkspace().addModel(model[0]);
+			// Hub.getWorkspace().setActiveModel(model[0].getName());
 		}
 	}
 

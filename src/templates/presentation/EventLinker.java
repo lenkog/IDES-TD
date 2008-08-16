@@ -191,23 +191,25 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		{
 			for (TemplateLink link : c.getLinks())
 			{
-//				System.out.println("con:" + c);
-//				System.out.println("left ent:" + c.getLeftEntity() + "("
-//						+ c.getLeftEntity().getLabel() + ")");
-//				System.out.println("right ent:" + c.getRightEntity() + "("
-//						+ c.getRightEntity().getLabel() + ")");
-//				System.out.println("link:" + link);
-//				System.out.println("boss com:"
-//						+ connector.getLeftEntity().getComponent());
-//				System.out.println("link left com:" + link.getLeftComponent());
-//				System.out.println("con left com:"
-//						+ c.getLeftEntity().getComponent());
-//				System.out
-//						.println("link right com:" + link.getRightComponent());
-//				System.out.println("con right com:"
-//						+ c.getRightEntity().getComponent());
-//				System.out.println("link left e:" + link.getLeftEventName());
-//				System.out.println("link right e:" + link.getRightEventName());
+				// System.out.println("con:" + c);
+				// System.out.println("left ent:" + c.getLeftEntity() + "("
+				// + c.getLeftEntity().getLabel() + ")");
+				// System.out.println("right ent:" + c.getRightEntity() + "("
+				// + c.getRightEntity().getLabel() + ")");
+				// System.out.println("link:" + link);
+				// System.out.println("boss com:"
+				// + connector.getLeftEntity().getComponent());
+				// System.out.println("link left com:" +
+				// link.getLeftComponent());
+				// System.out.println("con left com:"
+				// + c.getLeftEntity().getComponent());
+				// System.out
+				// .println("link right com:" + link.getRightComponent());
+				// System.out.println("con right com:"
+				// + c.getRightEntity().getComponent());
+				// System.out.println("link left e:" + link.getLeftEventName());
+				// System.out.println("link right e:" +
+				// link.getRightEventName());
 
 				// System.out.println(connector.getLeftEntity().getLabel()+":"+
 				// link.getLeftEventName()+":"+link.getLeftComponent()+","+c.
@@ -243,14 +245,14 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				}
 			}
 		}
-//		for (String s : leftSet)
-//		{
-//			System.out.println("L" + s);
-//		}
-//		for (String s : rightSet)
-//		{
-//			System.out.println("R" + s);
-//		}
+		// for (String s : leftSet)
+		// {
+		// System.out.println("L" + s);
+		// }
+		// for (String s : rightSet)
+		// {
+		// System.out.println("R" + s);
+		// }
 		if (connector.getLeftEntity().getComponent().hasModel())
 		{
 			for (Iterator<FSAEvent> i = connector
@@ -273,14 +275,14 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				rightMissingEvents.remove(name);
 			}
 		}
-//		for (String s : leftSet)
-//		{
-//			System.out.println("\'L" + s);
-//		}
-//		for (String s : rightSet)
-//		{
-//			System.out.println("\'R" + s);
-//		}
+		// for (String s : leftSet)
+		// {
+		// System.out.println("\'L" + s);
+		// }
+		// for (String s : rightSet)
+		// {
+		// System.out.println("\'R" + s);
+		// }
 		for (String event : leftSet)
 		{
 			EventLabel label = new EventLabel(connector.getLeftEntity(), event);
@@ -524,20 +526,20 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 		repaint();
 	}
-	
+
 	public void unlinkAll()
 	{
 		links.clear();
 		repaint();
 	}
-	
+
 	protected EventLabel findMatchingRightLabel(String name)
 	{
-		for(EventLabel label:labels)
+		for (EventLabel label : labels)
 		{
-			if(label.mom==connector.getRightEntity())
+			if (label.mom == connector.getRightEntity())
 			{
-				if(label.name.equals(name))
+				if (label.name.equals(name))
 				{
 					return label;
 				}
@@ -545,14 +547,14 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 		return null;
 	}
-	
+
 	public void matchEvents()
 	{
-		Set<String> leftEvents=new HashSet<String>();
-		Set<String> rightEvents=new HashSet<String>();
-		for(EventLabel label:labels)
+		Set<String> leftEvents = new HashSet<String>();
+		Set<String> rightEvents = new HashSet<String>();
+		for (EventLabel label : labels)
 		{
-			if(label.mom==connector.getLeftEntity())
+			if (label.mom == connector.getLeftEntity())
 			{
 				leftEvents.add(label.name);
 			}
@@ -561,14 +563,14 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				rightEvents.add(label.name);
 			}
 		}
-		Set<String> matches=Helpers.matchEvents(leftEvents,rightEvents);
+		Set<String> matches = Helpers.matchEvents(leftEvents, rightEvents);
 		unlinkAll();
-		for(EventLabel label:labels)
+		for (EventLabel label : labels)
 		{
-			if(label.mom==connector.getLeftEntity()&&
-					matches.contains(label.name))
+			if (label.mom == connector.getLeftEntity()
+					&& matches.contains(label.name))
 			{
-				linkLabels(label,findMatchingRightLabel(label.name));
+				linkLabels(label, findMatchingRightLabel(label.name));
 				matches.remove(label.name);
 			}
 		}
@@ -785,7 +787,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 						rightEvent));
 			}
 		}
-		Collection<TemplateLink> linksToRemove=new HashSet<TemplateLink>();
+		Collection<TemplateLink> linksToRemove = new HashSet<TemplateLink>();
 		for (TemplateLink link : connector.getLinks())
 		{
 			boolean found = false;
@@ -813,7 +815,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				linksToRemove.add(link);
 			}
 		}
-		if (!addActions.isEmpty()||!linksToRemove.isEmpty())
+		if (!addActions.isEmpty() || !linksToRemove.isEmpty())
 		{
 			new DiagramActions.RemoveLinksAction(
 					edit,

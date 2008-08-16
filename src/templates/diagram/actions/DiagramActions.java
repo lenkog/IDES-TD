@@ -136,8 +136,9 @@ public class DiagramActions
 			}
 		}
 	}
-	
-	public static class CreateAndMatchConnectorAction extends AbstractDiagramAction
+
+	public static class CreateAndMatchConnectorAction extends
+			AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 2328335456634040094L;
 
@@ -149,14 +150,14 @@ public class DiagramActions
 
 		protected Connector[] buffer;
 
-		public CreateAndMatchConnectorAction(TemplateDiagram diagram, Entity left,
-				Entity right)
+		public CreateAndMatchConnectorAction(TemplateDiagram diagram,
+				Entity left, Entity right)
 		{
 			this(null, diagram, left, right, null);
 		}
 
-		public CreateAndMatchConnectorAction(TemplateDiagram diagram, Entity left,
-				Entity right, Connector[] buffer)
+		public CreateAndMatchConnectorAction(TemplateDiagram diagram,
+				Entity left, Entity right, Connector[] buffer)
 		{
 			this(null, diagram, left, right, buffer);
 		}
@@ -182,12 +183,18 @@ public class DiagramActions
 		{
 			if (diagram != null)
 			{
-				CompoundEdit allEdits=new CompoundEdit();
-				Connector[] myBuffer=new Connector[1];
-				new CreateConnectorAction(allEdits,diagram,left,right,myBuffer).execute();
-				String undoLabel=allEdits.getPresentationName();
-				new MatchEventsAction(allEdits,diagram,myBuffer[0]).execute();
-				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(undoLabel));
+				CompoundEdit allEdits = new CompoundEdit();
+				Connector[] myBuffer = new Connector[1];
+				new CreateConnectorAction(
+						allEdits,
+						diagram,
+						left,
+						right,
+						myBuffer).execute();
+				String undoLabel = allEdits.getPresentationName();
+				new MatchEventsAction(allEdits, diagram, myBuffer[0]).execute();
+				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(
+						undoLabel));
 				allEdits.end();
 				if (buffer != null && buffer.length > 0)
 				{
@@ -197,7 +204,6 @@ public class DiagramActions
 			}
 		}
 	}
-
 
 	public static class AddLinkAction extends AbstractDiagramAction
 	{
@@ -341,22 +347,22 @@ public class DiagramActions
 			this.parentEdit = parent;
 			this.diagram = diagram;
 			this.connector = connector;
-			this.links=links;
+			this.links = links;
 		}
 
 		public void actionPerformed(ActionEvent e)
 		{
-			if (diagram != null&&!links.isEmpty())
+			if (diagram != null && !links.isEmpty())
 			{
-				CompoundEdit allEdits=new CompoundEdit();
-				for(TemplateLink link:links)
+				CompoundEdit allEdits = new CompoundEdit();
+				for (TemplateLink link : links)
 				{
-				DiagramUndoableEdits.RemoveLinkEdit edit = new DiagramUndoableEdits.RemoveLinkEdit(
-						diagram,
-						connector,
-						link);
-				edit.redo();
-				allEdits.addEdit(edit);
+					DiagramUndoableEdits.RemoveLinkEdit edit = new DiagramUndoableEdits.RemoveLinkEdit(
+							diagram,
+							connector,
+							link);
+					edit.redo();
+					allEdits.addEdit(edit);
 				}
 				allEdits.end();
 				postEditAdjustCanvas(diagram, allEdits);
@@ -467,19 +473,22 @@ public class DiagramActions
 		{
 			if (diagram != null)
 			{
-				Set<String> matches=Helpers.matchEvents(connector);
-				CompoundEdit allEdits=new CompoundEdit();
-				new RemoveLinksAction(allEdits,diagram,connector,connector.getLinks()).execute();
-				for(String name:matches)
+				Set<String> matches = Helpers.matchEvents(connector);
+				CompoundEdit allEdits = new CompoundEdit();
+				new RemoveLinksAction(allEdits, diagram, connector, connector
+						.getLinks()).execute();
+				for (String name : matches)
 				{
-				DiagramUndoableEdits.AddLinkEdit edit = new DiagramUndoableEdits.AddLinkEdit(
-						diagram,
-						connector,
-						name,name);
-				edit.redo();
-				allEdits.addEdit(edit);
+					DiagramUndoableEdits.AddLinkEdit edit = new DiagramUndoableEdits.AddLinkEdit(
+							diagram,
+							connector,
+							name,
+							name);
+					edit.redo();
+					allEdits.addEdit(edit);
 				}
-				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_comMatchEvents")));
+				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(
+						Hub.string("TD_comMatchEvents")));
 				allEdits.end();
 				postEditAdjustCanvas(diagram, allEdits);
 			}
@@ -591,12 +600,14 @@ public class DiagramActions
 				{
 					newModel.setName(TemplateModel.FSA_NAME_PREFIX
 							+ entity.getLabel());
-					//add all linked events
-					for(Connector c:diagram.getAdjacentConnectors(entity))
+					// add all linked events
+					for (Connector c : diagram.getAdjacentConnectors(entity))
 					{
-						for(TemplateLink link:c.getLinks())
+						for (TemplateLink link : c.getLinks())
 						{
-							String event=c.getLeftEntity()==entity?link.getLeftEventName():link.getRightEventName();
+							String event = c.getLeftEntity() == entity ? link
+									.getLeftEventName() : link
+									.getRightEventName();
 							newModel.add(newModel.assembleEvent(event));
 						}
 					}

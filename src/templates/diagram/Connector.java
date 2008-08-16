@@ -61,12 +61,14 @@ public class Connector extends DiagramElement
 			this.sideIsLeft = isSideLeft;
 			for (TemplateLink link : getLinks())
 			{
-				TemplateComponent component=isSideLeft?getLeftEntity().getComponent():
-					getRightEntity().getComponent();
-				events.add(link.getLeftComponent()==component ? new EventPair(
-						link.getLeftEventName(),
-						link.getRightEventName()) : new EventPair(link
-						.getRightEventName(), link.getLeftEventName()));
+				TemplateComponent component = isSideLeft ? getLeftEntity()
+						.getComponent() : getRightEntity().getComponent();
+				events
+						.add(link.getLeftComponent() == component ? new EventPair(
+								link.getLeftEventName(),
+								link.getRightEventName())
+								: new EventPair(link.getRightEventName(), link
+										.getLeftEventName()));
 			}
 			Collections.sort(events);
 			if (events.size() > EVENT_LIST_LIMIT)

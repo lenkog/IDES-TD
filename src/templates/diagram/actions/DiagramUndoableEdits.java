@@ -5,7 +5,6 @@ import ides.api.model.fsa.FSAModel;
 
 import java.awt.Point;
 import java.util.Collection;
-import java.util.Set;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -236,13 +235,13 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotRedoException();
 			}
-			if(link==null)
+			if (link == null)
 			{
 				link = diagram.createLink(connector, leftEvent, rightEvent);
 			}
 			else
 			{
-				diagram.addLink(connector,link);
+				diagram.addLink(connector, link);
 			}
 		}
 
@@ -419,7 +418,7 @@ public class DiagramUndoableEdits
 
 		protected TemplateDiagram diagram;
 
-		protected Connector connector=null;
+		protected Connector connector = null;
 
 		protected TemplateLink link = null;
 
@@ -428,7 +427,7 @@ public class DiagramUndoableEdits
 		{
 			this.diagram = diagram;
 			this.connector = connector;
-			this.link=link;
+			this.link = link;
 		}
 
 		@Override
@@ -460,7 +459,7 @@ public class DiagramUndoableEdits
 		@Override
 		public boolean canRedo()
 		{
-			return (connector != null && link!=null);
+			return (connector != null && link != null);
 		}
 
 		/**

@@ -194,7 +194,7 @@ public class AssignEventsDialog extends EscapeDialog
 
 		mainBox.add(newBox);
 		mainBox.add(Box.createRigidArea(new Dimension(0, 5)));
-		
+
 		Box listBox = Box.createHorizontalBox();
 
 		listBox.add(leftIcon);
@@ -205,10 +205,11 @@ public class AssignEventsDialog extends EscapeDialog
 
 		mainBox.add(listBox);
 		mainBox.add(Box.createRigidArea(new Dimension(0, 5)));
-		
-		Box buttonBox=Box.createHorizontalBox();
+
+		Box buttonBox = Box.createHorizontalBox();
 		buttonBox.add(Box.createHorizontalGlue());
-		buttonBox.add(new JButton(new AbstractAction(Hub.string("TD_comDeleteAllLinks"))
+		buttonBox.add(new JButton(new AbstractAction(Hub
+				.string("TD_comDeleteAllLinks"))
 		{
 			private static final long serialVersionUID = 2680899991712228777L;
 
@@ -217,8 +218,9 @@ public class AssignEventsDialog extends EscapeDialog
 				linker.unlinkAll();
 			}
 		}));
-		buttonBox.add(Box.createRigidArea(new Dimension(10,0)));
-		buttonBox.add(new JButton(new AbstractAction(Hub.string("TD_comMatchEvents"))
+		buttonBox.add(Box.createRigidArea(new Dimension(10, 0)));
+		buttonBox.add(new JButton(new AbstractAction(Hub
+				.string("TD_comMatchEvents"))
 		{
 			private static final long serialVersionUID = 1783903218138278716L;
 
@@ -228,31 +230,38 @@ public class AssignEventsDialog extends EscapeDialog
 			}
 		}));
 		buttonBox.add(Box.createHorizontalGlue());
-		
+
 		mainBox.add(buttonBox);
 		mainBox.add(Box.createRigidArea(new Dimension(0, 5)));
-		
-		Box infoBox=Box.createHorizontalBox();
+
+		Box infoBox = Box.createHorizontalBox();
 		infoBox.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		JLabel iconLabel=new JLabel();
+		JLabel iconLabel = new JLabel();
 		try
 		{
-			iconLabel.setIcon(new ImageIcon(ImageIO.read(Hub.getLocalResource(AssignEventsDialog.class,"images/icons/exclamation.gif"))));
-		}catch(IOException e){}
+			iconLabel.setIcon(new ImageIcon(ImageIO.read(Hub
+					.getLocalResource(AssignEventsDialog.class,
+							"images/icons/exclamation.gif"))));
+		}
+		catch (IOException e)
+		{
+		}
 		iconLabel.setAlignmentY(JComponent.TOP_ALIGNMENT);
 		infoBox.add(iconLabel);
-		JTextArea area=new JTextArea();
+		JTextArea area = new JTextArea();
 		area.setFont(iconLabel.getFont());
 		area.setBackground(iconLabel.getBackground());
-		area.setText(Hub.string("TD_eventIconExplain1")+" "+Hub.string("TD_eventIconExplain2")+" "+Hub.string("TD_eventAssignExplain"));
+		area.setText(Hub.string("TD_eventIconExplain1") + " "
+				+ Hub.string("TD_eventIconExplain2") + " "
+				+ Hub.string("TD_eventAssignExplain"));
 		area.setLineWrap(true);
 		area.setEditable(false);
 		area.setWrapStyleWord(true);
 		area.setAlignmentY(JComponent.TOP_ALIGNMENT);
 		infoBox.add(area);
-		
+
 		mainBox.add(infoBox);
-		
+
 		getContentPane().add(mainBox);
 
 	}

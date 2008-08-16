@@ -13,20 +13,22 @@ public class Helpers
 {
 	public static Set<String> matchEvents(Connector c)
 	{
-		Set<String> leftEvents=new HashSet<String>();
-		Set<String> rightEvents=new HashSet<String>();
-		if(c.getLeftEntity().getComponent().hasModel())
+		Set<String> leftEvents = new HashSet<String>();
+		Set<String> rightEvents = new HashSet<String>();
+		if (c.getLeftEntity().getComponent().hasModel())
 		{
-			for(Iterator<FSAEvent> i=c.getLeftEntity().getComponent().getModel().getEventIterator();i.hasNext();)
+			for (Iterator<FSAEvent> i = c
+					.getLeftEntity().getComponent().getModel()
+					.getEventIterator(); i.hasNext();)
 			{
 				leftEvents.add(i.next().getSymbol());
 			}
 		}
 		else
 		{
-			for(TemplateLink link:c.getLinks())
+			for (TemplateLink link : c.getLinks())
 			{
-				if(link.getLeftComponent()==c.getLeftEntity().getComponent())
+				if (link.getLeftComponent() == c.getLeftEntity().getComponent())
 				{
 					leftEvents.add(link.getLeftEventName());
 				}
@@ -36,18 +38,21 @@ public class Helpers
 				}
 			}
 		}
-		if(c.getRightEntity().getComponent().hasModel())
+		if (c.getRightEntity().getComponent().hasModel())
 		{
-			for(Iterator<FSAEvent> i=c.getRightEntity().getComponent().getModel().getEventIterator();i.hasNext();)
+			for (Iterator<FSAEvent> i = c
+					.getRightEntity().getComponent().getModel()
+					.getEventIterator(); i.hasNext();)
 			{
 				rightEvents.add(i.next().getSymbol());
 			}
 		}
 		else
 		{
-			for(TemplateLink link:c.getLinks())
+			for (TemplateLink link : c.getLinks())
 			{
-				if(link.getRightComponent()==c.getLeftEntity().getComponent())
+				if (link.getRightComponent() == c
+						.getLeftEntity().getComponent())
 				{
 					rightEvents.add(link.getLeftEventName());
 				}
@@ -57,13 +62,14 @@ public class Helpers
 				}
 			}
 		}
-		return matchEvents(leftEvents,rightEvents);
+		return matchEvents(leftEvents, rightEvents);
 	}
-	
-	public static Set<String> matchEvents(Set<String> leftEvents,Set<String> rightEvents)
+
+	public static Set<String> matchEvents(Set<String> leftEvents,
+			Set<String> rightEvents)
 	{
-		Set<String> ret=new HashSet<String>(leftEvents);
+		Set<String> ret = new HashSet<String>(leftEvents);
 		ret.retainAll(rightEvents);
-		return ret;		
+		return ret;
 	}
 }

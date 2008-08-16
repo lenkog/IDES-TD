@@ -159,7 +159,8 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				+ component.getId();
 		Entity entity = new Entity(component, layout);
 		entities.add(entity);
-		component.setModel(ModelManager.instance().createModel(FSAModel.class,TemplateModel.FSA_NAME_PREFIX+layout.label));
+		component.setModel(ModelManager.instance().createModel(FSAModel.class,
+				TemplateModel.FSA_NAME_PREFIX + layout.label));
 		model.addSubscriber((TemplateModelSubscriber)this);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -392,7 +393,8 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				TemplateDiagramMessage.OP_REMOVE));
 	}
 
-	public TemplateLink createLink(Connector c, String leftEvent, String rightEvent)
+	public TemplateLink createLink(Connector c, String leftEvent,
+			String rightEvent)
 	{
 		if (!connectors.contains(c))
 		{
