@@ -60,6 +60,11 @@ public class TemplatesPlugin implements Plugin
 				TemplateModel.class);
 		IOPluginManager.instance().registerDataLoader(ioPlugin,
 				ioPlugin.getIOTypeDescriptor());
+		IOPluginManager.instance().registerMetaSaver(ioPlugin,TemplateModel.class);
+		for(String tag:ioPlugin.getMetaTags())
+		{
+			IOPluginManager.instance().registerMetaLoader(ioPlugin,ioPlugin.getIOTypeDescriptor(),tag);
+		}
 	}
 
 	public void unload()

@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.JLabel;
 import javax.swing.undo.CompoundEdit;
@@ -127,19 +129,33 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 			DiagramElement.setGlobalFontRenderer(Hub
 					.getMainWindow().getGraphics());
 		}
+		Set<Long> coveredEntities = new TreeSet<Long>();
+		for (Entity e : entities)
+		{
+			coveredEntities.add(e.getComponent().getId());
+		}
 		for (TemplateComponent component : model.getComponents())
 		{
-			EntityLayout layout = null;
-			if (component.hasAnnotation(Annotable.LAYOUT))
+			if (coveredEntities.contains(component.getId()))
 			{
-				layout = (EntityLayout)component
-						.getAnnotation(Annotable.LAYOUT);
+				coveredEntities.remove(component.getId());
 			}
-			if (layout == null)
+			else
 			{
-				layout = createLayout(component);
+				EntityLayout layout = null;
+				if (component.hasAnnotation(Annotable.LAYOUT))
+				{
+					layout = (EntityLayout)component
+							.getAnnotation(Annotable.LAYOUT);
+				}
+				if (layout == null)
+				{
+					layout = createLayout(component);
+				}
+				entities.add(new Entity(component, layout));
+				component.getModel().setName(TemplateModel.FSA_NAME_PREFIX
+						+ layout.label);
 			}
-			entities.add(new Entity(component, layout));
 		}
 		for (TemplateLink link : model.getLinks())
 		{
@@ -151,7 +167,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				{
 					left = e;
 				}
-				else if (e.getComponent() == link.getRightComponent())
+				if (e.getComponent() == link.getRightComponent())
 				{
 					right = e;
 				}
@@ -168,6 +184,34 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				connectors.add(c);
 			}
 			c.addLink(link);
+		}
+		if (model.hasAnnotation(Annotable.LAYOUT))
+		{
+			Set<?> emptyConnectors = (Set<?>)model
+					.getAnnotation(Annotable.LAYOUT);
+			for (Object o : emptyConnectors)
+			{
+				Entity left = null;
+				Entity right = null;
+				for (Entity e : entities)
+				{
+					if (e.getComponent().getId() == ((EmptyConnector)o).leftComponent)
+					{
+						left = e;
+					}
+					if (e.getComponent().getId() == ((EmptyConnector)o).rightComponent)
+					{
+						right = e;
+					}
+					if (left != null && right != null)
+					{
+						break;
+					}
+				}
+				Connector c = new Connector(left, right, Arrays
+						.asList(new TemplateLink[] {}));
+				connectors.add(c);
+			}
 		}
 		new DiagramActions.ShiftDiagramInViewAction(new CompoundEdit(), this)
 				.execute();
@@ -207,6 +251,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 	public void templateModelStructureChanged(TemplateModelMessage message)
 	{
 		recoverLayout();
+		updateEmptyConnectorList();
 		Set<DiagramElement> elements = new HashSet<DiagramElement>();
 		elements.addAll(entities);
 		elements.addAll(connectors);
@@ -291,6 +336,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		}
 		entities.remove(entity);
 		model.removeComponent(entity.getComponent().getId());
+		updateEmptyConnectorList();
 		model.addSubscriber((TemplateModelSubscriber)this);
 		Collection<DiagramElement> removed = new HashSet<DiagramElement>(
 				adjacent);
@@ -418,6 +464,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		}
 		Connector c = new Connector(left, right, new HashSet<TemplateLink>());
 		connectors.add(c);
+		updateEmptyConnectorList();
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
 				Arrays.asList(new DiagramElement[] { c }),
@@ -446,6 +493,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				model.addLink(link);
 			}
 			connectors.add(c);
+			updateEmptyConnectorList();
 		}
 		finally
 		{
@@ -470,6 +518,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 			model.removeLink(link.getId());
 		}
 		connectors.remove(c);
+		updateEmptyConnectorList();
 		model.addSubscriber((TemplateModelSubscriber)this);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -493,6 +542,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 			link.setLeftEventName(leftEvent);
 			link.setRightEventName(rightEvent);
 			c.addLink(link);
+			updateEmptyConnectorList();
 		}
 		finally
 		{
@@ -516,6 +566,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		{
 			model.addLink(link);
 			c.addLink(link);
+			updateEmptyConnectorList();
 		}
 		finally
 		{
@@ -538,6 +589,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		{
 			c.removeLink(link);
 			model.removeLink(link.getId());
+			updateEmptyConnectorList();
 		}
 		finally
 		{
@@ -735,5 +787,20 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 
 	public void saveStatusChanged(DESModelMessage arg0)
 	{
+	}
+
+	protected void updateEmptyConnectorList()
+	{
+		EmptyConnectorSet emptyConnectors = new EmptyConnectorSet();
+		for (Connector c : connectors)
+		{
+			if (c.getLinks().isEmpty())
+			{
+				emptyConnectors.add(new EmptyConnector(c
+						.getLeftEntity().getComponent().getId(), c
+						.getRightEntity().getComponent().getId()));
+			}
+		}
+		model.setAnnotation(Annotable.LAYOUT, emptyConnectors);
 	}
 }

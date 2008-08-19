@@ -1,5 +1,6 @@
 package templates.io;
 
+import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.io.FileIOPlugin;
@@ -10,10 +11,13 @@ import ides.api.plugin.model.DESModel;
 import ides.api.plugin.model.ModelManager;
 import ides.api.utilities.HeadTailInputStream;
 
+import java.awt.Color;
+import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,6 +35,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import templates.diagram.Connector;
+import templates.diagram.EmptyConnector;
+import templates.diagram.EmptyConnectorSet;
+import templates.diagram.Entity;
+import templates.diagram.EntityLayout;
 import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
 import templates.model.TemplateModel;
@@ -99,14 +108,18 @@ public class TemplateFileIO implements FileIOPlugin
 		return tags;
 	}
 
-	protected String componentFile(File parentFile, TemplateComponent component)
+	protected String component2File(File parentFile, TemplateComponent component)
 	{
 		StringBuffer name = new StringBuffer();
 		if (component.hasModel())
 		{
 			name.append("_");
-			for (Character ch : component
-					.getModel().getName().substring(3).toCharArray())
+			String modelName=component.getModel().getName();
+			if(modelName.startsWith(TemplateModel.FSA_NAME_PREFIX))
+			{
+				modelName=modelName.substring(TemplateModel.FSA_NAME_PREFIX.length());
+			}
+			for (Character ch : modelName.toCharArray())
 			{
 				if (Character.isLetterOrDigit(ch))
 				{
@@ -122,6 +135,35 @@ public class TemplateFileIO implements FileIOPlugin
 		}
 		return parentName + "_" + component.getId() + name + "."
 				+ IOSubsytem.MODEL_FILE_EXT;
+	}
+	
+	protected String file2Component(File parentFile,File file)
+	{
+		String name=file.getName();
+		if (name.endsWith("." + IOSubsytem.MODEL_FILE_EXT))
+		{
+			name = name.substring(0, name.length()
+					- IOSubsytem.MODEL_FILE_EXT.length() - 1);
+		}
+		String parentName = parentFile.getName();
+		if (parentName.endsWith("." + IOSubsytem.MODEL_FILE_EXT))
+		{
+			parentName = parentName.substring(0, parentName.length()
+					- IOSubsytem.MODEL_FILE_EXT.length() - 1);
+		}
+		if(name.startsWith(parentName))
+		{
+			name=name.substring(parentName.length());
+		}
+		if(name.indexOf("_")>=0)
+		{
+			name=name.substring(name.indexOf("_")+1);
+		}
+		if(name.indexOf("_")>=0)
+		{
+			name=name.substring(name.indexOf("_")+1);
+		}
+		return name;
 	}
 
 	public void saveData(PrintStream stream, DESModel model, String file)
@@ -143,7 +185,7 @@ public class TemplateFileIO implements FileIOPlugin
 			{
 				fileMap.put(component, new File(outFile
 						.getParentFile().getAbsolutePath()
-						+ File.separator + componentFile(outFile, component)));
+						+ File.separator + component2File(outFile, component)));
 				if (!component.getModel().hasAnnotation(FILE)
 						|| !fileMap.get(component).equals(component
 								.getModel().getAnnotation(FILE)))
@@ -228,11 +270,51 @@ public class TemplateFileIO implements FileIOPlugin
 		}
 	}
 
-	public void saveMeta(PrintStream arg0, DESModel arg1, String arg2)
+	public void saveMeta(PrintStream stream, DESModel arg1, String arg2)
 			throws FileSaveException
 	{
-		// TODO Auto-generated method stub
-
+		if (!(arg1 instanceof TemplateModel))
+		{
+			throw new FileSaveException(Hub.string("TD_ioWrongModelType"));
+		}
+		if(!META.equals(arg2))
+		{
+			throw new FileSaveException("TD_ioUnsupportedTag");
+		}
+		TemplateModel td=(TemplateModel)arg1;
+		for(TemplateComponent c:td.getComponents())
+		{
+			if(c.hasAnnotation(Annotable.LAYOUT))
+			{
+				EntityLayout layout=(EntityLayout)c.getAnnotation(Annotable.LAYOUT);
+				stream.print("\t<"+ELEMENT_ENTITY+" "+
+						ATTRIBUTE_COMPONENT+"=\""+c.getId()+"\" "+
+						ATTRIBUTE_LABEL+"=\""+layout.label+"\" "+
+						ATTRIBUTE_X+"=\""+layout.location.x+"\" "+
+						ATTRIBUTE_Y+"=\""+layout.location.y+"\" "+
+						ATTRIBUTE_FLAG+"=\""+layout.flag+"\"");
+				if(layout.color!=null)
+				{
+					stream.print(" "+ATTRIBUTE_COLOR+"=\""+Integer.toHexString(layout.color.getRed())+
+							Integer.toHexString(layout.color.getGreen())+Integer.toHexString(layout.color.getBlue())+"\"");
+				}
+				if(!"".equals(layout.tag))
+				{
+					stream.print(" "+ATTRIBUTE_TAG+"=\""+layout.tag+"\"");
+				}
+				stream.println("/>");
+			}
+		}
+		if(td.hasAnnotation(Annotable.LAYOUT))
+		{
+			EmptyConnectorSet emptyConnectors=(EmptyConnectorSet)td.getAnnotation(Annotable.LAYOUT);
+			for(EmptyConnector c:emptyConnectors)
+			{
+				stream.println("\t<"+ELEMENT_CONNECTOR+" "+
+						ATTRIBUTE_LEFT+"=\""+c.leftComponent+"\" "+
+						ATTRIBUTE_RIGHT+"=\""+c.rightComponent+"\"/>");
+			}
+		}
 	}
 
 	public String getSaveDataVersion()
@@ -329,6 +411,8 @@ public class TemplateFileIO implements FileIOPlugin
 						{
 							FSAModel fsa = (FSAModel)Hub
 									.getIOSubsystem().load(f);
+							fsa.setName(file2Component(new File(file),f));
+							fsa.setAnnotation(FILE,f);
 							component.setModel(fsa);
 						}
 						catch (IOException e)
@@ -382,11 +466,150 @@ public class TemplateFileIO implements FileIOPlugin
 		return model;
 	}
 
-	public void loadMeta(String arg0, InputStream arg1, DESModel arg2,
+	public void loadMeta(String arg0, InputStream arg1, DESModel model,
 			String arg3) throws FileLoadException
 	{
-		// TODO Auto-generated method stub
-
+		if (!VERSION.equals(arg0))
+		{
+			throw new FileLoadException(Hub.string("TD_ioUnsupportedVer"));
+		}
+		if(!META.equals(arg3))
+		{
+			throw new FileLoadException("TD_ioUnsupportedTag");
+		}
+		Document doc = null;
+		try
+		{
+			byte[] FILE_HEADER = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+					+ System.getProperty("line.separator") + "<data>" + System
+					.getProperty("line.separator")).getBytes();
+			HeadTailInputStream dataSection = new HeadTailInputStream(
+					arg1,
+					FILE_HEADER,
+					"</data>".getBytes());
+			DocumentBuilder parser = DocumentBuilderFactory
+					.newInstance().newDocumentBuilder();
+			doc = parser.parse(dataSection);
+		}
+		catch (ParserConfigurationException e)
+		{
+			throw new FileLoadException(e.getMessage());
+		}
+		catch (IOException e)
+		{
+			throw new FileLoadException(e.getMessage());
+		}
+		catch (SAXException e)
+		{
+			throw new FileLoadException(e.getMessage());
+		}
+		if (doc == null)
+		{
+			throw new FileLoadException(Hub.string("TD_ioCantParseFile"));
+		}
+		Node dataNode = null;
+		for (int i = 0; i < doc.getChildNodes().getLength(); ++i)
+		{
+			// System.out.println(doc.getChildNodes().item(i).getNodeName());
+			if (doc.getChildNodes().item(i).getNodeName().equals(ELEMENT_DATA))
+			{
+				dataNode = doc.getChildNodes().item(i);
+			}
+		}
+		if (dataNode == null)
+		{
+			throw new FileLoadException(Hub.string("TD_ioCantParseFile"));
+		}
+		String errors = "";
+		NodeList children = dataNode.getChildNodes();
+		try
+		{
+			for (int i = 0; i < children.getLength(); i++)
+			{
+				Node node = children.item(i);
+				NamedNodeMap attributes = node.getAttributes();
+				if (node.getNodeName().equals(ELEMENT_ENTITY))
+				{
+					EntityLayout layout=new EntityLayout();
+					long id=Long.parseLong(attributes
+							.getNamedItem(ATTRIBUTE_COMPONENT).getNodeValue());
+					layout.label=attributes
+					.getNamedItem(ATTRIBUTE_LABEL).getNodeValue();
+					if(layout.label==null)
+					{
+						layout.label=""+id;
+					}
+					layout.location=new Point(Integer.parseInt(attributes
+							.getNamedItem(ATTRIBUTE_X).getNodeValue()),
+							Integer.parseInt(attributes
+							.getNamedItem(ATTRIBUTE_Y).getNodeValue()));
+					layout.flag=Boolean.parseBoolean(attributes
+							.getNamedItem(ATTRIBUTE_FLAG).getNodeValue());
+					if(attributes
+							.getNamedItem(ATTRIBUTE_COLOR)!=null)
+					{
+						try
+						{
+						layout.color=Color.decode(attributes
+							.getNamedItem(ATTRIBUTE_COLOR).getNodeValue());
+						}catch(NumberFormatException e)
+						{
+							errors+=Hub.string("TD_ioCantParseFile")+" ("+attributes
+							.getNamedItem(ATTRIBUTE_COLOR).getNodeValue()+")\n";
+						}
+					}
+					if(attributes
+							.getNamedItem(ATTRIBUTE_TAG)!=null)
+					{
+						layout.tag=attributes
+						.getNamedItem(ATTRIBUTE_TAG).getNodeValue();
+					}
+					if(layout.tag==null)
+					{
+						layout.tag="";
+					}
+					TemplateComponent component = ((TemplateModel)model).getComponent(id);
+					if(component==null)
+					{
+						errors+=Hub.string("TD_ioCantParseFile")+" ("+id+")\n";
+					}
+					else
+					{
+						component.setAnnotation(Annotable.LAYOUT,layout);
+					}
+				}
+				else if (node.getNodeName().equals(ELEMENT_CONNECTOR))
+				{
+					EmptyConnectorSet emptyConnectors=(EmptyConnectorSet)model.getAnnotation(Annotable.LAYOUT);
+					if(emptyConnectors==null)
+					{
+						emptyConnectors=new EmptyConnectorSet();
+					}
+					emptyConnectors.add(new EmptyConnector(Long.parseLong(attributes
+							.getNamedItem(ATTRIBUTE_LEFT).getNodeValue()),
+							Long.parseLong(attributes
+									.getNamedItem(ATTRIBUTE_RIGHT).getNodeValue())));
+					model.setAnnotation(Annotable.LAYOUT,emptyConnectors);
+				}
+				else if (node.getNodeType() == Node.TEXT_NODE)
+				{
+				}
+				else
+				{
+					errors += Hub.string("TD_ioCantParseFile") + " ("
+							+ node.getNodeName() + ")\n";
+				}
+			}
+			if (!"".equals(errors))
+			{
+				throw new RuntimeException(errors);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new FileLoadException(e.getMessage(), model);
+		}
 	}
 
 }
