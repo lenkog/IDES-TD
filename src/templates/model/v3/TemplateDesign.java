@@ -271,15 +271,7 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 
 	public synchronized TemplateLink createLink(long leftId, long rightId)
 	{
-		TemplateComponent left = getComponent(leftId);
-		TemplateComponent right = getComponent(rightId);
-		if (left == null || right == null)
-		{
-			throw new InconsistentModificationException(Hub
-					.string("TD_inconsistencyLinkInit"));
-		}
-		Link link = new Link(freeLinkId, left, right);
-		freeLinkId++;
+		TemplateLink link = assembleLink(leftId, rightId);
 		links.add(link);
 		fireTemplateModelStructureChanged(new TemplateModelMessage(
 				this,
@@ -292,8 +284,7 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 
 	public synchronized TemplateComponent createComponent()
 	{
-		Component component = new Component(freeComponentId);
-		freeComponentId++;
+		TemplateComponent component = assembleComponent();
 		components.add(component);
 		fireTemplateModelStructureChanged(new TemplateModelMessage(
 				this,
@@ -580,5 +571,26 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 					TemplateModelMessage.OP_MODIFY));
 			setNeedsSave(true);
 		}
+	}
+
+	public TemplateComponent assembleComponent()
+	{
+		Component component = new Component(freeComponentId);
+		freeComponentId++;
+		return component;
+	}
+
+	public TemplateLink assembleLink(long leftId, long rightId)
+	{
+		TemplateComponent left = getComponent(leftId);
+		TemplateComponent right = getComponent(rightId);
+		if (left == null || right == null)
+		{
+			throw new InconsistentModificationException(Hub
+					.string("TD_inconsistencyLinkInit"));
+		}
+		Link link = new Link(freeLinkId, left, right);
+		freeLinkId++;
+		return link;
 	}
 }

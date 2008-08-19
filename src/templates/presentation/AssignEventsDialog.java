@@ -199,7 +199,10 @@ public class AssignEventsDialog extends EscapeDialog
 
 		listBox.add(leftIcon);
 		listBox.add(Box.createRigidArea(new Dimension(5, 0)));
-		listBox.add(new JScrollPane(linkerPanel));
+		listBox.add(new JScrollPane(
+				linkerPanel,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
 		listBox.add(Box.createRigidArea(new Dimension(5, 0)));
 		listBox.add(rightIcon);
 
@@ -266,7 +269,7 @@ public class AssignEventsDialog extends EscapeDialog
 
 	}
 
-	public static AssignEventsDialog instance()
+	protected static AssignEventsDialog instance()
 	{
 		if (me == null)
 		{
@@ -316,6 +319,7 @@ public class AssignEventsDialog extends EscapeDialog
 	public static void showAndAssign(TemplateEditableCanvas canvas,
 			Connector connector)
 	{
+		instance();
 		AssignEventsDialog.canvas = canvas;
 		AssignEventsDialog.connector = connector;
 		if (connector.getLeftEntity().getLocation().x > connector
@@ -342,6 +346,7 @@ public class AssignEventsDialog extends EscapeDialog
 			leftIcon.add(new EntityRenderer(connector.getRightEntity()));
 			rightIcon.add(new EntityRenderer(connector.getLeftEntity()));
 		}
+		linkerPanel.getPreferredSize();
 		instance().pack();
 		instance().setLocation(Hub.getCenteredLocationForDialog(new Dimension(
 				instance().getWidth(),

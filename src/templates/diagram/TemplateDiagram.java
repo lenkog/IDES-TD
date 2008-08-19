@@ -1,5 +1,6 @@
 package templates.diagram;
 
+import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.DESModelMessage;
@@ -16,6 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JLabel;
+import javax.swing.undo.CompoundEdit;
 
 import templates.diagram.actions.DiagramActions;
 import templates.model.InconsistentModificationException;
@@ -125,6 +127,81 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 			DiagramElement.setGlobalFontRenderer(Hub
 					.getMainWindow().getGraphics());
 		}
+		for (TemplateComponent component : model.getComponents())
+		{
+			EntityLayout layout = null;
+			if (component.hasAnnotation(Annotable.LAYOUT))
+			{
+				layout = (EntityLayout)component
+						.getAnnotation(Annotable.LAYOUT);
+			}
+			if (layout == null)
+			{
+				layout = createLayout(component);
+			}
+			entities.add(new Entity(component, layout));
+		}
+		for (TemplateLink link : model.getLinks())
+		{
+			Entity left = null;
+			Entity right = null;
+			for (Entity e : entities)
+			{
+				if (e.getComponent() == link.getLeftComponent())
+				{
+					left = e;
+				}
+				else if (e.getComponent() == link.getRightComponent())
+				{
+					right = e;
+				}
+				if (left != null && right != null)
+				{
+					break;
+				}
+			}
+			Connector c = getConnector(left, right);
+			if (c == null)
+			{
+				c = new Connector(left, right, Arrays
+						.asList(new TemplateLink[] {}));
+				connectors.add(c);
+			}
+			c.addLink(link);
+		}
+		new DiagramActions.ShiftDiagramInViewAction(new CompoundEdit(), this)
+				.execute();
+	}
+
+	protected EntityLayout createLayout(TemplateComponent component)
+	{
+		EntityLayout layout = new EntityLayout();
+		if (component.hasModel())
+		{
+			layout.label = component.getModel().getName();
+			if (layout.label.startsWith(TemplateModel.FSA_NAME_PREFIX))
+			{
+				layout.label = layout.label
+						.substring(TemplateModel.FSA_NAME_PREFIX.length());
+			}
+		}
+		else
+		{
+			layout.label = Hub.string("TD_untitledEntityPrefix") + " "
+					+ component.getId();
+		}
+		int row = entities.size() / 10;
+		int col = entities.size() % 10;
+		while (hasEntitiesAt(new Rectangle(col * 100, row * 100, 100, 100)))
+		{
+			col = (col + 1) % 10;
+			if (col == 0)
+			{
+				row++;
+			}
+		}
+		layout.location = new Point(col * 100 + 50, row * 100 + 50);
+		return layout;
 	}
 
 	public void templateModelStructureChanged(TemplateModelMessage message)
@@ -153,7 +230,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 	{
 		model.removeSubscriber((TemplateModelSubscriber)this);
 		TemplateComponent component = model.createComponent();
-		DiagramElementLayout layout = new DiagramElementLayout();
+		EntityLayout layout = new EntityLayout();
 		layout.location = location;
 		layout.label = Hub.string("TD_untitledEntityPrefix") + " "
 				+ component.getId();
@@ -258,6 +335,18 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		return null;
 	}
 
+	public boolean hasEntitiesAt(Rectangle area)
+	{
+		for (Entity entity : entities)
+		{
+			if (entity.intersects(area))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public Collection<Entity> getEntities()
 	{
 		return new HashSet<Entity>(entities);
@@ -327,12 +416,7 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		{
 			return getConnector(left, right);
 		}
-		DiagramElementLayout layout = new DiagramElementLayout();
-		Connector c = new Connector(
-				left,
-				right,
-				new HashSet<TemplateLink>(),
-				layout);
+		Connector c = new Connector(left, right, new HashSet<TemplateLink>());
 		connectors.add(c);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -568,9 +652,9 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		{
 			c.draw(g2d);
 		}
-		for (Entity module : entities)
+		for (Entity e : entities)
 		{
-			module.draw(g2d);
+			e.draw(g2d);
 		}
 	}
 

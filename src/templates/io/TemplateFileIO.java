@@ -1,11 +1,14 @@
 package templates.io;
 
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.io.FileIOPlugin;
 import ides.api.plugin.io.FileLoadException;
 import ides.api.plugin.io.FileSaveException;
 import ides.api.plugin.io.IOSubsytem;
 import ides.api.plugin.model.DESModel;
+import ides.api.plugin.model.ModelManager;
+import ides.api.utilities.HeadTailInputStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +21,18 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.JOptionPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import templates.model.TemplateComponent;
+import templates.model.TemplateLink;
 import templates.model.TemplateModel;
 
 public class TemplateFileIO implements FileIOPlugin
@@ -33,6 +46,46 @@ public class TemplateFileIO implements FileIOPlugin
 	protected static final String FILE = "templateComponentFile";
 
 	protected static final String LAST_SAVE_FILE = "templateLastSaveFile";
+
+	protected static final String ELEMENT_DATA = "data";
+
+	protected static final String ELEMENT_COMPONENT = "component";
+
+	protected static final String ELEMENT_LINK = "link";
+
+	protected static final String ELEMENT_ENTITY = "entity";
+
+	protected static final String ELEMENT_CONNECTOR = "connector";
+
+	protected static final String ATTRIBUTE_ID = "id";
+
+	protected static final String ATTRIBUTE_TYPE = "type";
+
+	protected static final String ATTRIBUTE_FSA = "model";
+
+	protected static final String ATTRIBUTE_LEFT = "component1";
+
+	protected static final String ATTRIBUTE_RIGHT = "component2";
+
+	protected static final String ATTRIBUTE_LEFTEVENT = "event1";
+
+	protected static final String ATTRIBUTE_RIGHTEVENT = "event2";
+
+	protected static final String ATTRIBUTE_COMPONENT = "component";
+
+	protected static final String ATTRIBUTE_X = "x";
+
+	protected static final String ATTRIBUTE_Y = "y";
+
+	protected static final String ATTRIBUTE_LABEL = "label";
+
+	protected static final String ATTRIBUTE_COLOR = "color";
+
+	protected static final String ATTRIBUTE_TAG = "tag";
+
+	protected static final String ATTRIBUTE_FLAG = "flag";
+
+	protected static final String ATTRIBUTE_ICON = "icon";
 
 	public String getIOTypeDescriptor()
 	{
@@ -148,13 +201,31 @@ public class TemplateFileIO implements FileIOPlugin
 		{
 			f.delete();
 		}
-		// try
-		// {
-		//			
-		// }catch(IOException e)
-		// {
-		// throw new FileSaveException(e);
-		// }
+		for (TemplateComponent component : td.getComponents())
+		{
+			stream.print("\t<" + ELEMENT_COMPONENT + " " + ATTRIBUTE_ID + "=\""
+					+ component.getId() + "\" " + ATTRIBUTE_TYPE + "=\""
+					+ component.getType() + "\"");
+			if (component.hasModel())
+			{
+				stream.print(" "
+						+ ATTRIBUTE_FSA
+						+ "=\""
+						+ ((File)component.getModel().getAnnotation(FILE))
+								.getName() + "\"");
+			}
+			stream.println("/>");
+		}
+		for (TemplateLink link : td.getLinks())
+		{
+			stream.println("\t<" + ELEMENT_LINK + " " + ATTRIBUTE_ID + "=\""
+					+ link.getId() + "\" " + ATTRIBUTE_LEFT + "=\""
+					+ link.getLeftComponent().getId() + "\" " + ATTRIBUTE_RIGHT
+					+ "=\"" + link.getRightComponent().getId() + "\" "
+					+ ATTRIBUTE_LEFTEVENT + "=\"" + link.getLeftEventName()
+					+ "\" " + ATTRIBUTE_RIGHTEVENT + "=\""
+					+ link.getRightEventName() + "\"/>");
+		}
 	}
 
 	public void saveMeta(PrintStream arg0, DESModel arg1, String arg2)
@@ -181,8 +252,134 @@ public class TemplateFileIO implements FileIOPlugin
 	public DESModel loadData(String arg0, InputStream arg1, String file)
 			throws FileLoadException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (!VERSION.equals(arg0))
+		{
+			throw new FileLoadException(Hub.string("TD_ioUnsupportedVer"));
+		}
+		Document doc = null;
+		try
+		{
+			byte[] FILE_HEADER = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+					+ System.getProperty("line.separator") + "<data>" + System
+					.getProperty("line.separator")).getBytes();
+			HeadTailInputStream dataSection = new HeadTailInputStream(
+					arg1,
+					FILE_HEADER,
+					"</data>".getBytes());
+			DocumentBuilder parser = DocumentBuilderFactory
+					.newInstance().newDocumentBuilder();
+			doc = parser.parse(dataSection);
+		}
+		catch (ParserConfigurationException e)
+		{
+			throw new FileLoadException(e.getMessage());
+		}
+		catch (IOException e)
+		{
+			throw new FileLoadException(e.getMessage());
+		}
+		catch (SAXException e)
+		{
+			throw new FileLoadException(e.getMessage());
+		}
+		if (doc == null)
+		{
+			throw new FileLoadException(Hub.string("TD_ioCantParseFile"));
+		}
+		Node dataNode = null;
+		for (int i = 0; i < doc.getChildNodes().getLength(); ++i)
+		{
+			// System.out.println(doc.getChildNodes().item(i).getNodeName());
+			if (doc.getChildNodes().item(i).getNodeName().equals(ELEMENT_DATA))
+			{
+				dataNode = doc.getChildNodes().item(i);
+			}
+		}
+		if (dataNode == null)
+		{
+			throw new FileLoadException(Hub.string("TD_ioCantParseFile"));
+		}
+		String errors = "";
+		TemplateModel model = ModelManager
+				.instance().createModel(TemplateModel.class);
+		model.setAnnotation(LAST_SAVE_FILE, new File(file));
+		NodeList children = dataNode.getChildNodes();
+		try
+		{
+			for (int i = 0; i < children.getLength(); i++)
+			{
+				Node node = children.item(i);
+				NamedNodeMap attributes = node.getAttributes();
+				if (node.getNodeName().equals(ELEMENT_COMPONENT))
+				{
+					TemplateComponent component = model.assembleComponent();
+					component.setId(Long.parseLong(attributes
+							.getNamedItem(ATTRIBUTE_ID).getNodeValue()));
+					component.setType(Integer.parseInt(attributes
+							.getNamedItem(ATTRIBUTE_TYPE).getNodeValue()));
+					if (attributes.getNamedItem(ATTRIBUTE_FSA) != null)
+					{
+						File f = new File(new File(file)
+								.getParentFile().getAbsolutePath()
+								+ File.separator
+								+ attributes
+										.getNamedItem(ATTRIBUTE_FSA)
+										.getNodeValue());
+						try
+						{
+							FSAModel fsa = (FSAModel)Hub
+									.getIOSubsystem().load(f);
+							component.setModel(fsa);
+						}
+						catch (IOException e)
+						{
+							errors += Hub.string("TD_ioCantLoadFSA")
+									+ f.getAbsolutePath() + "\n";
+						}
+					}
+					model.addComponent(component);
+				}
+				else if (node.getNodeName().equals(ELEMENT_LINK))
+				{
+					long leftId = Long.parseLong(attributes
+							.getNamedItem(ATTRIBUTE_LEFT).getNodeValue());
+					long rightId = Long.parseLong(attributes
+							.getNamedItem(ATTRIBUTE_RIGHT).getNodeValue());
+					TemplateLink link = model.assembleLink(leftId, rightId);
+					link.setId(Long.parseLong(attributes
+							.getNamedItem(ATTRIBUTE_ID).getNodeValue()));
+					link.setLeftEventName(attributes
+							.getNamedItem(ATTRIBUTE_LEFTEVENT).getNodeValue());
+					link.setRightEventName(attributes
+							.getNamedItem(ATTRIBUTE_RIGHTEVENT).getNodeValue());
+					if (link.getLeftEventName() == null
+							|| link.getRightEventName() == null)
+					{
+						throw new RuntimeException(Hub
+								.string("TD_ioCantParseFile"));
+					}
+					model.addLink(link);
+				}
+				else if (node.getNodeType() == Node.TEXT_NODE)
+				{
+				}
+				else
+				{
+					errors += Hub.string("TD_ioCantParseFile") + " ("
+							+ node.getNodeName() + ")\n";
+				}
+			}
+			if (!"".equals(errors))
+			{
+				throw new RuntimeException(errors);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new FileLoadException(e.getMessage(), model);
+		}
+		return model;
 	}
 
 	public void loadMeta(String arg0, InputStream arg1, DESModel arg2,

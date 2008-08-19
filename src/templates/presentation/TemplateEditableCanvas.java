@@ -110,6 +110,7 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 			}
 		});
 		// getActionMap().put(escAction, escapeCommand);
+		refresh();
 	}
 
 	public JComponent getGUI()

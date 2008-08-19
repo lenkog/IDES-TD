@@ -21,9 +21,13 @@ public interface TemplateModel extends DESModel, TemplateModelPublisher
 
 	public TemplateLink getLink(long id);
 
+	public TemplateComponent assembleComponent();
+
 	public TemplateComponent createComponent();
 
 	public void addComponent(TemplateComponent component);
+
+	public TemplateLink assembleLink(long leftId, long rightId);
 
 	public TemplateLink createLink(long leftId, long rightId);
 

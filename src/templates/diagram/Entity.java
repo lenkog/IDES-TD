@@ -67,6 +67,8 @@ public class Entity extends DiagramElement
 
 	protected TemplateComponent component;
 
+	protected EntityLayout layout;
+
 	private Rectangle bounds;
 
 	private SimpleIcon icon = new SimpleIcon();
@@ -78,17 +80,16 @@ public class Entity extends DiagramElement
 	public Entity(TemplateComponent component) throws MissingLayoutException
 	{
 		if (!component.hasAnnotation(Annotable.LAYOUT)
-				|| !(component.getAnnotation(Annotable.LAYOUT) instanceof DiagramElementLayout))
+				|| !(component.getAnnotation(Annotable.LAYOUT) instanceof EntityLayout))
 		{
 			throw new MissingLayoutException();
 		}
 		this.component = component;
-		layout = (DiagramElementLayout)component
-				.getAnnotation(Annotable.LAYOUT);
+		layout = (EntityLayout)component.getAnnotation(Annotable.LAYOUT);
 		update();
 	}
 
-	public Entity(TemplateComponent component, DiagramElementLayout layout)
+	public Entity(TemplateComponent component, EntityLayout layout)
 	{
 		this.component = component;
 		this.layout = layout;
@@ -167,9 +168,20 @@ public class Entity extends DiagramElement
 		labelBox.draw(g2d);
 	}
 
+	public Point getLocation()
+	{
+		return layout.location;
+	}
+
+	public void setLocation(Point location)
+	{
+		layout.location = location;
+	}
+
 	public void translate(Point delta)
 	{
-		super.translate(delta);
+		layout.location.x += delta.x;
+		layout.location.y += delta.y;
 		update();
 	}
 

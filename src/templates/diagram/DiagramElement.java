@@ -64,27 +64,11 @@ public abstract class DiagramElement
 			new float[] { 1, 2 },
 			0f);
 
-	protected DiagramElementLayout layout;
-
 	protected boolean highlight = false;
 
 	protected boolean selected = false;
 
-	public Point getLocation()
-	{
-		return layout.location;
-	}
-
-	public void setLocation(Point location)
-	{
-		layout.location = location;
-	}
-
-	public void translate(Point delta)
-	{
-		layout.location.x += delta.x;
-		layout.location.y += delta.y;
-	}
+	public abstract void translate(Point delta);
 
 	public void setHighlight(boolean b)
 	{

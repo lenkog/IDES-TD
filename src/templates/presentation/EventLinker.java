@@ -428,6 +428,12 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				+ EVENT_SPACING));
 	}
 
+	public Dimension getMinimumSize()
+	{
+		return new Dimension(2 * getMaxLabelWidth() + MIN_LINK_WIDTH + 2
+				* NOTE_SPACE, MIN_HEIGHT);
+	}
+
 	public void paint(Graphics g)
 	{
 		Graphics2D g2d = (Graphics2D)g;

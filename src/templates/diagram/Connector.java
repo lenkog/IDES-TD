@@ -1,6 +1,5 @@
 package templates.diagram;
 
-import ides.api.core.Annotable;
 import ides.api.core.Hub;
 
 import java.awt.Font;
@@ -173,41 +172,28 @@ public class Connector extends DiagramElement
 	protected EventsBox rightEventBox;
 
 	public Connector(Entity left, Entity right, Collection<TemplateLink> links)
-			throws MissingLayoutException
+	// throws MissingLayoutException
 	{
-		layout = null;
-		for (TemplateLink link : links)
-		{
-			if (link.hasAnnotation(Annotable.LAYOUT)
-					&& link.getAnnotation(Annotable.LAYOUT) instanceof DiagramElementLayout)
-			{
-				layout = (DiagramElementLayout)link
-						.getAnnotation(Annotable.LAYOUT);
-				break;
-			}
-		}
-		if (layout == null)
-		{
-			throw new MissingLayoutException();
-		}
-		for (TemplateLink link : links)
-		{
-			link.setAnnotation(Annotable.LAYOUT, layout);
-		}
-		this.left = left;
-		this.right = right;
-		this.links.addAll(links);
-		update();
-	}
-
-	public Connector(Entity left, Entity right, Collection<TemplateLink> links,
-			DiagramElementLayout layout)
-	{
-		this.layout = layout;
-		for (TemplateLink link : links)
-		{
-			link.setAnnotation(Annotable.LAYOUT, layout);
-		}
+		// layout = null;
+		// for (TemplateLink link : links)
+		// {
+		// if (link.hasAnnotation(Annotable.LAYOUT)
+		// && link.getAnnotation(Annotable.LAYOUT) instanceof
+		// DiagramElementLayout)
+		// {
+		// layout = (DiagramElementLayout)link
+		// .getAnnotation(Annotable.LAYOUT);
+		// break;
+		// }
+		// }
+		// if (layout == null)
+		// {
+		// throw new MissingLayoutException();
+		// }
+		// for (TemplateLink link : links)
+		// {
+		// link.setAnnotation(Annotable.LAYOUT, layout);
+		// }
 		this.left = left;
 		this.right = right;
 		this.links.addAll(links);
@@ -247,7 +233,6 @@ public class Connector extends DiagramElement
 						.string("TD_inconsistencyConnecting"));
 			}
 			links.add(link);
-			link.setAnnotation(Annotable.LAYOUT, layout);
 			update();
 		}
 	}

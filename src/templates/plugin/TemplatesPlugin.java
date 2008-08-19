@@ -58,6 +58,8 @@ public class TemplatesPlugin implements Plugin
 		TemplateFileIO ioPlugin = new TemplateFileIO();
 		IOPluginManager.instance().registerDataSaver(ioPlugin,
 				TemplateModel.class);
+		IOPluginManager.instance().registerDataLoader(ioPlugin,
+				ioPlugin.getIOTypeDescriptor());
 	}
 
 	public void unload()

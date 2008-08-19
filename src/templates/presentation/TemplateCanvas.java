@@ -50,6 +50,7 @@ public class TemplateCanvas extends JComponent implements Presentation,
 		DiagramElement.setGlobalFontRenderer(graphics);
 		diagram = retrieveDiagram(model);
 		diagram.addSubscriber(this);
+		// refresh();
 	}
 
 	private static TemplateDiagram retrieveDiagram(TemplateModel model)
