@@ -2,9 +2,11 @@ package templates.model.v3;
 
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
+import ides.api.plugin.model.DESModel;
 import ides.api.plugin.model.DESModelMessage;
 import ides.api.plugin.model.DESModelSubscriber;
 import ides.api.plugin.model.DESModelType;
+import ides.api.plugin.model.ParentModel;
 
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -122,7 +124,8 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 			DESModelMessage message = new DESModelMessage(
 					needsSave ? DESModelMessage.DIRTY : DESModelMessage.CLEAN,
 					this);
-			for (DESModelSubscriber s : modelSubscribers)
+			for (DESModelSubscriber s : modelSubscribers
+					.toArray(new DESModelSubscriber[] {}))
 			{
 				s.saveStatusChanged(message);
 			}
@@ -406,6 +409,15 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 
 	public void modelSaved()
 	{
+		for (TemplateComponent c : components)
+		{
+			if (c.hasModel())
+			{
+				c.getModel().removeSubscriber(this);
+				c.getModel().modelSaved();
+				c.getModel().addSubscriber(this);
+			}
+		}
 		setNeedsSave(false);
 	}
 
@@ -419,7 +431,8 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		DESModelMessage message = new DESModelMessage(
 				DESModelMessage.NAME,
 				this);
-		for (DESModelSubscriber s : modelSubscribers)
+		for (DESModelSubscriber s : modelSubscribers
+				.toArray(new DESModelSubscriber[] {}))
 		{
 			s.modelNameChanged(message);
 		}
@@ -501,30 +514,6 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		return null;
 	}
 
-	public void modelNameChanged(DESModelMessage arg0)
-	{
-	}
-
-	public void saveStatusChanged(DESModelMessage arg0)
-	{
-		if (!(arg0.getSource() instanceof FSAModel))
-		{
-			return;
-		}
-		TemplateComponent c = getComponentWithFSA((FSAModel)arg0.getSource());
-		if (c == null)
-		{
-			return;
-		}
-		if (arg0.getSource().needsSave())
-		{
-			arg0.getSource().removeSubscriber(this);
-			arg0.getSource().modelSaved();
-			arg0.getSource().addSubscriber(this);
-			setNeedsSave(true);
-		}
-	}
-
 	public void assignFSA(long componentId, FSAModel fsa)
 	{
 		if (getComponentWithFSA(fsa) != null)
@@ -538,13 +527,11 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 			if (c.getModel() != null)
 			{
 				c.getModel().removeSubscriber(this);
+				c.getModel().setParentModel(null);
 			}
+			fsa.setParentModel(this);
 			c.setModel(fsa);
-			if (fsa != null)
-			{
-				fsa.modelSaved();
-				fsa.addSubscriber(this);
-			}
+			fsa.addSubscriber(this);
 			fireTemplateModelStructureChanged(new TemplateModelMessage(
 					this,
 					componentId,
@@ -562,6 +549,7 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 			if (c.getModel() != null)
 			{
 				c.getModel().removeSubscriber(this);
+				c.getModel().setParentModel(null);
 			}
 			c.setModel(null);
 			fireTemplateModelStructureChanged(new TemplateModelMessage(
@@ -592,5 +580,75 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		Link link = new Link(freeLinkId, left, right);
 		freeLinkId++;
 		return link;
+	}
+
+	public DESModel getChildModel(String arg0)
+	{
+		long id;
+		try
+		{
+			id = Long.parseLong(arg0);
+		}
+		catch (NumberFormatException e)
+		{
+			return null;
+		}
+		TemplateComponent component = null;
+		for (TemplateComponent c : components)
+		{
+			if (c.getId() == id)
+			{
+				component = c;
+				break;
+			}
+		}
+		if (component == null || !component.hasModel())
+		{
+			return null;
+		}
+		return component.getModel();
+	}
+
+	public String getChildModelId(DESModel arg0)
+			throws IllegalArgumentException
+	{
+		TemplateComponent component = null;
+		for (TemplateComponent c : components)
+		{
+			if (c.hasModel() && c.getModel() == arg0)
+			{
+				component = c;
+				break;
+			}
+		}
+		if (component == null)
+		{
+			throw new IllegalArgumentException();
+		}
+		return "" + component.getId();
+	}
+
+	protected ParentModel parent = null;
+
+	public ParentModel getParentModel()
+	{
+		return parent;
+	}
+
+	public void setParentModel(ParentModel arg0)
+	{
+		parent = arg0;
+	}
+
+	public void modelNameChanged(DESModelMessage arg0)
+	{
+	}
+
+	public void saveStatusChanged(DESModelMessage arg0)
+	{
+		if (arg0.getEventType() == DESModelMessage.DIRTY)
+		{
+			setNeedsSave(true);
+		}
 	}
 }

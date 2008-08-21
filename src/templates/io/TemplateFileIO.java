@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,10 +34,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import templates.diagram.Connector;
 import templates.diagram.EmptyConnector;
 import templates.diagram.EmptyConnectorSet;
-import templates.diagram.Entity;
 import templates.diagram.EntityLayout;
 import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
@@ -114,10 +111,11 @@ public class TemplateFileIO implements FileIOPlugin
 		if (component.hasModel())
 		{
 			name.append("_");
-			String modelName=component.getModel().getName();
-			if(modelName.startsWith(TemplateModel.FSA_NAME_PREFIX))
+			String modelName = component.getModel().getName();
+			if (modelName.startsWith(TemplateModel.FSA_NAME_PREFIX))
 			{
-				modelName=modelName.substring(TemplateModel.FSA_NAME_PREFIX.length());
+				modelName = modelName.substring(TemplateModel.FSA_NAME_PREFIX
+						.length());
 			}
 			for (Character ch : modelName.toCharArray())
 			{
@@ -136,10 +134,10 @@ public class TemplateFileIO implements FileIOPlugin
 		return parentName + "_" + component.getId() + name + "."
 				+ IOSubsytem.MODEL_FILE_EXT;
 	}
-	
-	protected String file2Component(File parentFile,File file)
+
+	protected String file2Component(File parentFile, File file)
 	{
-		String name=file.getName();
+		String name = file.getName();
 		if (name.endsWith("." + IOSubsytem.MODEL_FILE_EXT))
 		{
 			name = name.substring(0, name.length()
@@ -151,17 +149,17 @@ public class TemplateFileIO implements FileIOPlugin
 			parentName = parentName.substring(0, parentName.length()
 					- IOSubsytem.MODEL_FILE_EXT.length() - 1);
 		}
-		if(name.startsWith(parentName))
+		if (name.startsWith(parentName))
 		{
-			name=name.substring(parentName.length());
+			name = name.substring(parentName.length());
 		}
-		if(name.indexOf("_")>=0)
+		if (name.indexOf("_") >= 0)
 		{
-			name=name.substring(name.indexOf("_")+1);
+			name = name.substring(name.indexOf("_") + 1);
 		}
-		if(name.indexOf("_")>=0)
+		if (name.indexOf("_") >= 0)
 		{
-			name=name.substring(name.indexOf("_")+1);
+			name = name.substring(name.indexOf("_") + 1);
 		}
 		return name;
 	}
@@ -277,42 +275,48 @@ public class TemplateFileIO implements FileIOPlugin
 		{
 			throw new FileSaveException(Hub.string("TD_ioWrongModelType"));
 		}
-		if(!META.equals(arg2))
+		if (!META.equals(arg2))
 		{
 			throw new FileSaveException("TD_ioUnsupportedTag");
 		}
-		TemplateModel td=(TemplateModel)arg1;
-		for(TemplateComponent c:td.getComponents())
+		TemplateModel td = (TemplateModel)arg1;
+		for (TemplateComponent c : td.getComponents())
 		{
-			if(c.hasAnnotation(Annotable.LAYOUT))
+			if (c.hasAnnotation(Annotable.LAYOUT))
 			{
-				EntityLayout layout=(EntityLayout)c.getAnnotation(Annotable.LAYOUT);
-				stream.print("\t<"+ELEMENT_ENTITY+" "+
-						ATTRIBUTE_COMPONENT+"=\""+c.getId()+"\" "+
-						ATTRIBUTE_LABEL+"=\""+layout.label+"\" "+
-						ATTRIBUTE_X+"=\""+layout.location.x+"\" "+
-						ATTRIBUTE_Y+"=\""+layout.location.y+"\" "+
-						ATTRIBUTE_FLAG+"=\""+layout.flag+"\"");
-				if(layout.color!=null)
+				EntityLayout layout = (EntityLayout)c
+						.getAnnotation(Annotable.LAYOUT);
+				stream.print("\t<" + ELEMENT_ENTITY + " " + ATTRIBUTE_COMPONENT
+						+ "=\"" + c.getId() + "\" " + ATTRIBUTE_LABEL + "=\""
+						+ layout.label + "\" " + ATTRIBUTE_X + "=\""
+						+ layout.location.x + "\" " + ATTRIBUTE_Y + "=\""
+						+ layout.location.y + "\" " + ATTRIBUTE_FLAG + "=\""
+						+ layout.flag + "\"");
+				if (layout.color != null)
 				{
-					stream.print(" "+ATTRIBUTE_COLOR+"=\""+Integer.toHexString(layout.color.getRed())+
-							Integer.toHexString(layout.color.getGreen())+Integer.toHexString(layout.color.getBlue())+"\"");
+					stream.print(" " + ATTRIBUTE_COLOR + "=\""
+							+ Integer.toHexString(layout.color.getRed())
+							+ Integer.toHexString(layout.color.getGreen())
+							+ Integer.toHexString(layout.color.getBlue())
+							+ "\"");
 				}
-				if(!"".equals(layout.tag))
+				if (!"".equals(layout.tag))
 				{
-					stream.print(" "+ATTRIBUTE_TAG+"=\""+layout.tag+"\"");
+					stream.print(" " + ATTRIBUTE_TAG + "=\"" + layout.tag
+							+ "\"");
 				}
 				stream.println("/>");
 			}
 		}
-		if(td.hasAnnotation(Annotable.LAYOUT))
+		if (td.hasAnnotation(Annotable.LAYOUT))
 		{
-			EmptyConnectorSet emptyConnectors=(EmptyConnectorSet)td.getAnnotation(Annotable.LAYOUT);
-			for(EmptyConnector c:emptyConnectors)
+			EmptyConnectorSet emptyConnectors = (EmptyConnectorSet)td
+					.getAnnotation(Annotable.LAYOUT);
+			for (EmptyConnector c : emptyConnectors)
 			{
-				stream.println("\t<"+ELEMENT_CONNECTOR+" "+
-						ATTRIBUTE_LEFT+"=\""+c.leftComponent+"\" "+
-						ATTRIBUTE_RIGHT+"=\""+c.rightComponent+"\"/>");
+				stream.println("\t<" + ELEMENT_CONNECTOR + " " + ATTRIBUTE_LEFT
+						+ "=\"" + c.leftComponent + "\" " + ATTRIBUTE_RIGHT
+						+ "=\"" + c.rightComponent + "\"/>");
 			}
 		}
 	}
@@ -411,8 +415,9 @@ public class TemplateFileIO implements FileIOPlugin
 						{
 							FSAModel fsa = (FSAModel)Hub
 									.getIOSubsystem().load(f);
-							fsa.setName(file2Component(new File(file),f));
-							fsa.setAnnotation(FILE,f);
+							fsa.setName(file2Component(new File(file), f));
+							fsa.setAnnotation(FILE, f);
+							fsa.setParentModel(model);
 							component.setModel(fsa);
 						}
 						catch (IOException e)
@@ -473,7 +478,7 @@ public class TemplateFileIO implements FileIOPlugin
 		{
 			throw new FileLoadException(Hub.string("TD_ioUnsupportedVer"));
 		}
-		if(!META.equals(arg3))
+		if (!META.equals(arg3))
 		{
 			throw new FileLoadException("TD_ioUnsupportedTag");
 		}
@@ -530,66 +535,73 @@ public class TemplateFileIO implements FileIOPlugin
 				NamedNodeMap attributes = node.getAttributes();
 				if (node.getNodeName().equals(ELEMENT_ENTITY))
 				{
-					EntityLayout layout=new EntityLayout();
-					long id=Long.parseLong(attributes
+					EntityLayout layout = new EntityLayout();
+					long id = Long.parseLong(attributes
 							.getNamedItem(ATTRIBUTE_COMPONENT).getNodeValue());
-					layout.label=attributes
-					.getNamedItem(ATTRIBUTE_LABEL).getNodeValue();
-					if(layout.label==null)
+					layout.label = attributes
+							.getNamedItem(ATTRIBUTE_LABEL).getNodeValue();
+					if (layout.label == null)
 					{
-						layout.label=""+id;
+						layout.label = "" + id;
 					}
-					layout.location=new Point(Integer.parseInt(attributes
-							.getNamedItem(ATTRIBUTE_X).getNodeValue()),
-							Integer.parseInt(attributes
-							.getNamedItem(ATTRIBUTE_Y).getNodeValue()));
-					layout.flag=Boolean.parseBoolean(attributes
+					layout.location = new Point(Integer.parseInt(attributes
+							.getNamedItem(ATTRIBUTE_X).getNodeValue()), Integer
+							.parseInt(attributes
+									.getNamedItem(ATTRIBUTE_Y).getNodeValue()));
+					layout.flag = Boolean.parseBoolean(attributes
 							.getNamedItem(ATTRIBUTE_FLAG).getNodeValue());
-					if(attributes
-							.getNamedItem(ATTRIBUTE_COLOR)!=null)
+					if (attributes.getNamedItem(ATTRIBUTE_COLOR) != null)
 					{
 						try
 						{
-						layout.color=Color.decode(attributes
-							.getNamedItem(ATTRIBUTE_COLOR).getNodeValue());
-						}catch(NumberFormatException e)
+							layout.color = Color.decode(attributes
+									.getNamedItem(ATTRIBUTE_COLOR)
+									.getNodeValue());
+						}
+						catch (NumberFormatException e)
 						{
-							errors+=Hub.string("TD_ioCantParseFile")+" ("+attributes
-							.getNamedItem(ATTRIBUTE_COLOR).getNodeValue()+")\n";
+							errors += Hub.string("TD_ioCantParseFile")
+									+ " ("
+									+ attributes
+											.getNamedItem(ATTRIBUTE_COLOR)
+											.getNodeValue() + ")\n";
 						}
 					}
-					if(attributes
-							.getNamedItem(ATTRIBUTE_TAG)!=null)
+					if (attributes.getNamedItem(ATTRIBUTE_TAG) != null)
 					{
-						layout.tag=attributes
-						.getNamedItem(ATTRIBUTE_TAG).getNodeValue();
+						layout.tag = attributes
+								.getNamedItem(ATTRIBUTE_TAG).getNodeValue();
 					}
-					if(layout.tag==null)
+					if (layout.tag == null)
 					{
-						layout.tag="";
+						layout.tag = "";
 					}
-					TemplateComponent component = ((TemplateModel)model).getComponent(id);
-					if(component==null)
+					TemplateComponent component = ((TemplateModel)model)
+							.getComponent(id);
+					if (component == null)
 					{
-						errors+=Hub.string("TD_ioCantParseFile")+" ("+id+")\n";
+						errors += Hub.string("TD_ioCantParseFile") + " (" + id
+								+ ")\n";
 					}
 					else
 					{
-						component.setAnnotation(Annotable.LAYOUT,layout);
+						component.setAnnotation(Annotable.LAYOUT, layout);
 					}
 				}
 				else if (node.getNodeName().equals(ELEMENT_CONNECTOR))
 				{
-					EmptyConnectorSet emptyConnectors=(EmptyConnectorSet)model.getAnnotation(Annotable.LAYOUT);
-					if(emptyConnectors==null)
+					EmptyConnectorSet emptyConnectors = (EmptyConnectorSet)model
+							.getAnnotation(Annotable.LAYOUT);
+					if (emptyConnectors == null)
 					{
-						emptyConnectors=new EmptyConnectorSet();
+						emptyConnectors = new EmptyConnectorSet();
 					}
-					emptyConnectors.add(new EmptyConnector(Long.parseLong(attributes
-							.getNamedItem(ATTRIBUTE_LEFT).getNodeValue()),
-							Long.parseLong(attributes
-									.getNamedItem(ATTRIBUTE_RIGHT).getNodeValue())));
-					model.setAnnotation(Annotable.LAYOUT,emptyConnectors);
+					emptyConnectors.add(new EmptyConnector(Long
+							.parseLong(attributes
+									.getNamedItem(ATTRIBUTE_LEFT)
+									.getNodeValue()), Long.parseLong(attributes
+							.getNamedItem(ATTRIBUTE_RIGHT).getNodeValue())));
+					model.setAnnotation(Annotable.LAYOUT, emptyConnectors);
 				}
 				else if (node.getNodeType() == Node.TEXT_NODE)
 				{

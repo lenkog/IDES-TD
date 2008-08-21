@@ -665,9 +665,12 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotRedoException();
 			}
-			if (entity.getComponent().getModel() != null)
+			if (entity.getComponent().hasModel()
+					&& Hub.getWorkspace().hasModel(entity
+							.getComponent().getModel().getName()))
 			{
-				entity.getComponent().getModel().removeSubscriber(diagram);
+				Hub.getWorkspace().removeModel(entity
+						.getComponent().getModel().getName());
 			}
 			diagram.getModel().assignFSA(entity.getComponent().getId(),
 					newModel);
@@ -675,7 +678,6 @@ public class DiagramUndoableEdits
 			{
 				newModel.setName(TemplateModel.FSA_NAME_PREFIX
 						+ entity.getLabel());
-				newModel.addSubscriber(diagram);
 			}
 		}
 
@@ -686,9 +688,12 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotUndoException();
 			}
-			if (entity.getComponent().getModel() != null)
+			if (entity.getComponent().hasModel()
+					&& Hub.getWorkspace().hasModel(entity
+							.getComponent().getModel().getName()))
 			{
-				entity.getComponent().getModel().removeSubscriber(diagram);
+				Hub.getWorkspace().removeModel(entity
+						.getComponent().getModel().getName());
 			}
 			diagram.getModel().assignFSA(entity.getComponent().getId(),
 					oldModel);
@@ -696,7 +701,6 @@ public class DiagramUndoableEdits
 			{
 				oldModel.setName(TemplateModel.FSA_NAME_PREFIX
 						+ entity.getLabel());
-				oldModel.addSubscriber(diagram);
 			}
 		}
 

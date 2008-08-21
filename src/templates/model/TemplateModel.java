@@ -1,11 +1,11 @@
 package templates.model;
 
 import ides.api.model.fsa.FSAModel;
-import ides.api.plugin.model.DESModel;
+import ides.api.plugin.model.ParentModel;
 
 import java.util.Collection;
 
-public interface TemplateModel extends DESModel, TemplateModelPublisher
+public interface TemplateModel extends ParentModel, TemplateModelPublisher
 {
 	public static String FSA_NAME_PREFIX = "TD:";
 

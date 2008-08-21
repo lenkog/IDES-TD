@@ -19,7 +19,6 @@ import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
 import templates.model.TemplateLink;
-import templates.model.TemplateModel;
 import templates.presentation.Helpers;
 
 public class DiagramActions
@@ -598,8 +597,6 @@ public class DiagramActions
 				}
 				else
 				{
-					newModel.setName(TemplateModel.FSA_NAME_PREFIX
-							+ entity.getLabel());
 					// add all linked events
 					for (Connector c : diagram.getAdjacentConnectors(entity))
 					{
@@ -655,7 +652,6 @@ public class DiagramActions
 		{
 			if (diagram != null)
 			{
-				fsa.setName(TemplateModel.FSA_NAME_PREFIX + entity.getLabel());
 				DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 						diagram,
 						entity,

@@ -3,8 +3,6 @@ package templates.diagram;
 import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
-import ides.api.plugin.model.DESModelMessage;
-import ides.api.plugin.model.DESModelSubscriber;
 import ides.api.plugin.model.ModelManager;
 
 import java.awt.Graphics2D;
@@ -14,9 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.JLabel;
 import javax.swing.undo.CompoundEdit;
@@ -29,8 +25,7 @@ import templates.model.TemplateModel;
 import templates.model.TemplateModelMessage;
 import templates.model.TemplateModelSubscriber;
 
-public class TemplateDiagram implements TemplateModelSubscriber,
-		DESModelSubscriber
+public class TemplateDiagram implements TemplateModelSubscriber
 {
 	/**
 	 * FSAGraphPublisher part which maintains a collection of, and sends change
@@ -129,33 +124,24 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 			DiagramElement.setGlobalFontRenderer(Hub
 					.getMainWindow().getGraphics());
 		}
-		Set<Long> coveredEntities = new TreeSet<Long>();
-		for (Entity e : entities)
-		{
-			coveredEntities.add(e.getComponent().getId());
-		}
+		clearSelection();
+		entities.clear();
+		connectors.clear();
 		for (TemplateComponent component : model.getComponents())
 		{
-			if (coveredEntities.contains(component.getId()))
+			EntityLayout layout = null;
+			if (component.hasAnnotation(Annotable.LAYOUT))
 			{
-				coveredEntities.remove(component.getId());
+				layout = (EntityLayout)component
+						.getAnnotation(Annotable.LAYOUT);
 			}
-			else
+			if (layout == null)
 			{
-				EntityLayout layout = null;
-				if (component.hasAnnotation(Annotable.LAYOUT))
-				{
-					layout = (EntityLayout)component
-							.getAnnotation(Annotable.LAYOUT);
-				}
-				if (layout == null)
-				{
-					layout = createLayout(component);
-				}
-				entities.add(new Entity(component, layout));
-				component.getModel().setName(TemplateModel.FSA_NAME_PREFIX
-						+ layout.label);
+				layout = createLayout(component);
 			}
+			entities.add(new Entity(component, layout));
+			component.getModel().setName(TemplateModel.FSA_NAME_PREFIX
+					+ layout.label);
 		}
 		for (TemplateLink link : model.getLinks())
 		{
@@ -250,6 +236,27 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 
 	public void templateModelStructureChanged(TemplateModelMessage message)
 	{
+		if (message.getOperationType() == TemplateModelMessage.OP_MODIFY
+				&& message.getElementType() == TemplateModelMessage.ELEMENT_COMPONENT)
+		{
+			Entity entity = null;
+			for (Entity e : entities)
+			{
+				if (e.getComponent().getId() == message.getElementId())
+				{
+					entity = e;
+					break;
+				}
+			}
+			if (entity != null)
+			{
+				fireDiagramChanged(new TemplateDiagramMessage(
+						this,
+						Arrays.asList(new DiagramElement[] { entity }),
+						TemplateDiagramMessage.OP_MODIFY));
+				return;
+			}
+		}
 		recoverLayout();
 		updateEmptyConnectorList();
 		Set<DiagramElement> elements = new HashSet<DiagramElement>();
@@ -281,8 +288,10 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 				+ component.getId();
 		Entity entity = new Entity(component, layout);
 		entities.add(entity);
-		component.setModel(ModelManager.instance().createModel(FSAModel.class,
-				TemplateModel.FSA_NAME_PREFIX + layout.label));
+		FSAModel fsa = ModelManager.instance().createModel(FSAModel.class,
+				TemplateModel.FSA_NAME_PREFIX + layout.label);
+		fsa.setParentModel(model);
+		model.assignFSA(component.getId(), fsa);
 		model.addSubscriber((TemplateModelSubscriber)this);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -302,10 +311,6 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		{
 			model.addComponent(entity.getComponent());
 			entities.add(entity);
-			if (entity.getComponent().getModel() != null)
-			{
-				entity.getComponent().getModel().addSubscriber(this);
-			}
 		}
 		finally
 		{
@@ -340,10 +345,6 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		model.addSubscriber((TemplateModelSubscriber)this);
 		Collection<DiagramElement> removed = new HashSet<DiagramElement>(
 				adjacent);
-		if (entity.getComponent().getModel() != null)
-		{
-			entity.getComponent().getModel().removeSubscriber(this);
-		}
 		removed.add(entity);
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
@@ -356,11 +357,9 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 		entity.setLabel(label);
 		if (entity.getComponent().getModel() != null)
 		{
-			entity.getComponent().getModel().removeSubscriber(this);
 			entity
 					.getComponent().getModel()
 					.setName(TemplateModel.FSA_NAME_PREFIX + label);
-			entity.getComponent().getModel().addSubscriber(this);
 		}
 		model.metadataChanged();
 		fireDiagramChanged(new TemplateDiagramMessage(
@@ -765,28 +764,6 @@ public class TemplateDiagram implements TemplateModelSubscriber,
 			}
 		}
 		return null;
-	}
-
-	public void modelNameChanged(DESModelMessage arg0)
-	{
-		if (!(arg0.getSource() instanceof FSAModel))
-		{
-			return;
-		}
-		Entity e = getEntityWithFSA((FSAModel)arg0.getSource());
-		if (e == null)
-		{
-			return;
-		}
-		new DiagramActions.LabelEntityAction(this, e, arg0
-				.getSource().getName()
-				.startsWith(TemplateModel.FSA_NAME_PREFIX) ? arg0
-				.getSource().getName().substring(TemplateModel.FSA_NAME_PREFIX
-						.length()) : arg0.getSource().getName()).execute();
-	}
-
-	public void saveStatusChanged(DESModelMessage arg0)
-	{
 	}
 
 	protected void updateEmptyConnectorList()
