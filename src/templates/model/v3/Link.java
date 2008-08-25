@@ -179,11 +179,4 @@ public class Link implements TemplateLink
 		return right;
 	}
 
-	public boolean hasProperNeighbors()
-	{
-		return (left.getType() == TemplateComponent.TYPE_MODULE && right
-				.getType() == TemplateComponent.TYPE_CHANNEL)
-				|| (left.getType() == TemplateComponent.TYPE_CHANNEL && right
-						.getType() == TemplateComponent.TYPE_MODULE);
-	}
 }

@@ -11,7 +11,12 @@ public class SimpleIcon implements Icon
 {
 	protected static final int BOX_DISTANCE = 20;
 
-	public boolean selected = false;
+	protected boolean isModule;
+
+	public SimpleIcon(boolean isModule)
+	{
+		this.isModule = isModule;
+	}
 
 	public int getIconHeight()
 	{
@@ -26,22 +31,21 @@ public class SimpleIcon implements Icon
 	public void paintIcon(Component c, Graphics g, int x, int y)
 	{
 		Graphics2D g2d = (Graphics2D)g;
-		if (selected)
+		Stroke oldStroke = g2d.getStroke();
+		g2d.setStroke(DiagramElement.FAT_LINE_STROKE);
+		if (isModule)
 		{
-			g2d.setColor(DiagramElement.COLOR_SELECT);
+			g2d.drawRect(x, y, BOX_DISTANCE, BOX_DISTANCE);
 		}
 		else
 		{
-			g2d.setColor(DiagramElement.COLOR_NORM);
+			g2d.drawOval(x, y, BOX_DISTANCE, BOX_DISTANCE);
 		}
-		Stroke oldStroke = g2d.getStroke();
-		g2d.setStroke(DiagramElement.FAT_LINE_STROKE);
-		g2d.drawRect(x, y, BOX_DISTANCE, BOX_DISTANCE);
 		g2d.setStroke(oldStroke);
 	}
 
 	public SimpleIcon clone()
 	{
-		return new SimpleIcon();
+		return new SimpleIcon(isModule);
 	}
 }

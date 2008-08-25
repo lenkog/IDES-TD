@@ -1,8 +1,5 @@
 package templates.presentation;
 
-import ides.api.core.Hub;
-import ides.api.model.fsa.FSAModel;
-
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -101,15 +98,10 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 							}
 							else
 							{
-								FSAModel fsa = ((Entity)mouseDownOn)
-										.getComponent().getModel();
-								if (Hub.getWorkspace().getModel(fsa.getName()) != fsa)
-								{
-									Hub.getWorkspace().addModel(fsa);
-								}
-								Hub
-										.getWorkspace().setActiveModel(fsa
-												.getName());
+								new UIActions.OpenModelAction(
+										canvas,
+										(Entity)mouseDownOn)
+										.actionPerformed(null);
 							}
 						}
 					}
@@ -127,7 +119,10 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 			{
 				if (mouseDownOn == null)
 				{
-
+					Point p = canvas.localToComponent(arg0.getPoint());
+					new DiagramPopup(canvas, arg0.getPoint()).show(canvas,
+							p.x,
+							p.y);
 				}
 				else
 				{

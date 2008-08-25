@@ -1,7 +1,9 @@
 package templates.presentation;
 
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
@@ -13,9 +15,73 @@ import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.actions.DiagramActions;
 import templates.diagram.actions.DiagramUndoableEdits;
+import templates.model.TemplateComponent;
 
 public class UIActions
 {
+	public static class CreateEntityAction extends AbstractAction
+	{
+		private static final long serialVersionUID = 6528162027263301199L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Point location;
+
+		public CreateEntityAction(TemplateEditableCanvas canvas, Point location)
+		{
+			super(Hub.string("TD_comCreateEntity"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintCreateEntity"));
+			this.canvas = canvas;
+			this.location = location;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			new DiagramActions.CreateEntityAction(canvas.getDiagram(), location)
+					.execute();
+		}
+	}
+
+	public static class OpenModelAction extends AbstractAction
+	{
+		private static final long serialVersionUID = -1754004325055513445L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Entity entity;
+
+		public OpenModelAction(TemplateEditableCanvas canvas, Entity entity)
+		{
+			super(Hub.string("TD_comOpenModel"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintOpenModel"));
+			this.canvas = canvas;
+			this.entity = entity;
+			setEnabled(entity.getComponent().hasModel());
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			FSAModel fsa = entity.getComponent().getModel();
+			if (fsa == null)
+			{
+				return;
+			}
+			if (Hub.getWorkspace().getModel(fsa.getName()) != fsa)
+			{
+				Hub.getWorkspace().addModel(fsa);
+			}
+			Hub.getWorkspace().setActiveModel(fsa.getName());
+		}
+	}
+
 	public static class LabelAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 5645153856255010227L;
@@ -186,6 +252,64 @@ public class UIActions
 		{
 			new DiagramActions.MatchEventsAction(canvas.getDiagram(), connector)
 					.execute();
+		}
+	}
+
+	public static class SetModuleAction extends AbstractAction
+	{
+		private static final long serialVersionUID = -5184006756790356068L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Entity entity;
+
+		public SetModuleAction(TemplateEditableCanvas canvas, Entity entity)
+		{
+			super(Hub.string("TD_comSetModule"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintSetModule"));
+			this.canvas = canvas;
+			this.entity = entity;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			new DiagramActions.SetTypeAction(
+					canvas.getDiagram(),
+					entity,
+					TemplateComponent.TYPE_MODULE).actionPerformed(evt);
+		}
+	}
+
+	public static class SetChannelAction extends AbstractAction
+	{
+		private static final long serialVersionUID = 9154827758752183093L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Entity entity;
+
+		public SetChannelAction(TemplateEditableCanvas canvas, Entity entity)
+		{
+			super(Hub.string("TD_comSetChannel"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintSetChannel"));
+			this.canvas = canvas;
+			this.entity = entity;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			new DiagramActions.SetTypeAction(
+					canvas.getDiagram(),
+					entity,
+					TemplateComponent.TYPE_CHANNEL).actionPerformed(evt);
 		}
 	}
 }

@@ -11,7 +11,9 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JLabel;
@@ -100,7 +102,11 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	protected Set<Entity> entities = new HashSet<Entity>();
 
+	protected Map<TemplateComponent, Entity> component2Entity = new HashMap<TemplateComponent, Entity>();
+
 	protected Set<Connector> connectors = new HashSet<Connector>();
+
+	protected Map<TemplateLink, Connector> link2Connector = new HashMap<TemplateLink, Connector>();
 
 	protected TemplateModel model;
 
@@ -125,7 +131,9 @@ public class TemplateDiagram implements TemplateModelSubscriber
 					.getMainWindow().getGraphics());
 		}
 		clearSelection();
+		component2Entity.clear();
 		entities.clear();
+		link2Connector.clear();
 		connectors.clear();
 		for (TemplateComponent component : model.getComponents())
 		{
@@ -139,29 +147,19 @@ public class TemplateDiagram implements TemplateModelSubscriber
 			{
 				layout = createLayout(component);
 			}
-			entities.add(new Entity(component, layout));
-			component.getModel().setName(TemplateModel.FSA_NAME_PREFIX
-					+ layout.label);
+			Entity newEntity = new Entity(component, layout);
+			entities.add(newEntity);
+			component2Entity.put(component, newEntity);
+			if (component.hasModel())
+			{
+				component.getModel().setName(TemplateModel.FSA_NAME_PREFIX
+						+ layout.label);
+			}
 		}
 		for (TemplateLink link : model.getLinks())
 		{
-			Entity left = null;
-			Entity right = null;
-			for (Entity e : entities)
-			{
-				if (e.getComponent() == link.getLeftComponent())
-				{
-					left = e;
-				}
-				if (e.getComponent() == link.getRightComponent())
-				{
-					right = e;
-				}
-				if (left != null && right != null)
-				{
-					break;
-				}
-			}
+			Entity left = component2Entity.get(link.getLeftComponent());
+			Entity right = component2Entity.get(link.getRightComponent());
 			Connector c = getConnector(left, right);
 			if (c == null)
 			{
@@ -170,30 +168,18 @@ public class TemplateDiagram implements TemplateModelSubscriber
 				connectors.add(c);
 			}
 			c.addLink(link);
+			link2Connector.put(link, c);
 		}
 		if (model.hasAnnotation(Annotable.LAYOUT))
 		{
-			Set<?> emptyConnectors = (Set<?>)model
+			EmptyConnectorSet emptyConnectors = (EmptyConnectorSet)model
 					.getAnnotation(Annotable.LAYOUT);
-			for (Object o : emptyConnectors)
+			for (EmptyConnector ec : emptyConnectors)
 			{
-				Entity left = null;
-				Entity right = null;
-				for (Entity e : entities)
-				{
-					if (e.getComponent().getId() == ((EmptyConnector)o).leftComponent)
-					{
-						left = e;
-					}
-					if (e.getComponent().getId() == ((EmptyConnector)o).rightComponent)
-					{
-						right = e;
-					}
-					if (left != null && right != null)
-					{
-						break;
-					}
-				}
+				Entity left = component2Entity.get(model
+						.getComponent(ec.leftComponent));
+				Entity right = component2Entity.get(model
+						.getComponent(ec.rightComponent));
 				Connector c = new Connector(left, right, Arrays
 						.asList(new TemplateLink[] {}));
 				connectors.add(c);
@@ -239,17 +225,11 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		if (message.getOperationType() == TemplateModelMessage.OP_MODIFY
 				&& message.getElementType() == TemplateModelMessage.ELEMENT_COMPONENT)
 		{
-			Entity entity = null;
-			for (Entity e : entities)
-			{
-				if (e.getComponent().getId() == message.getElementId())
-				{
-					entity = e;
-					break;
-				}
-			}
+			Entity entity = component2Entity.get(model.getComponent(message
+					.getElementId()));
 			if (entity != null)
 			{
+				entity.update();
 				fireDiagramChanged(new TemplateDiagramMessage(
 						this,
 						Arrays.asList(new DiagramElement[] { entity }),
@@ -288,6 +268,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 				+ component.getId();
 		Entity entity = new Entity(component, layout);
 		entities.add(entity);
+		component2Entity.put(component, entity);
 		FSAModel fsa = ModelManager.instance().createModel(FSAModel.class,
 				TemplateModel.FSA_NAME_PREFIX + layout.label);
 		fsa.setParentModel(model);
@@ -311,6 +292,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		{
 			model.addComponent(entity.getComponent());
 			entities.add(entity);
+			component2Entity.put(entity.getComponent(), entity);
 		}
 		finally
 		{
@@ -333,12 +315,14 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		Collection<Connector> adjacent = getAdjacentConnectors(entity);
 		for (Connector c : adjacent)
 		{
+			link2Connector.keySet().removeAll(c.getLinks());
 			connectors.remove(c);
 			for (TemplateLink link : c.getLinks())
 			{
 				model.removeLink(link.getId());
 			}
 		}
+		component2Entity.remove(entity.getComponent());
 		entities.remove(entity);
 		model.removeComponent(entity.getComponent().getId());
 		updateEmptyConnectorList();
@@ -492,6 +476,10 @@ public class TemplateDiagram implements TemplateModelSubscriber
 				model.addLink(link);
 			}
 			connectors.add(c);
+			for (TemplateLink link : c.getLinks())
+			{
+				link2Connector.put(link, c);
+			}
 			updateEmptyConnectorList();
 		}
 		finally
@@ -516,6 +504,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		{
 			model.removeLink(link.getId());
 		}
+		link2Connector.keySet().removeAll(c.getLinks());
 		connectors.remove(c);
 		updateEmptyConnectorList();
 		model.addSubscriber((TemplateModelSubscriber)this);
@@ -541,6 +530,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 			link.setLeftEventName(leftEvent);
 			link.setRightEventName(rightEvent);
 			c.addLink(link);
+			link2Connector.put(link, c);
 			updateEmptyConnectorList();
 		}
 		finally
@@ -565,6 +555,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		{
 			model.addLink(link);
 			c.addLink(link);
+			link2Connector.put(link, c);
 			updateEmptyConnectorList();
 		}
 		finally
@@ -586,6 +577,7 @@ public class TemplateDiagram implements TemplateModelSubscriber
 		model.removeSubscriber((TemplateModelSubscriber)this);
 		try
 		{
+			link2Connector.remove(link);
 			c.removeLink(link);
 			model.removeLink(link.getId());
 			updateEmptyConnectorList();
@@ -643,9 +635,9 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public void translate(Point delta)
 	{
-		for (Entity module : entities)
+		for (Entity e : entities)
 		{
-			module.translate(delta);
+			e.translate(delta);
 		}
 		for (Connector c : getConnectors())
 		{
@@ -698,14 +690,19 @@ public class TemplateDiagram implements TemplateModelSubscriber
 
 	public void draw(Graphics2D g2d)
 	{
+		draw(g2d, false);
+	}
+
+	public void draw(Graphics2D g2d, boolean showInconsistency)
+	{
 		g2d.setFont(DiagramElement.getGlobalFont());
 		for (Connector c : getConnectors())
 		{
-			c.draw(g2d);
+			c.draw(g2d, showInconsistency);
 		}
 		for (Entity e : entities)
 		{
-			e.draw(g2d);
+			e.draw(g2d, showInconsistency);
 		}
 	}
 
@@ -752,6 +749,16 @@ public class TemplateDiagram implements TemplateModelSubscriber
 				this,
 				selection,
 				TemplateDiagramMessage.OP_MODIFY));
+	}
+
+	public Connector getConnectorFor(TemplateLink link)
+	{
+		return link2Connector.get(link);
+	}
+
+	public Entity getEntityFor(TemplateComponent component)
+	{
+		return component2Entity.get(component);
 	}
 
 	public Entity getEntityWithFSA(FSAModel fsa)

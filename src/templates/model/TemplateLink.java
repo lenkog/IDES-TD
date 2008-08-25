@@ -11,8 +11,6 @@ public interface TemplateLink extends DESElement
 
 	public TemplateComponent[] getComponents();
 
-	public boolean hasProperNeighbors();
-
 	public TemplateComponent getModule();
 
 	public TemplateComponent getChannel();

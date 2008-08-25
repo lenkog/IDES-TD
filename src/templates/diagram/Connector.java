@@ -2,6 +2,7 @@ package templates.diagram;
 
 import ides.api.core.Hub;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -246,22 +247,55 @@ public class Connector extends DiagramElement
 		}
 	}
 
-	@Override
 	public void draw(Graphics2D g2d)
+	{
+		draw(g2d, false);
+	}
+
+	@Override
+	public void draw(Graphics2D g2d, boolean showInconsistency)
 	{
 		if (selected)
 		{
-			g2d.setColor(COLOR_SELECT);
+			if (showInconsistency && inconsistent)
+			{
+				g2d.setColor(COLOR_SELECT_INCONSIST);
+			}
+			else
+			{
+				g2d.setColor(COLOR_SELECT);
+			}
 		}
 		else
 		{
-			g2d.setColor(COLOR_NORM);
+			if (showInconsistency && inconsistent)
+			{
+				g2d.setColor(COLOR_INCONSIST);
+			}
+			else
+			{
+				g2d.setColor(COLOR_NORM);
+			}
 		}
 		g2d.setStroke(LINE_STROKE);
 		g2d.drawLine((int)line.getX1(),
 				(int)line.getY1(),
 				(int)line.getX2(),
 				(int)line.getY2());
+		if (highlight)
+		{
+			Color temp = g2d.getColor();
+			g2d.setColor(Color.WHITE);
+			g2d.fillRect(leftEventBox.x - 1,
+					leftEventBox.y - 1,
+					leftEventBox.width + 2,
+					leftEventBox.height + 2);
+			g2d.fillRect(rightEventBox.x - 1,
+					rightEventBox.y - 1,
+					rightEventBox.width + 2,
+					rightEventBox.height + 2);
+			g2d.setColor(temp);
+		}
 		leftEventBox.draw(g2d);
 		rightEventBox.draw(g2d);
 		if (highlight)

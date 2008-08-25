@@ -124,8 +124,12 @@ public class TemplateCanvas extends JComponent implements Presentation,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setColor(Color.WHITE);
 		g2d.fillRect(0, 0, getBounds().width, getBounds().height);
-
 		g2d.scale(scaleFactor, scaleFactor);
+		paintCore(g2d);
+	}
+
+	protected void paintCore(Graphics2D g2d)
+	{
 		diagram.draw(g2d);
 	}
 

@@ -653,11 +653,6 @@ public class DiagramUndoableEdits
 			this.newModel = newModel;
 		}
 
-		public Entity getEntity()
-		{
-			return entity;
-		}
-
 		@Override
 		public void redo() throws CannotRedoException
 		{
@@ -724,6 +719,71 @@ public class DiagramUndoableEdits
 		public String getPresentationName()
 		{
 			return Hub.string("TD_undoAssignFSA");
+		}
+	}
+
+	public static class SetTypeEdit extends AbstractDiagramUndoableEdit
+	{
+		private static final long serialVersionUID = -36438914037724751L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity entity = null;
+
+		protected int oldType;
+
+		protected int newType;
+
+		public SetTypeEdit(TemplateDiagram diagram, Entity entity, int newType)
+		{
+			this.diagram = diagram;
+			this.entity = entity;
+			this.oldType = entity.getComponent().getType();
+			this.newType = newType;
+		}
+
+		@Override
+		public void redo() throws CannotRedoException
+		{
+			if (entity == null)
+			{
+				throw new CannotRedoException();
+			}
+			diagram.getModel().setComponentType(entity.getComponent().getId(),
+					newType);
+		}
+
+		@Override
+		public void undo() throws CannotUndoException
+		{
+			if (entity == null)
+			{
+				throw new CannotUndoException();
+			}
+			diagram.getModel().setComponentType(entity.getComponent().getId(),
+					oldType);
+		}
+
+		@Override
+		public boolean canUndo()
+		{
+			return (entity != null);
+		}
+
+		@Override
+		public boolean canRedo()
+		{
+			return (entity != null);
+		}
+
+		/**
+		 * Returns the name that should be displayed besides the Undo/Redo menu
+		 * items, so the user knows which action will be undone/redone.
+		 */
+		@Override
+		public String getPresentationName()
+		{
+			return Hub.string("TD_undoSetType");
 		}
 	}
 }

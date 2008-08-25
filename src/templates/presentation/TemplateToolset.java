@@ -1,5 +1,6 @@
 package templates.presentation;
 
+import ides.api.core.Hub;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.presentation.Presentation;
 import ides.api.plugin.presentation.Toolset;
@@ -19,12 +20,20 @@ public class TemplateToolset implements Toolset
 
 		TemplateModel model;
 
-		Presentation canvas;
+		TemplateEditableCanvas canvas;
+
+		TemplateConsistencyCanvas consistency;
+
+		IssuesViewer issues;
 
 		public TemplateUID(TemplateModel model)
 		{
 			this.model = model;
 			canvas = new TemplateEditableCanvas(model);
+			canvas.setName(Hub.string("TD_modelCanvasTitle"));
+			consistency = new TemplateConsistencyCanvas(model);
+			consistency.setName(Hub.string("TD_consistencyCanvasTitle"));
+			issues = new IssuesViewer(canvas.getDiagram());
 		}
 
 		public Presentation[] getLeftPanePresentations()
@@ -35,8 +44,7 @@ public class TemplateToolset implements Toolset
 
 		public Presentation[] getMainPanePresentations()
 		{
-			// TODO Auto-generated method stub
-			return new Presentation[] { canvas };
+			return new Presentation[] { canvas, consistency };
 		}
 
 		public JMenu[] getMenus()
@@ -53,8 +61,7 @@ public class TemplateToolset implements Toolset
 
 		public Presentation[] getRightPanePresentations()
 		{
-			// TODO Auto-generated method stub
-			return new Presentation[] {};
+			return new Presentation[] { issues };
 		}
 
 		public JComponent getStatusBar()

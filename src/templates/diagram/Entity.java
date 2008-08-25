@@ -2,6 +2,7 @@ package templates.diagram;
 
 import ides.api.core.Annotable;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -71,7 +72,7 @@ public class Entity extends DiagramElement
 
 	private Rectangle bounds;
 
-	private SimpleIcon icon = new SimpleIcon();
+	private SimpleIcon icon;
 
 	private LabelBox labelBox;
 
@@ -113,18 +114,46 @@ public class Entity extends DiagramElement
 		return component;
 	}
 
-	@Override
 	public void draw(Graphics2D g2d)
+	{
+		draw(g2d, false);
+	}
+
+	@Override
+	public void draw(Graphics2D g2d, boolean showInconsistency)
 	{
 		if (selected)
 		{
-			g2d.setColor(COLOR_SELECT);
+			if (showInconsistency && inconsistent)
+			{
+				g2d.setColor(COLOR_SELECT_INCONSIST);
+			}
+			else
+			{
+				g2d.setColor(COLOR_SELECT);
+			}
 		}
 		else
 		{
-			g2d.setColor(COLOR_NORM);
+			if (showInconsistency && inconsistent)
+			{
+				g2d.setColor(COLOR_INCONSIST);
+			}
+			else
+			{
+				g2d.setColor(COLOR_NORM);
+			}
 		}
-		icon.selected = selected;
+		if (highlight)
+		{
+			Color temp = g2d.getColor();
+			g2d.setColor(Color.WHITE);
+			g2d.fillRect(labelBox.x - 1,
+					labelBox.y - 1,
+					labelBox.width + 2,
+					labelBox.height + 2);
+			g2d.setColor(temp);
+		}
 		drawCore(g2d);
 		if (highlight)
 		{
@@ -155,7 +184,6 @@ public class Entity extends DiagramElement
 	public void drawPlain(Graphics2D g2d)
 	{
 		g2d.setColor(COLOR_NORM);
-		icon.selected = false;
 		drawCore(g2d);
 	}
 
@@ -187,6 +215,8 @@ public class Entity extends DiagramElement
 
 	public void update()
 	{
+		icon = new SimpleIcon(
+				component.getType() != TemplateComponent.TYPE_CHANNEL);
 		int maxWidth = 3 * icon.getIconWidth();
 		String[] words = layout.label.split(" ");
 		Vector<String> lines = new Vector<String>();

@@ -48,4 +48,6 @@ public interface TemplateModel extends ParentModel, TemplateModelPublisher
 	public void assignFSA(long componentId, FSAModel fsa);
 
 	public void removeFSA(long componentId);
+
+	public void setComponentType(long componentId, int type);
 }

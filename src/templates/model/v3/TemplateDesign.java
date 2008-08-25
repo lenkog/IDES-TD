@@ -529,9 +529,15 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 				c.getModel().removeSubscriber(this);
 				c.getModel().setParentModel(null);
 			}
-			fsa.setParentModel(this);
+			if (fsa != null)
+			{
+				fsa.setParentModel(this);
+			}
 			c.setModel(fsa);
-			fsa.addSubscriber(this);
+			if (fsa != null)
+			{
+				fsa.addSubscriber(this);
+			}
 			fireTemplateModelStructureChanged(new TemplateModelMessage(
 					this,
 					componentId,
@@ -648,6 +654,28 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 	{
 		if (arg0.getEventType() == DESModelMessage.DIRTY)
 		{
+			setNeedsSave(true);
+		}
+	}
+
+	public void setComponentType(long componentId, int type)
+	{
+		TemplateComponent c = getComponent(componentId);
+		if (c != null)
+		{
+			if (type == TemplateComponent.TYPE_CHANNEL)
+			{
+				c.setType(type);
+			}
+			else
+			{
+				c.setType(TemplateComponent.TYPE_MODULE);
+			}
+			fireTemplateModelStructureChanged(new TemplateModelMessage(
+					this,
+					componentId,
+					TemplateModelMessage.ELEMENT_COMPONENT,
+					TemplateModelMessage.OP_MODIFY));
 			setNeedsSave(true);
 		}
 	}

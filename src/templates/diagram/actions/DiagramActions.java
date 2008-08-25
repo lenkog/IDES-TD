@@ -661,4 +661,42 @@ public class DiagramActions
 			}
 		}
 	}
+
+	public static class SetTypeAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = -1774285258523292831L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity entity;
+
+		protected int type;
+
+		public SetTypeAction(TemplateDiagram diagram, Entity entity, int type)
+		{
+			this(null, diagram, entity, type);
+		}
+
+		public SetTypeAction(CompoundEdit parent, TemplateDiagram diagram,
+				Entity entity, int type)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.entity = entity;
+			this.type = type;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				DiagramUndoableEdits.SetTypeEdit edit = new DiagramUndoableEdits.SetTypeEdit(
+						diagram,
+						entity,
+						type);
+				edit.redo();
+				postEditAdjustCanvas(diagram, edit);
+			}
+		}
+	}
 }

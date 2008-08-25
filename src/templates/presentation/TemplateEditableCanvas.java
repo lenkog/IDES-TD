@@ -69,17 +69,7 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 	public TemplateEditableCanvas(TemplateModel model)
 	{
 		super(model);
-		if (model.hasAnnotation(CANVAS_SETTINGS))
-		{
-			Hub
-					.getUserInterface().getZoomControl()
-					.setZoom(((CanvasSettings)model
-							.getAnnotation(CANVAS_SETTINGS)).zoom);
-		}
-		else
-		{
-			Hub.getUserInterface().getZoomControl().setZoom(1);
-		}
+		autoZoom();
 		scaleFactor = Hub.getUserInterface().getZoomControl().getZoom();
 		scaleToFit = false;
 		interpreter = new MouseInterpreter(this);
@@ -125,12 +115,7 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 	public void paint(Graphics g)
 	{
 		scaleFactor = Hub.getUserInterface().getZoomControl().getZoom();
-		if (model.hasAnnotation(CANVAS_SETTINGS))
-		{
-			scrollRectToVisible(((CanvasSettings)model
-					.getAnnotation(CANVAS_SETTINGS)).viewport);
-			model.removeAnnotation(CANVAS_SETTINGS);
-		}
+		autoScroll();
 		Stroke oldStroke = ((Graphics2D)g).getStroke();
 		super.paint(g);
 		if (selectionBox != null)
@@ -155,6 +140,48 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 		}
 	}
 
+	protected void paintCore(Graphics2D g2d)
+	{
+		super.paintCore(g2d);
+		if (hilitedElement != null)
+		{
+			hilitedElement.draw(g2d);
+		}
+	}
+
+	protected void autoZoom()
+	{
+		if (model.hasAnnotation(CANVAS_SETTINGS))
+		{
+			Hub
+					.getUserInterface().getZoomControl()
+					.setZoom(((CanvasSettings)model
+							.getAnnotation(CANVAS_SETTINGS)).zoom);
+		}
+		else
+		{
+			Hub.getUserInterface().getZoomControl().setZoom(1);
+		}
+	}
+
+	protected void autoScroll()
+	{
+		if (model.hasAnnotation(CANVAS_SETTINGS))
+		{
+			scrollRectToVisible(((CanvasSettings)model
+					.getAnnotation(CANVAS_SETTINGS)).viewport);
+			model.removeAnnotation(CANVAS_SETTINGS);
+		}
+	}
+
+	protected void storeCanvasInfo()
+	{
+		CanvasSettings canvasSettings = new CanvasSettings();
+		canvasSettings.viewport = getVisibleRect();
+		canvasSettings.zoom = scaleFactor;
+		model.setAnnotation(CANVAS_SETTINGS, canvasSettings);
+	}
+
 	public void refresh()
 	{
 		scaleFactor = Hub.getUserInterface().getZoomControl().getZoom();
@@ -165,10 +192,7 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 	{
 		removeHighlight();
 		diagram.clearSelection();
-		CanvasSettings canvasSettings = new CanvasSettings();
-		canvasSettings.viewport = getVisibleRect();
-		canvasSettings.zoom = scaleFactor;
-		model.setAnnotation(CANVAS_SETTINGS, canvasSettings);
+		storeCanvasInfo();
 		super.release();
 	}
 

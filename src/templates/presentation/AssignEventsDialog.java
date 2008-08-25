@@ -151,6 +151,7 @@ public class AssignEventsDialog extends EscapeDialog
 						linker.addExtraRightEvent(leftName.getText());
 					}
 					leftName.setText("");
+					pack();
 				}
 			}
 		});
@@ -173,6 +174,7 @@ public class AssignEventsDialog extends EscapeDialog
 						linker.addExtraRightEvent(rightName.getText());
 					}
 					rightName.setText("");
+					pack();
 				}
 			}
 		});

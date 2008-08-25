@@ -45,12 +45,13 @@ public abstract class DiagramElement
 		return globalFont;
 	}
 
-	protected static final Color COLOR_NORM = Color.BLACK;
+	public static final Color COLOR_NORM = Color.BLACK;
 
-	// protected static final Color COLOR_HILITE=Color.BLUE;
-	protected static final Color COLOR_SELECT = Color.RED;
+	public static final Color COLOR_INCONSIST = Color.GRAY;
 
-	// protected static final Color COLOR_HILITESELECT=Color.MAGENTA;
+	public static final Color COLOR_SELECT = Color.RED;
+
+	public static final Color COLOR_SELECT_INCONSIST = Color.ORANGE;
 
 	protected static final Stroke LINE_STROKE = new BasicStroke(1);
 
@@ -68,6 +69,8 @@ public abstract class DiagramElement
 
 	protected boolean selected = false;
 
+	protected boolean inconsistent = false;
+
 	public abstract void translate(Point delta);
 
 	public void setHighlight(boolean b)
@@ -80,9 +83,16 @@ public abstract class DiagramElement
 		selected = b;
 	}
 
+	public void setInconsistent(boolean b)
+	{
+		inconsistent = b;
+	}
+
 	public abstract Rectangle getBounds();
 
 	public abstract void draw(Graphics2D g2d);
+
+	public abstract void draw(Graphics2D g2d, boolean showInconsistency);
 
 	public abstract boolean contains(Point p);
 
