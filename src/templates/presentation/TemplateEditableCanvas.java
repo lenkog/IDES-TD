@@ -29,6 +29,7 @@ import javax.swing.SwingUtilities;
 import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
+import templates.diagram.TemplateDiagramMessage;
 import templates.diagram.actions.DiagramActions;
 import templates.model.TemplateModel;
 
@@ -148,6 +149,16 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 			hilitedElement.draw(g2d);
 		}
 	}
+	
+	public void templateDiagramChanged(TemplateDiagramMessage message)
+	{
+		if(message.getOperationType()==TemplateDiagramMessage.OP_REMOVE&&message.getElements().contains(hilitedElement))
+		{
+			hilitedElement=null;
+		}
+		super.templateDiagramChanged(message);
+	}
+
 
 	protected void autoZoom()
 	{

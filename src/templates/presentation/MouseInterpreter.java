@@ -104,6 +104,10 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 										.actionPerformed(null);
 							}
 						}
+						else if(whichPart==Entity.ON_SUP)
+						{
+							new UIActions.ShowSupAction(canvas,(Entity)mouseDownOn).actionPerformed(null);
+						}
 					}
 					else if (mouseDownOn instanceof Connector)
 					{

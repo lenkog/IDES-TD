@@ -19,6 +19,7 @@ public class EntityPopup extends JPopupMenu
 		if (entity.getComponent().getType() == TemplateComponent.TYPE_CHANNEL)
 		{
 			add(new UIActions.SetModuleAction(canvas, entity));
+			add(new UIActions.ShowSupAction(canvas,entity));
 		}
 		else
 		{

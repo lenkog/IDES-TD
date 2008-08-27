@@ -57,6 +57,7 @@ public class Entity extends DiagramElement
 	protected static final int LABEL_SPACING = 5;
 
 	private static final int PORT_RADIUS = 5;
+	private static final int HALO_RADIUS = 8;
 
 	public final static int ON_NADA = 0;
 
@@ -65,6 +66,8 @@ public class Entity extends DiagramElement
 	public final static int ON_LABEL = 2;
 
 	public final static int ON_PORT = 4;
+	
+	public final static int ON_SUP=8;
 
 	protected TemplateComponent component;
 
@@ -77,6 +80,11 @@ public class Entity extends DiagramElement
 	private LabelBox labelBox;
 
 	private Ellipse2D[] ports = new Ellipse2D[4];
+	
+	private Ellipse2D supHalo;
+	private static final String HALO_LABEL="S";
+	private int haloDX;
+	private int haloDY;
 
 	public Entity(TemplateComponent component) throws MissingLayoutException
 	{
@@ -106,7 +114,7 @@ public class Entity extends DiagramElement
 				icon.getIconWidth(),
 				icon.getIconHeight()).union(labelBox).union(ports[0]
 				.getBounds()).union(ports[1].getBounds()).union(ports[2]
-				.getBounds()).union(ports[3].getBounds());
+				.getBounds()).union(component.getType()==TemplateComponent.TYPE_CHANNEL?ports[3].getBounds().union(supHalo.getBounds()):ports[3].getBounds());
 	}
 
 	public TemplateComponent getComponent()
@@ -157,6 +165,11 @@ public class Entity extends DiagramElement
 		drawCore(g2d);
 		if (highlight)
 		{
+			if(component.getType()==TemplateComponent.TYPE_CHANNEL)
+			{
+				g2d.draw(supHalo);
+				g2d.drawString(HALO_LABEL,(int)supHalo.getCenterX()+haloDX,(int)supHalo.getCenterY()+haloDY);
+			}
 			g2d.setStroke(MARKER_STROKE);
 			g2d.drawRect(labelBox.x - 1,
 					labelBox.y - 1,
@@ -204,6 +217,7 @@ public class Entity extends DiagramElement
 	public void setLocation(Point location)
 	{
 		layout.location = location;
+		update();
 	}
 
 	public void translate(Point delta)
@@ -284,6 +298,13 @@ public class Entity extends DiagramElement
 				(int)labelBox.getMaxY() + 1,
 				2 * PORT_RADIUS,
 				2 * PORT_RADIUS);
+		if(component.getType()==TemplateComponent.TYPE_CHANNEL)
+		{
+		supHalo=new Ellipse2D.Float(layout.location.x+icon.getIconWidth()/4,layout.location.y-icon.getIconHeight()/4-2*HALO_RADIUS,
+				2*HALO_RADIUS,2*HALO_RADIUS);
+		haloDX=-getGlobalFontMetrics().stringWidth(HALO_LABEL)/2+1;
+		haloDY=getGlobalFontMetrics().getAscent()/2;
+		}
 		computeBounds();
 	}
 
@@ -304,7 +325,8 @@ public class Entity extends DiagramElement
 				|| (p.x >= layout.location.x - icon.getIconWidth() / 2
 						&& p.x <= layout.location.x + icon.getIconWidth() / 2
 						&& p.y >= layout.location.y - icon.getIconHeight() / 2 && p.y <= layout.location.y
-						+ icon.getIconHeight() / 2);
+						+ icon.getIconHeight() / 2)
+				||(component.getType()==TemplateComponent.TYPE_CHANNEL&&supHalo.contains(p));
 	}
 
 	public boolean intersects(Rectangle r)
@@ -318,7 +340,8 @@ public class Entity extends DiagramElement
 						layout.location.x - icon.getIconWidth() / 2,
 						layout.location.y - icon.getIconHeight() / 2,
 						icon.getIconWidth(),
-						icon.getIconHeight()).intersects(r);
+						icon.getIconHeight()).intersects(r)
+		||(component.getType()==TemplateComponent.TYPE_CHANNEL&&supHalo.intersects(r));
 	}
 
 	public int whereisPoint(Point p)
@@ -331,6 +354,10 @@ public class Entity extends DiagramElement
 				|| ports[2].contains(p) || ports[3].contains(p))
 		{
 			return ON_PORT;
+		}
+		if(component.getType()==TemplateComponent.TYPE_CHANNEL&&supHalo.contains(p))
+		{
+			return ON_SUP;
 		}
 		if (bounds.contains(p))
 		{

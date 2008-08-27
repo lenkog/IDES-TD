@@ -254,6 +254,51 @@ public class Validator
 		}
 		return ret;
 	}
+	
+	public static boolean canComputeSup(TemplateModel model,long channelId)
+	{
+		TemplateComponent channel=model.getComponent(channelId);
+		if(channel.getType()!=TemplateComponent.TYPE_CHANNEL)
+		{
+			return false;
+		}
+		Collection<TemplateComponent> cover=model.getCover(channel.getId());
+		Collection<TemplateLink> links=model.getAdjacentLinks(channel.getId());
+		Collection<ValidatorResult> results=validate(model);
+		boolean invalid=false;
+		for(ValidatorResult result:results)
+		{
+			if(result.type==ValidatorResult.WARNING)
+			{
+				continue;
+			}
+			for(TemplateComponent c:result.components)
+			{
+				if(channel==c||(cover.contains(c)&&result.links.isEmpty()))
+				{
+					invalid=true;
+					break;
+				}
+			}
+			if(invalid)
+			{
+				break;
+			}
+			for(TemplateLink l:result.links)
+			{
+				if(links.contains(l))
+				{
+					invalid=true;
+					break;
+				}
+			}
+			if(invalid)
+			{
+				break;
+			}
+		}
+		return !invalid;
+	}
 
 	protected static Collection<TemplateLink> linksWithEvent(
 			TemplateModel model, TemplateComponent component, String event)

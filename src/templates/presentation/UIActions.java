@@ -16,6 +16,7 @@ import templates.diagram.Entity;
 import templates.diagram.actions.DiagramActions;
 import templates.diagram.actions.DiagramUndoableEdits;
 import templates.model.TemplateComponent;
+import templates.model.Validator;
 
 public class UIActions
 {
@@ -310,6 +311,35 @@ public class UIActions
 					canvas.getDiagram(),
 					entity,
 					TemplateComponent.TYPE_CHANNEL).actionPerformed(evt);
+		}
+	}
+
+	public static class ShowSupAction extends AbstractAction
+	{
+		private static final long serialVersionUID = -4796270429679682331L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Entity channel;
+
+		public ShowSupAction(TemplateEditableCanvas canvas, Entity channel)
+		{
+			super(Hub.string("TD_comShowSup"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintShowSup"));
+			this.canvas = canvas;
+			this.channel = channel;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			if(!Validator.canComputeSup(canvas.getDiagram().getModel(),channel.getComponent().getId()))
+			{
+				Hub.displayAlert(Hub.string("TD_cantComputeSup"));
+			}
 		}
 	}
 }
