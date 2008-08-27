@@ -47,9 +47,9 @@ public abstract class DiagramElement
 
 	public static final Color COLOR_NORM = Color.BLACK;
 
-	public static final Color COLOR_INCONSIST = Color.GRAY;
+	public static final Color COLOR_INCONSIST = new Color(255,120,0);
 
-	public static final Color COLOR_SELECT = Color.RED;
+	public static final Color COLOR_SELECT = new Color(70,100,140);
 
 	public static final Color COLOR_SELECT_INCONSIST = Color.ORANGE;
 
