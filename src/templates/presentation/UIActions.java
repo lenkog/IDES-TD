@@ -2,6 +2,7 @@ package templates.presentation;
 
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
+import ides.api.plugin.operation.OperationManager;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -336,10 +337,26 @@ public class UIActions
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			if(!Validator.canComputeSup(canvas.getDiagram().getModel(),channel.getComponent().getId()))
+			if (!Validator.canComputeSup(canvas.getDiagram().getModel(),
+					channel.getComponent().getId()))
 			{
 				Hub.displayAlert(Hub.string("TD_cantComputeSup"));
+				return;
 			}
+			Object[] result = OperationManager
+					.instance().getOperation("channelsup")
+					.perform(new Object[] { canvas.getModel(),
+							channel.getComponent().getId() });
+			FSAModel sys = (FSAModel)result[0];
+			FSAModel spec = (FSAModel)result[1];
+			FSAModel sup = (FSAModel)result[2];
+			sys.setName("M_" + channel.getLabel());
+			spec.setName("C_" + channel.getLabel());
+			sup.setName("S_" + channel.getLabel());
+			Hub.getWorkspace().addModel(sys);
+			Hub.getWorkspace().addModel(spec);
+			Hub.getWorkspace().addModel(sup);
+			Hub.getWorkspace().setActiveModel(sup.getName());
 		}
 	}
 }

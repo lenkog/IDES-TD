@@ -49,6 +49,28 @@ public class IssuesWrapper
 		}
 	}
 
+	protected static class RenameAction extends AbstractAction
+	{
+		private static final long serialVersionUID = -8501367478990804882L;
+
+		protected Entity entity;
+
+		public RenameAction(Entity entity)
+		{
+			super(Hub.string("TD_comLabelEntity"));
+			this.entity = entity;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			TemplateConsistencyCanvas canvas = Hub
+					.getWorkspace()
+					.getPresentationsOfType(TemplateConsistencyCanvas.class)
+					.iterator().next();
+			new UIActions.LabelAction(canvas, entity).actionPerformed(e);
+		}
+	}
+
 	protected static class SetEventsAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -6787216038250603204L;
@@ -283,6 +305,20 @@ public class IssuesWrapper
 					{
 						message += Hub.string("TD_issueWNoModel");
 						fixes.add(new AssignFSAAction(e));
+					}
+				}
+				else if (result.message.equals(Validator.ERROR_NONUNIQUE_NAME))
+				{
+					Entity e = diagram.getEntityFor(result.components.get(0));
+					if (e == null)
+					{
+						message += result.message;
+					}
+					else
+					{
+						message += Hub.string("TD_issueWNonuniqueName") + "\n"
+								+ Hub.string("TD_issueWRenameEntity");
+						// fixes.add(new RenameAction(e));
 					}
 				}
 				else

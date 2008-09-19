@@ -50,6 +50,12 @@ public class Validator
 					type);
 		}
 
+		public ValidatorResult(String message,
+				Collection<TemplateComponent> components, int type)
+		{
+			this(message, components, new HashSet<TemplateLink>(), "", type);
+		}
+
 		public ValidatorResult(String message, TemplateComponent component,
 				Collection<TemplateLink> links, String event, int type)
 		{
@@ -115,6 +121,8 @@ public class Validator
 
 	public static final String ERROR_MERGED_EVENT = "TD_inconsistencyMergedEvent";
 
+	public static final String ERROR_NONUNIQUE_NAME = "TD_inconsistencyNonuniqueName";
+
 	public static final String WARNING_FREE_COMPONENT = "TD_issueFreeComponent";
 
 	public static final String WARNING_FREE_EVENT = "TD_issueFreeChannelEvent";
@@ -122,6 +130,7 @@ public class Validator
 	public static List<ValidatorResult> validate(TemplateModel model)
 	{
 		LinkedList<ValidatorResult> ret = new LinkedList<ValidatorResult>();
+		Map<String, Set<TemplateComponent>> namesMap = new HashMap<String, Set<TemplateComponent>>();
 		for (TemplateComponent component : model.getComponents())
 		{
 			if (!component.hasModel())
@@ -131,12 +140,34 @@ public class Validator
 						component,
 						ValidatorResult.ERROR));
 			}
+			else
+			{
+				Set<TemplateComponent> components = namesMap.get(component
+						.getModel().getName());
+				if (components == null)
+				{
+					components = new HashSet<TemplateComponent>();
+				}
+				components.add(component);
+				namesMap.put(component.getModel().getName(), components);
+			}
 			if (model.getAdjacentLinks(component.getId()).isEmpty())
 			{
 				ret.add(new ValidatorResult(
 						WARNING_FREE_COMPONENT,
 						component,
 						ValidatorResult.WARNING));
+			}
+		}
+		for (String name : namesMap.keySet())
+		{
+			Set<TemplateComponent> components = namesMap.get(name);
+			if (components.size() != 1)
+			{
+				ret.add(new ValidatorResult(
+						ERROR_NONUNIQUE_NAME,
+						components,
+						ValidatorResult.ERROR));
 			}
 		}
 		for (TemplateLink link : model.getLinks())
@@ -254,45 +285,47 @@ public class Validator
 		}
 		return ret;
 	}
-	
-	public static boolean canComputeSup(TemplateModel model,long channelId)
+
+	public static boolean canComputeSup(TemplateModel model, long channelId)
 	{
-		TemplateComponent channel=model.getComponent(channelId);
-		if(channel.getType()!=TemplateComponent.TYPE_CHANNEL)
+		TemplateComponent channel = model.getComponent(channelId);
+		if (channel.getType() != TemplateComponent.TYPE_CHANNEL)
 		{
 			return false;
 		}
-		Collection<TemplateComponent> cover=model.getCover(channel.getId());
-		Collection<TemplateLink> links=model.getAdjacentLinks(channel.getId());
-		Collection<ValidatorResult> results=validate(model);
-		boolean invalid=false;
-		for(ValidatorResult result:results)
+		Collection<TemplateComponent> cover = model.getCover(channel.getId());
+		Collection<TemplateLink> links = model
+				.getAdjacentLinks(channel.getId());
+		Collection<ValidatorResult> results = validate(model);
+		boolean invalid = false;
+		for (ValidatorResult result : results)
 		{
-			if(result.type==ValidatorResult.WARNING)
+			if (result.type == ValidatorResult.WARNING)
 			{
 				continue;
 			}
-			for(TemplateComponent c:result.components)
+			for (TemplateComponent c : result.components)
 			{
-				if(channel==c||(cover.contains(c)&&result.links.isEmpty()))
+				if (channel == c
+						|| (cover.contains(c) && result.links.isEmpty()))
 				{
-					invalid=true;
+					invalid = true;
 					break;
 				}
 			}
-			if(invalid)
+			if (invalid)
 			{
 				break;
 			}
-			for(TemplateLink l:result.links)
+			for (TemplateLink l : result.links)
 			{
-				if(links.contains(l))
+				if (links.contains(l))
 				{
-					invalid=true;
+					invalid = true;
 					break;
 				}
 			}
-			if(invalid)
+			if (invalid)
 			{
 				break;
 			}

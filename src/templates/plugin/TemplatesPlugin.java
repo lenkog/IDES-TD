@@ -5,6 +5,7 @@ import ides.api.plugin.Plugin;
 import ides.api.plugin.PluginInitException;
 import ides.api.plugin.io.IOPluginManager;
 import ides.api.plugin.model.ModelManager;
+import ides.api.plugin.operation.OperationManager;
 import ides.api.plugin.presentation.ToolsetManager;
 
 import java.util.ResourceBundle;
@@ -12,6 +13,7 @@ import java.util.ResourceBundle;
 import templates.io.TemplateFileIO;
 import templates.model.TemplateModel;
 import templates.model.v3.TemplateDesign;
+import templates.operations.ChannelSup;
 import templates.presentation.TemplateToolset;
 
 public class TemplatesPlugin implements Plugin
@@ -68,6 +70,9 @@ public class TemplatesPlugin implements Plugin
 					ioPlugin.getIOTypeDescriptor(),
 					tag);
 		}
+
+		// Operations
+		OperationManager.instance().register(new ChannelSup());
 	}
 
 	public void unload()
