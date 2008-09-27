@@ -11,23 +11,29 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JToolBar;
 
+import templates.library.LibraryUI;
 import templates.model.TemplateModel;
 
 public class TemplateToolset implements Toolset
 {
+	protected static LibraryUI library=null;
+
 	protected class TemplateUID implements UIDescriptor
 	{
+		protected TemplateModel model;
 
-		TemplateModel model;
+		protected TemplateEditableCanvas canvas;
 
-		TemplateEditableCanvas canvas;
+		protected TemplateConsistencyCanvas consistency;
 
-		TemplateConsistencyCanvas consistency;
-
-		IssuesViewer issues;
+		protected IssuesViewer issues;
 
 		public TemplateUID(TemplateModel model)
 		{
+			if(library==null)
+			{
+				library=new LibraryUI();
+			}
 			this.model = model;
 			canvas = new TemplateEditableCanvas(model);
 			canvas.setName(Hub.string("TD_modelCanvasTitle"));
@@ -61,7 +67,7 @@ public class TemplateToolset implements Toolset
 
 		public Presentation[] getRightPanePresentations()
 		{
-			return new Presentation[] { issues };
+			return new Presentation[] { library, issues };
 		}
 
 		public JComponent getStatusBar()

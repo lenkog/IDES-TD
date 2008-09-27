@@ -1,12 +1,22 @@
 package templates.library;
 
+import java.io.File;
+
 public class TemplateManager
 {
-
 	private static TemplateManager me = null;
+	
+	protected TemplateLibrary localLib;
+	protected TemplateLibrary sharedLib;
 
 	private TemplateManager()
 	{
+		File local=new File("templates");
+		if(!local.exists())
+		{
+			local.mkdir();
+		}
+		localLib=new TemplateLibrary(local);
 	}
 
 	public static TemplateManager instance()
@@ -27,6 +37,6 @@ public class TemplateManager
 
 	public TemplateLibrary getMainLibrary()
 	{
-		return new TemplateLibrary();
+		return localLib;
 	}
 }

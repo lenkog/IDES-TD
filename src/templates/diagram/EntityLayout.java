@@ -9,6 +9,9 @@ public class EntityLayout
 
 	public String label;
 
+	/**
+	 * True if entity is a template instance, and was modified.
+	 */
 	public boolean flag;
 
 	public Color color;

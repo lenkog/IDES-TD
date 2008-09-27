@@ -1,6 +1,7 @@
 package templates.plugin;
 
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.Plugin;
 import ides.api.plugin.PluginInitException;
 import ides.api.plugin.io.IOPluginManager;
@@ -11,9 +12,11 @@ import ides.api.plugin.presentation.ToolsetManager;
 import java.util.ResourceBundle;
 
 import templates.io.TemplateFileIO;
+import templates.library.TemplateMetaIO;
 import templates.model.TemplateModel;
 import templates.model.v3.TemplateDesign;
 import templates.operations.ChannelSup;
+import templates.operations.SupSolution;
 import templates.presentation.TemplateToolset;
 
 public class TemplatesPlugin implements Plugin
@@ -70,9 +73,19 @@ public class TemplatesPlugin implements Plugin
 					ioPlugin.getIOTypeDescriptor(),
 					tag);
 		}
+		//registers meta loader/saver used by Template Library
+		//this will not impact loading/saving of FSA models not related to the library
+		TemplateMetaIO ioLibrary=new TemplateMetaIO();
+		for (String tag : ioLibrary.getMetaTags())
+		{
+			IOPluginManager.instance().registerMetaLoader(ioLibrary,
+					"FSA",tag);
+		}
+		IOPluginManager.instance().registerMetaSaver(ioLibrary,FSAModel.class);
 
 		// Operations
 		OperationManager.instance().register(new ChannelSup());
+		OperationManager.instance().register(new SupSolution());
 	}
 
 	public void unload()

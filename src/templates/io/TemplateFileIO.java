@@ -294,7 +294,7 @@ public class TemplateFileIO implements FileIOPlugin
 						+ layout.flag + "\"");
 				if (layout.color != null)
 				{
-					stream.print(" " + ATTRIBUTE_COLOR + "=\""
+					stream.print(" " + ATTRIBUTE_COLOR + "=\"#"
 							+ Integer.toHexString(layout.color.getRed())
 							+ Integer.toHexString(layout.color.getGreen())
 							+ Integer.toHexString(layout.color.getBlue())
@@ -619,7 +619,7 @@ public class TemplateFileIO implements FileIOPlugin
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+//			e.printStackTrace();
 			throw new FileLoadException(e.getMessage(), model);
 		}
 	}

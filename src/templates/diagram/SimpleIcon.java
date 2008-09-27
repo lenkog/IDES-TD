@@ -8,9 +8,10 @@ import java.awt.Stroke;
 
 import javax.swing.Icon;
 
-public class SimpleIcon implements Icon
+import templates.utils.EntityIcon;
+
+public class SimpleIcon implements EntityIcon
 {
-	protected static final int BOX_DISTANCE = 20;
 
 	protected boolean isModule;
 
@@ -34,17 +35,17 @@ public class SimpleIcon implements Icon
 		Graphics2D g2d = (Graphics2D)g;
 		Stroke oldStroke = g2d.getStroke();
 		g2d.setStroke(DiagramElement.FAT_LINE_STROKE);
-		Color oldColor=g2d.getColor();
+		Color oldColor = g2d.getColor();
 		g2d.setColor(Color.WHITE);
 		if (isModule)
 		{
-			g2d.fillRect(x,y,BOX_DISTANCE,BOX_DISTANCE);
+			g2d.fillRect(x, y, BOX_DISTANCE, BOX_DISTANCE);
 			g2d.setColor(oldColor);
 			g2d.drawRect(x, y, BOX_DISTANCE, BOX_DISTANCE);
 		}
 		else
 		{
-			g2d.fillOval(x,y,BOX_DISTANCE,BOX_DISTANCE);
+			g2d.fillOval(x, y, BOX_DISTANCE, BOX_DISTANCE);
 			g2d.setColor(oldColor);
 			g2d.drawOval(x, y, BOX_DISTANCE, BOX_DISTANCE);
 		}
@@ -54,5 +55,10 @@ public class SimpleIcon implements Icon
 	public SimpleIcon clone()
 	{
 		return new SimpleIcon(isModule);
+	}
+
+	public void setIsModule(boolean b)
+	{
+		isModule = b;
 	}
 }
