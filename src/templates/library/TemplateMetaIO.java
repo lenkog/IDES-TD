@@ -198,9 +198,9 @@ public class TemplateMetaIO implements FileIOPlugin
 		}
 		TemplateDescriptor td=(TemplateDescriptor)arg1.getAnnotation(Template.TEMPLATE_DESC);
 		stream.println("\t<"+ELEMENT_INFO+" "+ATTRIBUTE_TAG+"=\""+td.tag+"\" "+ATTRIBUTE_COLOR+"=\"#"
-				+ Integer.toHexString(td.color.getRed())
-				+ Integer.toHexString(td.color.getGreen())
-				+ Integer.toHexString(td.color.getBlue())
+				+ (td.color.getRed()<16?"0":"")+Integer.toHexString(td.color.getRed())
+				+ (td.color.getGreen()<16?"0":"")+Integer.toHexString(td.color.getGreen())
+				+ (td.color.getBlue()<16?"0":"")+Integer.toHexString(td.color.getBlue())
 				+ "\">");
 		stream.println("\t\t<"+ELEMENT_DESC+">"+td.description+"</"+ELEMENT_DESC+">");
 		stream.println("\t</"+ELEMENT_INFO+">");

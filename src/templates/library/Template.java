@@ -12,7 +12,7 @@ public interface Template
 	
 	public String getName();
 
-	public EntityIcon getIcon();
+	public TemplateIcon getIcon();
 	
 	public String getDescription();
 

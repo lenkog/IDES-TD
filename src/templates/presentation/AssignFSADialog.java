@@ -26,6 +26,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -37,6 +38,7 @@ import javax.swing.ListCellRenderer;
 import templates.diagram.Entity;
 import templates.diagram.actions.DiagramActions;
 import templates.library.Template;
+import templates.library.TemplateDescriptor;
 import templates.library.TemplateManager;
 import templates.model.TemplateComponent;
 
@@ -185,16 +187,23 @@ public class AssignFSADialog extends EscapeDialog
 		public TemplateCell(Template template)
 		{
 			super(template.getIcon());
-			setText(template.getName());
+			setText(TemplateDescriptor.shortDescription(template.getDescription()));
 			this.template = template;
 			setBorder(BorderFactory.createEmptyBorder(2, 1, 2, 1));
 		}
 	}
 
-	protected class JLabelListRenderer extends JLabel implements
+	protected class JLabelListRenderer extends Box implements
 			ListCellRenderer
 	{
 		private static final long serialVersionUID = -4858000916109104619L;
+		
+		protected JLabel defaultLabel=new JLabel();
+		
+		public JLabelListRenderer()
+		{
+			super(BoxLayout.X_AXIS);
+		}
 
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus)
@@ -202,7 +211,8 @@ public class AssignFSADialog extends EscapeDialog
 			JLabel label;
 			if (!(value instanceof JLabel))
 			{
-				label = this;
+				defaultLabel.setText(value!=null?value.toString():"");
+				label = defaultLabel;
 			}
 			else
 			{
@@ -210,15 +220,18 @@ public class AssignFSADialog extends EscapeDialog
 			}
 			if (isSelected)
 			{
-				label.setBackground(SystemColor.textHighlight);
-				label.setOpaque(true);
+				setBackground(SystemColor.textHighlight);
+				setOpaque(true);
 			}
 			else
 			{
-				label.setBackground(SystemColor.control);
-				label.setOpaque(false);
+				setBackground(SystemColor.control);
+				setOpaque(false);
 			}
-			return label;
+			removeAll();
+			add(label);
+			add(Box.createHorizontalGlue());
+			return this;
 		}
 	}
 

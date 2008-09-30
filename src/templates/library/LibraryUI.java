@@ -3,8 +3,12 @@ package templates.library;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,6 +25,7 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import ides.api.core.Hub;
@@ -28,7 +33,7 @@ import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.presentation.Presentation;
 
-public class LibraryUI extends Box implements Presentation
+public class LibraryUI extends Box implements Presentation, TemplateLibraryListener, MouseMotionListener
 {
 	public static class AddTemplateAction extends AbstractAction
 	{
@@ -50,7 +55,7 @@ public class LibraryUI extends Box implements Presentation
 		}
 	}
 
-	public static class DeleteTemplateAction extends AbstractAction
+	public class DeleteTemplateAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -4293547969708851728L;
 
@@ -66,10 +71,26 @@ public class LibraryUI extends Box implements Presentation
 
 		public void actionPerformed(ActionEvent evt)
 		{
+			Object[] templates=list.getSelectedValues();
+			String errors="";
+			for(Object template:templates)
+			{
+				try
+				{
+					TemplateManager.instance().getMainLibrary().removeTemplate(((Template)template).getName());
+				}catch(IOException e)
+				{
+					errors+=Hub.string("TD_errorRemovingTemplate")+" \'"+((Template)template).getName()+"\' ["+e.getMessage()+"]\n";
+				}
+			}
+			if(!"".equals(errors))
+			{
+				Hub.displayAlert(errors);
+			}
 		}
 	}
 
-	public static class EditTemplateAction extends AbstractAction
+	public class EditTemplateAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -3546061467454314196L;
 
@@ -85,15 +106,19 @@ public class LibraryUI extends Box implements Presentation
 
 		public void actionPerformed(ActionEvent evt)
 		{
+			Template template=(Template)list.getSelectedValue();
+			if(template!=null)
+			{
+				AddTemplateDialog.editTemplate(TemplateManager.instance().getMainLibrary(),template);
+			}
 		}
 	}
 
 	private static class TemplateListRenderer extends JLabel implements ListCellRenderer {
 	     public TemplateListRenderer() {
 	         setOpaque(true);
+	         setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 	     }
-	     private Border inactiveBorder=BorderFactory.createEmptyBorder(1,1,1,1);
-	     private Border activeBorder=BorderFactory.createLineBorder(Color.BLACK);
 	     
 	     public Component getListCellRendererComponent(
 	         JList list,
@@ -109,9 +134,8 @@ public class LibraryUI extends Box implements Presentation
 	    	 }
 	    	 else if(value instanceof Template)
 	    	 {
-	    		 setText(((Template)value).getDescription());
+	    		 setText(TemplateDescriptor.shortDescription(((Template)value).getDescription()));
 	    		 setIcon(((Template)value).getIcon());
-//	    		 this.getGraphics().setColor(Color.BLACK);
 	    	 }
 	    	 else
 	    	 {
@@ -119,11 +143,14 @@ public class LibraryUI extends Box implements Presentation
 	    	 }
 	    	 if(isSelected)
 	    	 {
-	    		 setBorder(activeBorder);
+				setBackground(SystemColor.textHighlight);
+				setForeground(SystemColor.textHighlightText);
+
 	    	 }
 	    	 else
 	    	 {
-	    		 setBorder(inactiveBorder);
+				setBackground(SystemColor.text);
+				setForeground(SystemColor.textText);
 	    	 }
 	         return this;
 	     }
@@ -141,7 +168,9 @@ public class LibraryUI extends Box implements Presentation
 		model=new DefaultListModel();
 		updateList();
 		list.setModel(model);
-		
+		TemplateManager.instance().getMainLibrary().addListener(this);
+		list.addMouseMotionListener(this);
+	
 		Box titleBox=Box.createHorizontalBox();
 		titleBox.add(new JLabel(Hub.string("TD_avaliableTemplates")));
 		titleBox.add(Box.createHorizontalGlue());
@@ -213,6 +242,29 @@ public class LibraryUI extends Box implements Presentation
 
 	public void setTrackModel(boolean arg0)
 	{
+	}
+
+	public void templateCollectionChanged(TemplateLibrary source)
+	{
+		updateList();
+	}
+
+	public void mouseDragged(MouseEvent arg0)
+	{
+	}
+
+	public void mouseMoved(MouseEvent arg0)
+	{
+		int idx=list.locationToIndex(arg0.getPoint());
+		if(idx>=0&&list.getCellBounds(idx,idx).contains(arg0.getPoint()))
+		{
+			Template t=(Template)model.getElementAt(idx);
+			list.setToolTipText(t.getDescription());
+		}
+		else
+		{
+			list.setToolTipText(null);
+		}
 	}
 
 }

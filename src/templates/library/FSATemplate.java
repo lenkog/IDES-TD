@@ -24,7 +24,7 @@ public class FSATemplate implements Template
 		icon=new TemplateIcon(tag,td.color,Hub.getMainWindow().getGraphics().create());
 	}
 	
-	public EntityIcon getIcon()
+	public TemplateIcon getIcon()
 	{
 		return icon;
 	}

@@ -26,6 +26,7 @@ import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -81,6 +82,17 @@ public class AddTemplateDialog extends EscapeDialog
 				.string("TD_colorBoxTitle")));
 		colorIcon=new ColorIcon();
 		JButton colorButton = new JButton(colorIcon);
+		colorButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent arg0)
+			{
+				Color newColor=JColorChooser.showDialog(me,Hub.string("TD_colorChooserTitle"),colorIcon.getColor());
+				if(newColor!=null)
+				{
+					colorIcon.setColor(newColor);
+				}
+			}
+		});
 		colorBox.add(colorButton);
 		specBox.add(colorBox);
 		mainBox.add(specBox);
@@ -111,9 +123,8 @@ public class AddTemplateDialog extends EscapeDialog
 
 		Box buttonBox = Box.createHorizontalBox();
 		buttonBox.add(Box.createHorizontalGlue());
-		JButton okButton = new JButton(Hub.string("TD_OK"));
-		okButton.addActionListener(onCommit);
-		buttonBox.add(okButton);
+		commitButton = new JButton(Hub.string("TD_OK"));
+		buttonBox.add(commitButton);
 		buttonBox.add(Box.createRigidArea(new Dimension(5, 0)));
 		JButton cancelButton = new JButton(Hub.string("TD_cancel"));
 		cancelButton.addActionListener(new ActionListener()
@@ -131,11 +142,11 @@ public class AddTemplateDialog extends EscapeDialog
 
 		//resize OK button
 		pack();
-		okButton.setPreferredSize(new Dimension(Math.max(okButton.getWidth(),cancelButton.getWidth()),
-				Math.max(okButton.getHeight(),cancelButton.getHeight())));
-		cancelButton.setPreferredSize(new Dimension(Math.max(okButton.getWidth(),cancelButton.getWidth()),
-				Math.max(okButton.getHeight(),cancelButton.getHeight())));
-		okButton.invalidate();
+		commitButton.setPreferredSize(new Dimension(Math.max(commitButton.getWidth(),cancelButton.getWidth()),
+				Math.max(commitButton.getHeight(),cancelButton.getHeight())));
+		cancelButton.setPreferredSize(new Dimension(Math.max(commitButton.getWidth(),cancelButton.getWidth()),
+				Math.max(commitButton.getHeight(),cancelButton.getHeight())));
+		commitButton.invalidate();
 		cancelButton.invalidate();
 	}
 
@@ -165,7 +176,11 @@ public class AddTemplateDialog extends EscapeDialog
 
 	protected static JTextArea descArea;
 	
+	protected static JButton commitButton;
+	
 	protected static TemplateLibrary library;
+	
+	protected static Template oldTemplate;
 	
 	public static void addTemplate(TemplateLibrary library)
 	{
@@ -216,6 +231,9 @@ public class AddTemplateDialog extends EscapeDialog
 		
 		instance();
 		me.library=library;
+		commitButton.removeActionListener(commitAdd);
+		commitButton.removeActionListener(commitEdit);
+		commitButton.addActionListener(commitAdd);
 
 		modelsCombo.removeAllItems();
 		for (FSAModel fsa : models)
@@ -239,10 +257,36 @@ public class AddTemplateDialog extends EscapeDialog
 		me.setLocation(Hub.getCenteredLocationForDialog(me.getSize()));
 		me.setVisible(true);
 	}
+	
+	protected static void editTemplate(TemplateLibrary library, Template template)
+	{
+		instance();
+		me.library=library;
+		oldTemplate=template;
+
+		commitButton.removeActionListener(commitAdd);
+		commitButton.removeActionListener(commitEdit);
+		commitButton.addActionListener(commitEdit);
+
+		modelsCombo.setEnabled(false);
+		modelsCombo.removeAllItems();
+//		modelsCombo.addItem(fsa);
+		//TD_internalModel=()
+
+		colorIcon.setColor(template.getIcon().getBackground());
+		tagField.setText(template.getName());
+		descArea.setText(template.getDescription());
+
+		me.pack();
+		me.setLocation(Hub.getCenteredLocationForDialog(me.getSize()));
+		me.setVisible(true);
+		modelsCombo.setEnabled(true);
+	}
 
 	@Override
 	public void onEscapeEvent()
 	{
+		oldTemplate=null;
 		setVisible(false);
 	}
 	
@@ -311,7 +355,8 @@ public class AddTemplateDialog extends EscapeDialog
 	 }
 
 	
-	protected static ActionListener onCommit=new ActionListener()
+	
+	protected static ActionListener commitAdd=new ActionListener()
 	{
 		public void actionPerformed(ActionEvent arg0)
 		{
@@ -337,6 +382,52 @@ public class AddTemplateDialog extends EscapeDialog
 			{
 				Hub.displayAlert(Hub.string("TD_errorCreatingTemplate")+" ["+
 						e.getMessage()+"]");
+				return;
+			}
+			me.onEscapeEvent();
+		}
+	};
+	
+	protected static ActionListener commitEdit=new ActionListener()
+	{
+		public void actionPerformed(ActionEvent arg0)
+		{
+			if(tagField.getText().length()==0||descArea.getText().length()==0)
+			{
+				Hub.displayAlert(Hub.string("TD_incompleteTemplateInfo"));
+				return;
+			}
+			TemplateDescriptor td=new TemplateDescriptor();
+			td.tag=tagField.getText();
+			td.color=colorIcon.getColor();
+			td.description=descArea.getText();
+			try
+			{
+				library.removeTemplate(oldTemplate.getName());
+			}catch(IOException e)
+			{
+				Hub.displayAlert(Hub.string("TD_errorEditingTemplate")+" ["+
+						e.getMessage()+"]");
+				return;
+			}
+			try
+			{
+				library.addTemplate(td,oldTemplate.instantiate());
+			}
+			catch(IOException e)
+			{
+				Hub.displayAlert(Hub.string("TD_errorEditingTemplate")+" ["+
+						e.getMessage()+"]");
+				try
+				{
+					td.tag=oldTemplate.getName();
+					td.color=oldTemplate.getIcon().getBackground();
+					td.description=oldTemplate.getDescription();
+					library.addTemplate(td,oldTemplate.instantiate());
+				}
+				catch(IOException ex){
+					//there's nothing more to try
+				}
 				return;
 			}
 			me.onEscapeEvent();
