@@ -120,10 +120,10 @@ public class AssignFSADialog extends EscapeDialog
 			{
 				return;
 			}
-			FSAModel fsa = ((TemplateCell)templatesCombo.getSelectedItem()).template
-					.instantiate();
+			Template template=((TemplateCell)templatesCombo.getSelectedItem()).template;
+			FSAModel fsa = template.instantiate();
 			me.onEscapeEvent();
-			new DiagramActions.AssignFSAAction(canvas.getDiagram(), entity, fsa)
+			new DiagramActions.AssignFSAAction(canvas.getDiagram(), entity, fsa, template.getIcon())
 					.execute();
 		}
 	};

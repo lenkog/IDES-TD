@@ -235,6 +235,7 @@ public class AddTemplateDialog extends EscapeDialog
 		commitButton.removeActionListener(commitEdit);
 		commitButton.addActionListener(commitAdd);
 
+		modelsCombo.setEnabled(true);
 		modelsCombo.removeAllItems();
 		for (FSAModel fsa : models)
 		{
@@ -270,17 +271,14 @@ public class AddTemplateDialog extends EscapeDialog
 
 		modelsCombo.setEnabled(false);
 		modelsCombo.removeAllItems();
-//		modelsCombo.addItem(fsa);
-		//TD_internalModel=()
 
-		colorIcon.setColor(template.getIcon().getBackground());
+		colorIcon.setColor(template.getIcon().getColor());
 		tagField.setText(template.getName());
 		descArea.setText(template.getDescription());
 
 		me.pack();
 		me.setLocation(Hub.getCenteredLocationForDialog(me.getSize()));
 		me.setVisible(true);
-		modelsCombo.setEnabled(true);
 	}
 
 	@Override
@@ -412,7 +410,7 @@ public class AddTemplateDialog extends EscapeDialog
 			}
 			try
 			{
-				library.addTemplate(td,oldTemplate.instantiate());
+				library.addTemplate(td,oldTemplate.getModel());
 			}
 			catch(IOException e)
 			{
@@ -421,9 +419,9 @@ public class AddTemplateDialog extends EscapeDialog
 				try
 				{
 					td.tag=oldTemplate.getName();
-					td.color=oldTemplate.getIcon().getBackground();
+					td.color=oldTemplate.getIcon().getColor();
 					td.description=oldTemplate.getDescription();
-					library.addTemplate(td,oldTemplate.instantiate());
+					library.addTemplate(td,oldTemplate.getModel());
 				}
 				catch(IOException ex){
 					//there's nothing more to try

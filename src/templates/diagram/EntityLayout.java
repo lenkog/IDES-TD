@@ -9,11 +9,6 @@ public class EntityLayout
 
 	public String label;
 
-	/**
-	 * True if entity is a template instance, and was modified.
-	 */
-	public boolean flag;
-
 	public Color color;
 
 	public String tag;
@@ -22,8 +17,7 @@ public class EntityLayout
 	{
 		location = new Point();
 		label = "";
-		flag = false;
-		color = null;
+		color = Color.WHITE;
 		tag = "";
 	}
 }

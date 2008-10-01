@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.Comparator;
@@ -22,6 +23,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
@@ -33,7 +35,7 @@ import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.presentation.Presentation;
 
-public class LibraryUI extends Box implements Presentation, TemplateLibraryListener, MouseMotionListener
+public class LibraryUI extends Box implements Presentation, TemplateLibraryListener, MouseMotionListener, MouseListener
 {
 	public static class AddTemplateAction extends AbstractAction
 	{
@@ -72,6 +74,10 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 		public void actionPerformed(ActionEvent evt)
 		{
 			Object[] templates=list.getSelectedValues();
+			if(JOptionPane.showConfirmDialog(Hub.getMainWindow(),Hub.string("TD_confirmDelTemplate"),Hub.string("TD_confirmDelTemplateTitle"),JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+			{
+				return;
+			}
 			String errors="";
 			for(Object template:templates)
 			{
@@ -110,6 +116,31 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 			if(template!=null)
 			{
 				AddTemplateDialog.editTemplate(TemplateManager.instance().getMainLibrary(),template);
+			}
+		}
+	}
+
+	public class ViewTemplateAction extends AbstractAction
+	{
+		private static final long serialVersionUID = -7055962471632256236L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		public ViewTemplateAction()
+		{
+			super(Hub.string("TD_comViewTemplate"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintViewTemplate"));
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			Template template=(Template)list.getSelectedValue();
+			if(template!=null)
+			{
+				Hub.getWorkspace().addModel(template.getModel());
+				Hub.getWorkspace().setActiveModel(template.getModel().getName());
 			}
 		}
 	}
@@ -158,6 +189,7 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 	
 	protected JList list;
 	protected DefaultListModel model;
+	protected ViewTemplateAction viewAction;
 	
 	public LibraryUI()
 	{
@@ -170,6 +202,9 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 		list.setModel(model);
 		TemplateManager.instance().getMainLibrary().addListener(this);
 		list.addMouseMotionListener(this);
+		list.addMouseListener(this);
+
+		viewAction=new ViewTemplateAction();
 	
 		Box titleBox=Box.createHorizontalBox();
 		titleBox.add(new JLabel(Hub.string("TD_avaliableTemplates")));
@@ -192,6 +227,9 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 		buttonBox.add(Box.createRigidArea(new Dimension(5,0)));
 		JButton editBut=new JButton(new EditTemplateAction());
 		buttonBox.add(editBut);
+		buttonBox.add(Box.createRigidArea(new Dimension(5,0)));
+		JButton viewBut=new JButton(viewAction);
+		buttonBox.add(viewBut);
 		add(buttonBox);
 	}
 	
@@ -265,6 +303,35 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 		{
 			list.setToolTipText(null);
 		}
+	}
+
+	public void mouseClicked(MouseEvent arg0)
+	{
+		if(arg0.getClickCount()==2)
+		{
+			int idx=list.locationToIndex(arg0.getPoint());
+			if(idx>=0&&list.getCellBounds(idx,idx).contains(arg0.getPoint()))
+			{
+				list.setSelectedIndex(idx);
+				viewAction.actionPerformed(null);
+			}
+		}
+	}
+
+	public void mouseEntered(MouseEvent arg0)
+	{
+	}
+
+	public void mouseExited(MouseEvent arg0)
+	{
+	}
+
+	public void mousePressed(MouseEvent arg0)
+	{
+	}
+
+	public void mouseReleased(MouseEvent arg0)
+	{
 	}
 
 }

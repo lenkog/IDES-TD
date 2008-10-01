@@ -62,7 +62,7 @@ public class TemplateLibrary
 		}
 		if(errors!="")
 		{
-			Hub.displayAlert(GeneralUtils.truncateMessage(errors));
+			Hub.getNoticeManager().postErrorTemporary(Hub.string("TD_problemLoadingTemplate"),GeneralUtils.truncateMessage(errors));
 		}
 	}
 	

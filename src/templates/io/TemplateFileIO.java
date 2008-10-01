@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 
 import templates.diagram.EmptyConnector;
 import templates.diagram.EmptyConnectorSet;
+import templates.diagram.Entity;
 import templates.diagram.EntityLayout;
 import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
@@ -286,12 +287,13 @@ public class TemplateFileIO implements FileIOPlugin
 			{
 				EntityLayout layout = (EntityLayout)c
 						.getAnnotation(Annotable.LAYOUT);
+				boolean flag=c.hasModel()&&c.getModel().hasAnnotation(Entity.FLAG_MARK);
 				stream.print("\t<" + ELEMENT_ENTITY + " " + ATTRIBUTE_COMPONENT
 						+ "=\"" + c.getId() + "\" " + ATTRIBUTE_LABEL + "=\""
 						+ layout.label + "\" " + ATTRIBUTE_X + "=\""
 						+ layout.location.x + "\" " + ATTRIBUTE_Y + "=\""
 						+ layout.location.y + "\" " + ATTRIBUTE_FLAG + "=\""
-						+ layout.flag + "\"");
+						+ flag + "\"");
 				if (layout.color != null)
 				{
 					stream.print(" " + ATTRIBUTE_COLOR + "=\"#"
@@ -548,8 +550,10 @@ public class TemplateFileIO implements FileIOPlugin
 							.getNamedItem(ATTRIBUTE_X).getNodeValue()), Integer
 							.parseInt(attributes
 									.getNamedItem(ATTRIBUTE_Y).getNodeValue()));
-					layout.flag = Boolean.parseBoolean(attributes
+					boolean flag=Boolean.parseBoolean(attributes
 							.getNamedItem(ATTRIBUTE_FLAG).getNodeValue());
+//					layout.flag = Boolean.parseBoolean(attributes
+//							.getNamedItem(ATTRIBUTE_FLAG).getNodeValue());
 					if (attributes.getNamedItem(ATTRIBUTE_COLOR) != null)
 					{
 						try
@@ -586,6 +590,10 @@ public class TemplateFileIO implements FileIOPlugin
 					else
 					{
 						component.setAnnotation(Annotable.LAYOUT, layout);
+						if(flag&&component.hasModel())
+						{
+							component.getModel().setAnnotation(Entity.FLAG_MARK,new Object());
+						}
 					}
 				}
 				else if (node.getNodeName().equals(ELEMENT_CONNECTOR))

@@ -17,9 +17,11 @@ import javax.swing.undo.UndoableEdit;
 import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
+import templates.diagram.SimpleIcon;
 import templates.diagram.TemplateDiagram;
 import templates.model.TemplateLink;
 import templates.presentation.Helpers;
+import templates.utils.EntityIcon;
 
 public class DiagramActions
 {
@@ -611,7 +613,7 @@ public class DiagramActions
 					DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 							diagram,
 							entity,
-							newModel);
+							newModel,new SimpleIcon());
 					edit.redo();
 					if (buffer != null && buffer.length > 0)
 					{
@@ -632,6 +634,8 @@ public class DiagramActions
 		protected Entity entity;
 
 		protected FSAModel fsa;
+		
+		protected EntityIcon icon;
 
 		public AssignFSAAction(TemplateDiagram diagram, Entity entity,
 				FSAModel fsa)
@@ -639,13 +643,30 @@ public class DiagramActions
 			this(null, diagram, entity, fsa);
 		}
 
+		public AssignFSAAction(TemplateDiagram diagram, Entity entity,
+				FSAModel fsa, EntityIcon icon)
+		{
+			this(null, diagram, entity, fsa,icon);
+		}
+
 		public AssignFSAAction(CompoundEdit parent, TemplateDiagram diagram,
 				Entity entity, FSAModel fsa)
+		{
+			this(parent,diagram,entity,fsa,null);
+		}
+
+		public AssignFSAAction(CompoundEdit parent, TemplateDiagram diagram,
+				Entity entity, FSAModel fsa, EntityIcon icon)
 		{
 			this.parentEdit = parent;
 			this.diagram = diagram;
 			this.entity = entity;
 			this.fsa = fsa;
+			if(icon==null)
+			{
+				icon=new SimpleIcon();
+			}
+			this.icon=icon;
 		}
 
 		public void actionPerformed(ActionEvent e)
@@ -655,7 +676,8 @@ public class DiagramActions
 				DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 						diagram,
 						entity,
-						fsa);
+						fsa,
+						icon);
 				edit.redo();
 				postEdit(edit);
 			}

@@ -12,4 +12,9 @@ public interface EntityIcon extends Icon
 	public EntityIcon clone();
 	public void setIsModule(boolean b);
 	public void paintIcon(Component arg0, Graphics g, int x, int y, Color color);
+	public void setColor(Color color);
+	public Color getColor();
+	public void setFlagged(boolean b);
+	public boolean isFlagged();
+	public String getTag();
 }

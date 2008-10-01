@@ -12,9 +12,15 @@ import java.util.Vector;
 import javax.swing.Icon;
 
 import templates.model.TemplateComponent;
+import templates.utils.EntityIcon;
 
 public class Entity extends DiagramElement
 {
+	/**
+	 * Denotes if the FSA model for an entity has been modified after being assigned to the entity.
+	 */
+	public static final String FLAG_MARK="templates.diagram.Entity.flag";
+	
 	protected class LabelBox extends Rectangle
 	{
 		private static final long serialVersionUID = -3359948297694123889L;
@@ -53,7 +59,7 @@ public class Entity extends DiagramElement
 			}
 		}
 	}
-
+	
 	protected static final int LABEL_SPACING = 5;
 
 	private static final int PORT_RADIUS = 5;
@@ -75,7 +81,7 @@ public class Entity extends DiagramElement
 
 	private Rectangle bounds;
 
-	private SimpleIcon icon;
+	private EntityIcon icon=new SimpleIcon();
 
 	private LabelBox labelBox;
 
@@ -205,7 +211,7 @@ public class Entity extends DiagramElement
 		icon.paintIcon(null,
 				g2d,
 				layout.location.x - icon.getIconWidth() / 2,
-				layout.location.y - icon.getIconHeight() / 2);
+				layout.location.y - icon.getIconHeight() / 2,g2d.getColor());
 		labelBox.draw(g2d);
 	}
 
@@ -229,8 +235,9 @@ public class Entity extends DiagramElement
 
 	public void update()
 	{
-		icon = new SimpleIcon(
-				component.getType() != TemplateComponent.TYPE_CHANNEL);
+		icon=new SimpleIcon(layout.tag,layout.color,DiagramElement.getGlobalFontRenderer());
+		icon.setIsModule(component.getType() != TemplateComponent.TYPE_CHANNEL);
+		icon.setFlagged(component.hasModel()&&component.getModel().hasAnnotation(FLAG_MARK));
 		int maxWidth = 3 * icon.getIconWidth();
 		String[] words = layout.label.split(" ");
 		Vector<String> lines = new Vector<String>();
@@ -398,8 +405,15 @@ public class Entity extends DiagramElement
 						.getCenterY()) };
 	}
 
-	public Icon getIcon()
+	public EntityIcon getIcon()
 	{
-		return icon.clone();
+		return icon;
+	}
+	
+	public void setIcon(EntityIcon icon)
+	{
+		layout.color=icon.getColor();
+		layout.tag=icon.getTag();
+		update();
 	}
 }

@@ -16,6 +16,7 @@ import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
 import templates.model.TemplateLink;
 import templates.model.TemplateModel;
+import templates.utils.EntityIcon;
 
 public class DiagramUndoableEdits
 {
@@ -641,16 +642,22 @@ public class DiagramUndoableEdits
 		protected Entity entity = null;
 
 		protected FSAModel oldModel = null;
+		
+		protected EntityIcon oldIcon=null;
 
 		protected FSAModel newModel = null;
+		
+		protected EntityIcon newIcon=null;
 
 		public AssignFSAEdit(TemplateDiagram diagram, Entity entity,
-				FSAModel newModel)
+				FSAModel newModel,EntityIcon icon)
 		{
 			this.diagram = diagram;
 			this.entity = entity;
 			this.oldModel = entity.getComponent().getModel();
+			this.oldIcon=entity.getIcon();
 			this.newModel = newModel;
+			this.newIcon=icon;
 		}
 
 		@Override
@@ -669,6 +676,7 @@ public class DiagramUndoableEdits
 			}
 			diagram.getModel().assignFSA(entity.getComponent().getId(),
 					newModel);
+			entity.setIcon(newIcon);
 			if (newModel != null)
 			{
 				newModel.setName(TemplateModel.FSA_NAME_PREFIX
@@ -692,6 +700,7 @@ public class DiagramUndoableEdits
 			}
 			diagram.getModel().assignFSA(entity.getComponent().getId(),
 					oldModel);
+			entity.setIcon(oldIcon);
 			if (oldModel != null)
 			{
 				oldModel.setName(TemplateModel.FSA_NAME_PREFIX
