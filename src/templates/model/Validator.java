@@ -81,6 +81,11 @@ public class Validator
 			this(message, new HashSet<TemplateComponent>(), Arrays
 					.asList(new TemplateLink[] { link }), "", type);
 		}
+		
+		public ValidatorResult(String message,int type)
+		{
+			this(message,new HashSet<TemplateComponent>(),new HashSet<TemplateLink>(),"",type);
+		}
 	}
 
 	private static class InjectionKey
@@ -111,6 +116,8 @@ public class Validator
 		}
 	}
 
+	public static final String ERROR_NO_MODULE="TD_inconsistencyNoModule";
+	
 	public static final String ERROR_NO_MODEL = "TD_inconsistencyNoModel";
 
 	public static final String ERROR_MODULE_CHANNEL = "TD_inconsistencyModuleChannel";
@@ -122,6 +129,7 @@ public class Validator
 	public static final String ERROR_MERGED_EVENT = "TD_inconsistencyMergedEvent";
 
 	public static final String ERROR_NONUNIQUE_NAME = "TD_inconsistencyNonuniqueName";
+	public static final String WARNING_NO_CHANNEL="TD_inconsistencyNoChannel";
 
 	public static final String WARNING_FREE_COMPONENT = "TD_issueFreeComponent";
 
@@ -130,9 +138,19 @@ public class Validator
 	public static List<ValidatorResult> validate(TemplateModel model)
 	{
 		LinkedList<ValidatorResult> ret = new LinkedList<ValidatorResult>();
+		boolean hasModule=false;
+		boolean hasChannel=false;
 		Map<String, Set<TemplateComponent>> namesMap = new HashMap<String, Set<TemplateComponent>>();
 		for (TemplateComponent component : model.getComponents())
 		{
+			if(component.getType()==TemplateComponent.TYPE_MODULE)
+			{
+				hasModule=true;
+			}
+			else if(component.getType()==TemplateComponent.TYPE_CHANNEL)
+			{
+				hasChannel=true;
+			}
 			if (!component.hasModel())
 			{
 				ret.add(new ValidatorResult(
@@ -158,6 +176,14 @@ public class Validator
 						component,
 						ValidatorResult.WARNING));
 			}
+		}
+		if(!hasModule)
+		{
+			ret.add(new ValidatorResult(ERROR_NO_MODULE,ValidatorResult.ERROR));
+		}
+		if(!hasChannel)
+		{
+			ret.add(new ValidatorResult(WARNING_NO_CHANNEL,ValidatorResult.WARNING));
 		}
 		for (String name : namesMap.keySet())
 		{

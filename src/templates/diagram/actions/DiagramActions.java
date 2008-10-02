@@ -4,6 +4,7 @@ import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.ModelManager;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -19,6 +20,7 @@ import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.SimpleIcon;
 import templates.diagram.TemplateDiagram;
+import templates.library.Template;
 import templates.model.TemplateLink;
 import templates.presentation.Helpers;
 import templates.utils.EntityIcon;
@@ -75,6 +77,64 @@ public class DiagramActions
 					buffer[0] = edit.getEntity();
 				}
 				postEditAdjustCanvas(diagram, edit);
+			}
+		}
+	}
+
+	public static class CreateTemplateInstanceAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = -8369451029215842373L;
+
+		protected TemplateDiagram diagram;
+
+		protected Template template;
+		
+		protected Point location;
+
+		protected Entity[] buffer;
+
+		public CreateTemplateInstanceAction(TemplateDiagram diagram, Template template, Point location)
+		{
+			this(null, diagram, template, location, null);
+		}
+
+		public CreateTemplateInstanceAction(TemplateDiagram diagram, Template template, Point location,
+				Entity[] buffer)
+		{
+			this(null, diagram, template, location, buffer);
+		}
+
+		public CreateTemplateInstanceAction(CompoundEdit parent, TemplateDiagram diagram,
+				Template template, Point location)
+		{
+			this(parent, diagram, template, location, null);
+		}
+
+		public CreateTemplateInstanceAction(CompoundEdit parent, TemplateDiagram diagram,
+				Template template, Point location, Entity[] buffer)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.template=template;
+			this.location = location;
+			this.buffer = buffer;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null)
+			{
+				CompoundEdit allEdits=new CompoundEdit();
+				Entity[] entityBuf=new Entity[1];
+				new DiagramActions.CreateEntityAction(allEdits,diagram,location,entityBuf).execute();
+				new DiagramActions.AssignFSAAction(allEdits,diagram,entityBuf[0],template.instantiate(),template.getIcon().clone()).execute();
+				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_undoCreateEntity")));
+				allEdits.end();
+				if (buffer != null && buffer.length > 0)
+				{
+					buffer[0] = entityBuf[0];
+				}
+				postEditAdjustCanvas(diagram, allEdits);
 			}
 		}
 	}
@@ -610,16 +670,23 @@ public class DiagramActions
 							newModel.add(newModel.assembleEvent(event));
 						}
 					}
+					CompoundEdit allEdits=new CompoundEdit();
 					DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 							diagram,
 							entity,
-							newModel,new SimpleIcon());
+							newModel);
 					edit.redo();
+					allEdits.addEdit(edit);
+					DiagramUndoableEdits.SetIconEdit iconEdit=new DiagramUndoableEdits.SetIconEdit(diagram,entity,new SimpleIcon());
+					iconEdit.redo();
+					allEdits.addEdit(iconEdit);
+					allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(edit.getPresentationName()));
+					allEdits.end();
 					if (buffer != null && buffer.length > 0)
 					{
 						buffer[0] = newModel;
 					}
-					postEdit(edit);
+					postEditAdjustCanvas(diagram,allEdits);
 				}
 			}
 		}
@@ -673,13 +740,19 @@ public class DiagramActions
 		{
 			if (diagram != null)
 			{
+				CompoundEdit allEdits=new CompoundEdit();
 				DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 						diagram,
 						entity,
-						fsa,
-						icon);
+						fsa);
 				edit.redo();
-				postEdit(edit);
+				allEdits.addEdit(edit);
+				DiagramUndoableEdits.SetIconEdit iconEdit=new DiagramUndoableEdits.SetIconEdit(diagram,entity,icon);
+				iconEdit.redo();
+				allEdits.addEdit(iconEdit);
+				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(edit.getPresentationName()));
+				allEdits.end();				
+				postEditAdjustCanvas(diagram,allEdits);
 			}
 		}
 	}
@@ -718,6 +791,103 @@ public class DiagramActions
 						type);
 				edit.redo();
 				postEditAdjustCanvas(diagram, edit);
+			}
+		}
+	}
+
+	public static class SetIconColorAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 8626414278661880945L;
+
+		protected TemplateDiagram diagram;
+
+		protected Collection<Entity> entities;
+		
+		protected Color color;
+
+		public SetIconColorAction(TemplateDiagram diagram, Collection<Entity> entities, Color color)
+		{
+			this(null, diagram, entities, color);
+		}
+
+		public SetIconColorAction(CompoundEdit parent, TemplateDiagram diagram,
+				Collection<Entity> entities, Color color)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.entities = entities;
+			this.color = color;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null&&!entities.isEmpty())
+			{
+				CompoundEdit allEdits=new CompoundEdit();
+				DiagramUndoableEdits.SetIconEdit edit=null;
+				for(Entity entity:entities)
+				{
+					EntityIcon icon=entity.getIcon().clone();
+					icon.setColor(color);
+					edit = new DiagramUndoableEdits.SetIconEdit(
+						diagram,
+						entity,
+						icon);
+					edit.redo();
+					allEdits.addEdit(edit);
+				}
+				if(entities.size()>1)
+				{
+					edit.setLastOfMultiple(true);
+				}
+				allEdits.end();
+				postEditAdjustCanvas(diagram, allEdits);
+			}
+		}
+	}
+
+	public static class DefaultIconAction extends AbstractDiagramAction
+	{
+		private static final long serialVersionUID = 6507813585595950277L;
+
+		protected TemplateDiagram diagram;
+
+		protected Collection<Entity> entities;
+
+		public DefaultIconAction(TemplateDiagram diagram, Collection<Entity> entities)
+		{
+			this(null, diagram, entities);
+		}
+
+		public DefaultIconAction(CompoundEdit parent, TemplateDiagram diagram,
+				Collection<Entity> entities)
+		{
+			this.parentEdit = parent;
+			this.diagram = diagram;
+			this.entities = entities;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{
+			if (diagram != null&&!entities.isEmpty())
+			{
+				CompoundEdit allEdits=new CompoundEdit();
+				DiagramUndoableEdits.SetIconEdit edit=null;
+				for(Entity entity:entities)
+				{
+					edit = new DiagramUndoableEdits.SetIconEdit(
+						diagram,
+						entity,
+						new SimpleIcon());
+					edit.redo();
+					allEdits.addEdit(edit);
+				}
+				if(entities.size()>1)
+				{
+					edit.setLastOfMultiple(true);
+				}
+				allEdits.end();
+				postEditAdjustCanvas(diagram, allEdits);
 			}
 		}
 	}

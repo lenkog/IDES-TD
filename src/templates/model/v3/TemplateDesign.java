@@ -357,6 +357,11 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		}
 		return null;
 	}
+	
+	public int getComponentCount()
+	{
+		return components.size();
+	}
 
 	public synchronized void removeComponent(long id)
 	{

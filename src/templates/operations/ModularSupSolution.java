@@ -15,14 +15,18 @@ import ides.api.plugin.model.ModelManager;
 import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
 
-public class SupSolution implements Operation
+public class ModularSupSolution implements Operation
 {
 
 	private static final String[] STD_DESC=new String[]{
 			Hub.string("TD_checklmDesc")
-//			Hub.string("TD_modulesDesc"),
-//			Hub.string("TD_supDesc")
 	};
+	private static final String[] ERROR_DESC=new String[]{
+		Hub.string("TD_cantComputeSups")
+};
+	private static final String[] NO_OUTPUT_DESC=new String[]{
+		Hub.string("TD_noOutputSups")
+};
 	
 	private String[] description=STD_DESC;
 	
@@ -30,7 +34,7 @@ public class SupSolution implements Operation
 
 	public String getDescription()
 	{
-		return Hub.string("TD_supsolDesc");
+		return Hub.string("TD_modsupDesc");
 	}
 
 	public String[] getDescriptionOfInputs()
@@ -45,7 +49,7 @@ public class SupSolution implements Operation
 
 	public String getName()
 	{
-		return "supcontd";
+		return "tdmodularsup";
 	}
 
 	public int getNumberOfInputs()
@@ -55,7 +59,6 @@ public class SupSolution implements Operation
 
 	public int getNumberOfOutputs()
 	{
-//		return -1;
 		return 1;
 	}
 
@@ -66,7 +69,6 @@ public class SupSolution implements Operation
 
 	public Class<?>[] getTypeOfOutputs()
 	{
-//		return new Class<?>[]{Boolean.class,FSAModel.class,FSAModel.class};
 		return new Class<?>[]{Boolean.class};
 	}
 
@@ -98,31 +100,37 @@ public class SupSolution implements Operation
 								+ model.getName() + "\' "
 								+ Hub.string("TD_errorsInModel2"));
 				warnings.add(Hub.string("TD_errorsInModel"));
-				return new Object[] {
-						new Boolean(true),
-						ModelManager.instance().createModel(FSAModel.class),
-						ModelManager.instance().createModel(FSAModel.class) };
+				description=ERROR_DESC;
+				return new Object[] {new Boolean(true)};
 			}
 		}
 		Operation channelsup=OperationManager.instance().getOperation("channelsup");
 		List<FSAModel> models=new LinkedList<FSAModel>();
+		List<FSAModel> sups=new LinkedList<FSAModel>();
 		for(TemplateComponent channel:model.getChannels())
 		{
 			Object[] result=channelsup.perform(new Object[]{model,channel.getId()});
+			String channelName = channel.getModel().getName();
+			if (channelName.startsWith(TemplateModel.FSA_NAME_PREFIX))
+			{
+				channelName = channelName.substring(TemplateModel.FSA_NAME_PREFIX
+						.length());
+			}
+			((FSAModel)result[0]).setName("M_" + channelName);
+			((FSAModel)result[2]).setName("S_" + channelName);
 			models.add((FSAModel)result[0]);
 			models.add((FSAModel)result[2]);
+			sups.add((FSAModel)result[2]);
 			warnings.addAll(channelsup.getWarnings());
 		}
-		List<FSAModel> sups=new LinkedList<FSAModel>();
-		for(Iterator<FSAModel> i=models.iterator();i.hasNext();)
+		if(sups.isEmpty())
 		{
-			i.next();
-			sups.add(i.next());
+			warnings.add(NO_OUTPUT_DESC[0]);
+			description=NO_OUTPUT_DESC;
+			return new Object[]{true};
 		}
 		Operation lm=OperationManager.instance().getOperation("localmodular");
 		Boolean isLM=(Boolean)lm.perform(sups.toArray())[0];
-//		description=new String[models.size()+1];
-//		Object[] ret=new Object[models.size()+1];
 		if(isLM)
 		{
 			description[0]=Hub.string("TD_checklmPos");
@@ -131,18 +139,10 @@ public class SupSolution implements Operation
 		{
 			description[0]=Hub.string("TD_checklmNeg");
 		}
-//		ret[0]=isLM;
 		for(FSAModel m:models)
-//		Iterator<FSAModel> modelsIter=models.iterator();
-//		for(int i=1;i<description.length;i=i+2)
 		{
-//			description[i]=Hub.string("TD_modulesDesc");
-//			description[i+1]=Hub.string("TD_supDesc");
-//			ret[i]=modelsIter.next();
-//			ret[i+1]=modelsIter.next();
 			Hub.getWorkspace().addModel(m);
 		}
-//		return ret;
 		return new Object[]{isLM};
 	}
 

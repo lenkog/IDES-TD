@@ -29,6 +29,7 @@ import templates.model.TemplateLink;
 import templates.model.TemplateModel;
 import templates.model.TemplateModelMessage;
 import templates.model.TemplateModelSubscriber;
+import templates.utils.EntityIcon;
 
 public class TemplateDiagram implements TemplateModelSubscriber, DESModelSubscriber
 {
@@ -404,6 +405,16 @@ public class TemplateDiagram implements TemplateModelSubscriber, DESModelSubscri
 				this,
 				Arrays.asList(new DiagramElement[] { entity }),
 				TemplateDiagramMessage.OP_MODIFY));
+	}
+	
+	public void setEntityIcon(Entity entity, EntityIcon icon)
+	{
+		entity.setIcon(icon);
+		model.metadataChanged();
+		fireDiagramChanged(new TemplateDiagramMessage(
+				this,
+				Arrays.asList(new DiagramElement[] { entity }),
+				TemplateDiagramMessage.OP_MODIFY));		
 	}
 
 	public Entity getEntityAt(Point location)

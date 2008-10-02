@@ -15,6 +15,7 @@ public class SimpleIcon implements EntityIcon
 	protected static final int SPACING=2;
 	
 	protected Color bgColor=Color.WHITE;
+	protected Color fgColor=Color.BLACK;
 	protected String tag="";
 	protected String flaggedTag="";
 	protected int w=EntityIcon.BOX_DISTANCE;
@@ -32,7 +33,7 @@ public class SimpleIcon implements EntityIcon
 	{
 		this.tag=tag;
 		flaggedTag="".equals(tag)?"":tag+"^";
-		this.bgColor=color;
+		setColor(color);
 		w=Math.max(context.getFontMetrics().stringWidth(tag)+2*SPACING,BOX_DISTANCE);
 		h=Math.max(context.getFontMetrics().getHeight()+2*SPACING,BOX_DISTANCE);
 		deltaY=context.getFontMetrics().getAscent();
@@ -81,7 +82,7 @@ public class SimpleIcon implements EntityIcon
 			g2d.setColor(color);
 			g2d.drawOval(x, y,flag?flaggedW:w, flag?flaggedH:h);
 		}
-		g2d.setColor(Color.BLACK);
+		g2d.setColor(fgColor);
 		g2d.drawString(flag?flaggedTag:tag,x+SPACING+(flag?flaggedDeltaX:deltaX),y+SPACING+(flag?flaggedDeltaY:deltaY));
 		g2d.setColor(oldColor);
 		g2d.setStroke(oldStroke);
@@ -92,6 +93,7 @@ public class SimpleIcon implements EntityIcon
 		SimpleIcon icon=new SimpleIcon();
 		icon.isModule=isModule;
 		icon.bgColor=bgColor;
+		icon.fgColor=fgColor;
 		icon.tag=tag;
 		icon.w=w;
 		icon.h=h;
@@ -124,6 +126,14 @@ public class SimpleIcon implements EntityIcon
 	public void setColor(Color color)
 	{
 		bgColor=color;
+		if((bgColor.getRed()+bgColor.getGreen()+bgColor.getBlue())/3<150)
+		{
+			fgColor=Color.WHITE;
+		}
+		else
+		{
+			fgColor=Color.BLACK;
+		}
 	}
 
 	public void setFlagged(boolean b)

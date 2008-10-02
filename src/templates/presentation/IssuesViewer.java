@@ -28,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.event.ListDataListener;
 
 import templates.diagram.Connector;
 import templates.diagram.DiagramElement;
@@ -157,6 +158,21 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 		sp = new JScrollPane(issues);
 		refreshIssueList();
 		diagram.addSubscriber(this);
+	}
+	
+	public void addIssuesListener(ListDataListener ldl)
+	{
+		data.addListDataListener(ldl);
+	}
+	
+	public void removeIssuesListener(ListDataListener ldl)
+	{
+		data.removeListDataListener(ldl);
+	}
+	
+	public int getIssueCount()
+	{
+		return data.getSize();
 	}
 
 	public void forceRepaint()

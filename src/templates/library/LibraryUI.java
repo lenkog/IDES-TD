@@ -203,6 +203,8 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 		TemplateManager.instance().getMainLibrary().addListener(this);
 		list.addMouseMotionListener(this);
 		list.addMouseListener(this);
+		list.setTransferHandler(new LibraryTransferHandler());
+		list.setDragEnabled(true);
 
 		viewAction=new ViewTemplateAction();
 	

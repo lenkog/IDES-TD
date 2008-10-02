@@ -4,11 +4,13 @@ import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.operation.OperationManager;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 
 import javax.swing.AbstractAction;
+import javax.swing.JColorChooser;
 import javax.swing.undo.CompoundEdit;
 
 import templates.diagram.Connector;
@@ -16,6 +18,8 @@ import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.actions.DiagramActions;
 import templates.diagram.actions.DiagramUndoableEdits;
+import templates.library.AddTemplateDialog;
+import templates.library.TemplateManager;
 import templates.model.TemplateComponent;
 import templates.model.Validator;
 
@@ -282,7 +286,7 @@ public class UIActions
 			new DiagramActions.SetTypeAction(
 					canvas.getDiagram(),
 					entity,
-					TemplateComponent.TYPE_MODULE).actionPerformed(evt);
+					TemplateComponent.TYPE_MODULE).execute();
 		}
 	}
 
@@ -311,7 +315,96 @@ public class UIActions
 			new DiagramActions.SetTypeAction(
 					canvas.getDiagram(),
 					entity,
-					TemplateComponent.TYPE_CHANNEL).actionPerformed(evt);
+					TemplateComponent.TYPE_CHANNEL).execute();
+		}
+	}
+
+	public static class SetColorAction extends AbstractAction
+	{
+		private static final long serialVersionUID = 276229727963021742L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Entity entity;
+
+		public SetColorAction(TemplateEditableCanvas canvas, Entity entity)
+		{
+			super(Hub.string("TD_comSetColor"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintSetColor"));
+			this.canvas = canvas;
+			this.entity = entity;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			Color color=JColorChooser.showDialog(Hub.getMainWindow(),
+					Hub.string("TD_colorBoxTitle"),entity.getIcon().getColor());
+			if(color!=null)
+			{
+				new DiagramActions.SetIconColorAction(
+					canvas.getDiagram(),
+					Arrays.asList(new Entity[]{entity}),
+					color).execute();
+			}
+		}
+	}
+
+	public static class ResetIconAction extends AbstractAction
+	{
+		private static final long serialVersionUID = 3216719161898588398L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Entity entity;
+
+		public ResetIconAction(TemplateEditableCanvas canvas, Entity entity)
+		{
+			super(Hub.string("TD_comDefaultIcon"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintDefaultIcon"));
+			this.canvas = canvas;
+			this.entity = entity;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+				new DiagramActions.DefaultIconAction(
+					canvas.getDiagram(),
+					Arrays.asList(new Entity[]{entity})
+					).execute();
+		}
+	}
+
+	public static class MakeTemplateAction extends AbstractAction
+	{
+		private static final long serialVersionUID = 3531359340371698458L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		private Entity entity;
+
+		public MakeTemplateAction(Entity entity)
+		{
+			super(Hub.string("TD_comMakeTemplate"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintMakeTemplate"));
+			this.entity = entity;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			if(entity.getComponent().hasModel())
+			{
+				AddTemplateDialog.addTemplate(TemplateManager.instance().getMainLibrary(),entity.getComponent().getModel());
+			}
 		}
 	}
 

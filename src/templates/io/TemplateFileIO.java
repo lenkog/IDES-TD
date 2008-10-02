@@ -297,9 +297,9 @@ public class TemplateFileIO implements FileIOPlugin
 				if (layout.color != null)
 				{
 					stream.print(" " + ATTRIBUTE_COLOR + "=\"#"
-							+ Integer.toHexString(layout.color.getRed())
-							+ Integer.toHexString(layout.color.getGreen())
-							+ Integer.toHexString(layout.color.getBlue())
+							+ (layout.color.getRed()<16?"0":"")+Integer.toHexString(layout.color.getRed())
+							+ (layout.color.getGreen()<16?"0":"")+Integer.toHexString(layout.color.getGreen())
+							+ (layout.color.getBlue()<16?"0":"")+Integer.toHexString(layout.color.getBlue())
 							+ "\"");
 				}
 				if (!"".equals(layout.tag))

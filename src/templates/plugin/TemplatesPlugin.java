@@ -11,12 +11,15 @@ import ides.api.plugin.presentation.ToolsetManager;
 
 import java.util.ResourceBundle;
 
+import templates.io.JPEGExporter;
+import templates.io.PNGExporter;
 import templates.io.TemplateFileIO;
 import templates.library.TemplateMetaIO;
 import templates.model.TemplateModel;
 import templates.model.v3.TemplateDesign;
+import templates.operations.CentralizedSupSolution;
 import templates.operations.ChannelSup;
-import templates.operations.SupSolution;
+import templates.operations.ModularSupSolution;
 import templates.presentation.TemplateToolset;
 
 public class TemplatesPlugin implements Plugin
@@ -82,10 +85,14 @@ public class TemplatesPlugin implements Plugin
 					"FSA",tag);
 		}
 		IOPluginManager.instance().registerMetaSaver(ioLibrary,FSAModel.class);
+		//export
+		IOPluginManager.instance().registerExport(new JPEGExporter(),TemplateModel.class);
+		IOPluginManager.instance().registerExport(new PNGExporter(),TemplateModel.class);
 
 		// Operations
 		OperationManager.instance().register(new ChannelSup());
-		OperationManager.instance().register(new SupSolution());
+		OperationManager.instance().register(new ModularSupSolution());
+		OperationManager.instance().register(new CentralizedSupSolution());
 	}
 
 	public void unload()

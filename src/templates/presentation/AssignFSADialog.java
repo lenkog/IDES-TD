@@ -41,6 +41,7 @@ import templates.library.Template;
 import templates.library.TemplateDescriptor;
 import templates.library.TemplateManager;
 import templates.model.TemplateComponent;
+import templates.utils.EntityIcon;
 
 public class AssignFSADialog extends EscapeDialog
 {
@@ -104,10 +105,19 @@ public class AssignFSADialog extends EscapeDialog
 			{
 				return;
 			}
-			FSAModel fsa = ((FSACell)openModelsCombo.getSelectedItem()).fsa
-					.clone();
+			FSACell cell=(FSACell)openModelsCombo.getSelectedItem();
+			FSAModel fsa = cell.fsa.clone();
 			me.onEscapeEvent();
-			new DiagramActions.AssignFSAAction(canvas.getDiagram(), entity, fsa)
+			EntityIcon icon=null;
+			if(cell.icon!=null&&(cell.icon instanceof EntityIcon))
+			{
+				icon=(EntityIcon)cell.icon;
+				if(cell.fsa.hasAnnotation(Entity.FLAG_MARK))
+				{
+					fsa.setAnnotation(Entity.FLAG_MARK,new Object());
+				}
+			}
+			new DiagramActions.AssignFSAAction(canvas.getDiagram(), entity, fsa, icon)
 					.execute();
 		}
 	};
@@ -123,7 +133,7 @@ public class AssignFSADialog extends EscapeDialog
 			Template template=((TemplateCell)templatesCombo.getSelectedItem()).template;
 			FSAModel fsa = template.instantiate();
 			me.onEscapeEvent();
-			new DiagramActions.AssignFSAAction(canvas.getDiagram(), entity, fsa, template.getIcon())
+			new DiagramActions.AssignFSAAction(canvas.getDiagram(), entity, fsa, template.getIcon().clone())
 					.execute();
 		}
 	};
@@ -151,8 +161,6 @@ public class AssignFSADialog extends EscapeDialog
 					canvas.getDiagram(),
 					entity,
 					model).execute();
-			// Hub.getWorkspace().addModel(model[0]);
-			// Hub.getWorkspace().setActiveModel(model[0].getName());
 		}
 	}
 
@@ -161,6 +169,7 @@ public class AssignFSADialog extends EscapeDialog
 		private static final long serialVersionUID = -3672946556518152880L;
 
 		public FSAModel fsa;
+		public Icon icon=null;
 
 		public FSACell(FSAModel fsa)
 		{
@@ -172,6 +181,7 @@ public class AssignFSADialog extends EscapeDialog
 		public FSACell(FSAModel fsa, Icon icon)
 		{
 			super(icon);
+			this.icon=icon;
 			setText(fsa.getName());
 			this.fsa = fsa;
 			setBorder(BorderFactory.createEmptyBorder(2, 1, 2, 1));
@@ -313,24 +323,20 @@ public class AssignFSADialog extends EscapeDialog
 		instance();
 
 		// prepare ComboBox with loaded FSAs
-		Set<FSAModel> openModels = new HashSet<FSAModel>();
+		Set<FSAModel> openModels = new HashSet<FSAModel>(Hub.getWorkspace().getModelsOfType(FSAModel.class));
 		Set<FSAModel> designModels = new HashSet<FSAModel>();
-		for (Iterator<DESModel> i = Hub.getWorkspace().getModels(); i.hasNext();)
-		{
-			DESModel model = i.next();
-			if (model instanceof FSAModel)
-			{
-				openModels.add((FSAModel)model);
-			}
-		}
 		for (TemplateComponent c : canvas
 				.getDiagram().getModel().getComponents())
 		{
-			if (c.getModel() != null)
+			if (c.hasModel())
 			{
 				openModels.add(c.getModel());
 				designModels.add(c.getModel());
 			}
+		}
+		if(entity.getComponent().hasModel())
+		{
+			openModels.remove(entity.getComponent().getModel());
 		}
 		Vector<FSAModel> sortedModels = new Vector<FSAModel>(openModels);
 		Collections.sort(sortedModels, new Comparator<FSAModel>()

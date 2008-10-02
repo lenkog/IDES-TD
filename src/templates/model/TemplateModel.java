@@ -14,6 +14,8 @@ public interface TemplateModel extends ParentModel, TemplateModelPublisher
 	public Collection<TemplateComponent> getModules();
 
 	public Collection<TemplateComponent> getChannels();
+	
+	public int getComponentCount();
 
 	public Collection<TemplateLink> getLinks();
 

@@ -209,9 +209,7 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 
 	public MouseEvent transformMouseCoords(MouseEvent me)
 	{
-		Point2D.Float p = new Point2D.Float(me.getX(), me.getY());
-		p.x = p.x / scaleFactor;
-		p.y = p.y / scaleFactor;
+		Point p=componentToLocal(me.getPoint());
 		return new MouseEvent((Component)me.getSource(), me.getID(), me
 				.getWhen(), me.getModifiersEx(), (int)p.x, (int)p.y, me
 				.getClickCount(), me.isPopupTrigger(), me.getButton());
@@ -227,6 +225,11 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 	public Point localToComponent(Point p)
 	{
 		return new Point((int)(p.x * scaleFactor), (int)(p.y * scaleFactor));
+	}
+
+	public Point componentToLocal(Point p)
+	{
+		return new Point((int)(p.x / scaleFactor), (int)(p.y / scaleFactor));
 	}
 
 	public void setUIInteraction(boolean b)

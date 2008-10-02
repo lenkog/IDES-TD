@@ -264,6 +264,10 @@ public class IssuesWrapper
 						throw new SkipIssueException();
 					}
 				}
+				else if (result.message.equals(Validator.WARNING_NO_CHANNEL))
+				{
+					message += Hub.string("TD_issueWNoChannel");					
+				}
 				else if (result.message.equals(Validator.ERROR_FORKED_EVENT))
 				{
 					Entity e = diagram.getEntityFor(result.components.get(0));
@@ -293,6 +297,10 @@ public class IssuesWrapper
 								+ Hub.string("TD_issueWMergedEvent2") + " \'"
 								+ e.getLabel() + "\'.";
 					}
+				}
+				else if (result.message.equals(Validator.ERROR_NO_MODULE))
+				{
+					message += Hub.string("TD_issueWNoModule");					
 				}
 				else if (result.message.equals(Validator.ERROR_NO_MODEL))
 				{

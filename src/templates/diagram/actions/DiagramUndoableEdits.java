@@ -3,8 +3,11 @@ package templates.diagram.actions;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -643,21 +646,15 @@ public class DiagramUndoableEdits
 
 		protected FSAModel oldModel = null;
 		
-		protected EntityIcon oldIcon=null;
-
 		protected FSAModel newModel = null;
 		
-		protected EntityIcon newIcon=null;
-
 		public AssignFSAEdit(TemplateDiagram diagram, Entity entity,
-				FSAModel newModel,EntityIcon icon)
+				FSAModel newModel)
 		{
 			this.diagram = diagram;
 			this.entity = entity;
 			this.oldModel = entity.getComponent().getModel();
-			this.oldIcon=entity.getIcon();
 			this.newModel = newModel;
-			this.newIcon=icon;
 		}
 
 		@Override
@@ -668,15 +665,14 @@ public class DiagramUndoableEdits
 				throw new CannotRedoException();
 			}
 			if (entity.getComponent().hasModel()
-					&& Hub.getWorkspace().hasModel(entity
-							.getComponent().getModel().getName()))
+					&& Hub.getWorkspace().getModel(entity
+							.getComponent().getModel().getName())==entity.getComponent().getModel())
 			{
 				Hub.getWorkspace().removeModel(entity
 						.getComponent().getModel().getName());
 			}
 			diagram.getModel().assignFSA(entity.getComponent().getId(),
 					newModel);
-			entity.setIcon(newIcon);
 			if (newModel != null)
 			{
 				newModel.setName(TemplateModel.FSA_NAME_PREFIX
@@ -692,15 +688,14 @@ public class DiagramUndoableEdits
 				throw new CannotUndoException();
 			}
 			if (entity.getComponent().hasModel()
-					&& Hub.getWorkspace().hasModel(entity
-							.getComponent().getModel().getName()))
+					&& Hub.getWorkspace().getModel(entity
+							.getComponent().getModel().getName())==entity.getComponent().getModel())
 			{
 				Hub.getWorkspace().removeModel(entity
 						.getComponent().getModel().getName());
 			}
 			diagram.getModel().assignFSA(entity.getComponent().getId(),
 					oldModel);
-			entity.setIcon(oldIcon);
 			if (oldModel != null)
 			{
 				oldModel.setName(TemplateModel.FSA_NAME_PREFIX
@@ -795,4 +790,75 @@ public class DiagramUndoableEdits
 			return Hub.string("TD_undoSetType");
 		}
 	}
+	
+	public static class SetIconEdit extends AbstractDiagramUndoableEdit
+	{
+		private static final long serialVersionUID = 2630730309577424765L;
+
+		protected TemplateDiagram diagram;
+
+		protected Entity entity = null;
+
+		protected EntityIcon oldIcon;
+
+		protected EntityIcon newIcon;
+
+		public SetIconEdit(TemplateDiagram diagram, Entity entity, EntityIcon newIcon)
+		{
+			this.diagram = diagram;
+			this.entity = entity;
+			this.oldIcon = entity.getIcon();
+			this.newIcon = newIcon;
+		}
+
+		@Override
+		public void redo() throws CannotRedoException
+		{
+			if (entity == null)
+			{
+				throw new CannotRedoException();
+			}
+			diagram.setEntityIcon(entity,newIcon);
+		}
+
+		@Override
+		public void undo() throws CannotUndoException
+		{
+			if (entity == null)
+			{
+				throw new CannotUndoException();
+			}
+			diagram.setEntityIcon(entity,oldIcon);
+		}
+
+		@Override
+		public boolean canUndo()
+		{
+			return (entity != null);
+		}
+
+		@Override
+		public boolean canRedo()
+		{
+			return (entity != null);
+		}
+
+		/**
+		 * Returns the name that should be displayed besides the Undo/Redo menu
+		 * items, so the user knows which action will be undone/redone.
+		 */
+		@Override
+		public String getPresentationName()
+		{
+			if (usePluralDescription)
+			{
+				return Hub.string("TD_undoChangeIcons");
+			}
+			else
+			{
+				return Hub.string("TD_undoChangeIcon");
+			}
+		}
+	}
+
 }

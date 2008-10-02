@@ -13,8 +13,11 @@ public class EntityPopup extends JPopupMenu
 	{
 		super();
 		add(new UIActions.OpenModelAction(canvas, entity));
-		add(new UIActions.LabelAction(canvas, entity));
 		add(new UIActions.AssignFSAAction(canvas, entity));
+		if(entity.getComponent().hasModel())
+		{
+			add(new UIActions.MakeTemplateAction(entity));
+		}
 		addSeparator();
 		if (entity.getComponent().getType() == TemplateComponent.TYPE_CHANNEL)
 		{
@@ -25,6 +28,10 @@ public class EntityPopup extends JPopupMenu
 		{
 			add(new UIActions.SetChannelAction(canvas, entity));
 		}
+		addSeparator();
+		add(new UIActions.LabelAction(canvas, entity));
+		add(new UIActions.SetColorAction(canvas,entity));
+		add(new UIActions.ResetIconAction(canvas,entity));
 		addSeparator();
 		add(new UIActions.DeleteAction(canvas, entity));
 		pack();
