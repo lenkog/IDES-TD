@@ -126,7 +126,7 @@ public class SimpleIcon implements EntityIcon
 	public void setColor(Color color)
 	{
 		bgColor=color;
-		if((bgColor.getRed()+bgColor.getGreen()+bgColor.getBlue())/3<150)
+		if((bgColor.getRed()+bgColor.getGreen()+bgColor.getBlue())/3<128)
 		{
 			fgColor=Color.WHITE;
 		}

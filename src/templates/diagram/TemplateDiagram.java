@@ -304,6 +304,7 @@ public class TemplateDiagram implements TemplateModelSubscriber, DESModelSubscri
 		FSAModel fsa = ModelManager.instance().createModel(FSAModel.class,
 				TemplateModel.FSA_NAME_PREFIX + layout.label);
 		fsa.setParentModel(model);
+		fsa.modelSaved();
 		model.assignFSA(component.getId(), fsa);
 		component2FSA.put(component,fsa);
 		FSA2component.put(fsa,component);
@@ -864,6 +865,7 @@ public class TemplateDiagram implements TemplateModelSubscriber, DESModelSubscri
 			TemplateComponent component=FSA2component.get(arg0.getSource());
 			if(component!=null)
 			{
+				try{throw new RuntimeException();}catch(Exception e){e.printStackTrace();}
 				component.getModel().setAnnotation(Entity.FLAG_MARK,new Object());
 				Entity entity=getEntityFor(component);
 				if(entity!=null)

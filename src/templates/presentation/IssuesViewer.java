@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.event.ListDataListener;
@@ -41,7 +42,7 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 		MouseListener
 {
 
-	protected class IssueUI extends Box
+	protected class IssueUI extends JPanel
 	{
 		private static final long serialVersionUID = -5757502501077317407L;
 
@@ -53,7 +54,8 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 
 		public IssueUI(IssueDescriptor id)
 		{
-			super(BoxLayout.Y_AXIS);
+//			super(BoxLayout.Y_AXIS);
+			setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 			descriptor = id;
 			setOpaque(true);
 			setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
