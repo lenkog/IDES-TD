@@ -1,20 +1,15 @@
 package templates.operations;
 
 import ides.api.core.Hub;
-import ides.api.model.fsa.FSAEvent;
-import ides.api.model.fsa.FSAEventSet;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.ModelManager;
 import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import templates.model.TemplateComponent;
@@ -44,7 +39,7 @@ public class ChannelSup implements Operation
 
 	public String getName()
 	{
-		return "channelsup";
+		return "tdchannelsup";
 	}
 
 	public int getNumberOfInputs()

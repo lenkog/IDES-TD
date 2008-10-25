@@ -1,6 +1,7 @@
 package templates.model;
 
 import ides.api.model.fsa.FSAEvent;
+import ides.api.plugin.model.DESEvent;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -224,7 +225,7 @@ public class Validator
 			Map<InjectionKey, Set<String>> injectionEvents = new HashMap<InjectionKey, Set<String>>();
 			if (component.hasModel())
 			{
-				for (FSAEvent event : component.getModel().getEventSet())
+				for (DESEvent event : component.getModel().getEventSet())
 				{
 					totalEvents.add(event.getSymbol());
 				}

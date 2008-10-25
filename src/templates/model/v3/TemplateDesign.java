@@ -2,10 +2,12 @@ package templates.model.v3;
 
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
+import ides.api.plugin.model.DESEventSet;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.model.DESModelMessage;
 import ides.api.plugin.model.DESModelSubscriber;
 import ides.api.plugin.model.DESModelType;
+import ides.api.plugin.model.ModelManager;
 import ides.api.plugin.model.ParentModel;
 
 import java.awt.Image;
@@ -683,5 +685,10 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 					TemplateModelMessage.OP_MODIFY));
 			setNeedsSave(true);
 		}
+	}
+
+	public DESEventSet getEventSet()
+	{
+		return ModelManager.instance().createEmptyEventSet();
 	}
 }

@@ -437,7 +437,7 @@ public class UIActions
 				return;
 			}
 			Object[] result = OperationManager
-					.instance().getOperation("channelsup")
+					.instance().getOperation("tdchannelsup")
 					.perform(new Object[] { canvas.getModel(),
 							channel.getComponent().getId() });
 			FSAModel sys = (FSAModel)result[0];

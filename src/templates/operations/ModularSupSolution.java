@@ -104,7 +104,8 @@ public class ModularSupSolution implements Operation
 				return new Object[] {new Boolean(true)};
 			}
 		}
-		Operation channelsup=OperationManager.instance().getOperation("channelsup");
+		Operation channelsup=OperationManager
+		.instance().getOperation("tdchannelsup");
 		List<FSAModel> models=new LinkedList<FSAModel>();
 		List<FSAModel> sups=new LinkedList<FSAModel>();
 		for(TemplateComponent channel:model.getChannels())

@@ -2,6 +2,7 @@ package templates.model;
 
 import ides.api.model.fsa.FSAEvent;
 import ides.api.plugin.model.DESElement;
+import ides.api.plugin.model.DESEvent;
 
 public interface TemplateLink extends DESElement
 {
@@ -19,13 +20,13 @@ public interface TemplateLink extends DESElement
 
 	public boolean existsLeftEvent();
 
-	public FSAEvent getLeftEvent();
+	public DESEvent getLeftEvent();
 
 	public String getRightEventName();
 
 	public boolean existsRightEvent();
 
-	public FSAEvent getRightEvent();
+	public DESEvent getRightEvent();
 
 	public void setLeftEventName(String name);
 

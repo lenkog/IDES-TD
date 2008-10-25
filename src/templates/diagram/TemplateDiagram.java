@@ -2,7 +2,9 @@ package templates.diagram;
 
 import ides.api.core.Annotable;
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAMessage;
 import ides.api.model.fsa.FSAModel;
+import ides.api.model.fsa.FSASubscriber;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.model.DESModelMessage;
 import ides.api.plugin.model.DESModelSubscriber;
@@ -31,7 +33,7 @@ import templates.model.TemplateModelMessage;
 import templates.model.TemplateModelSubscriber;
 import templates.utils.EntityIcon;
 
-public class TemplateDiagram implements TemplateModelSubscriber, DESModelSubscriber
+public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 {
 	/**
 	 * FSAGraphPublisher part which maintains a collection of, and sends change
@@ -304,7 +306,6 @@ public class TemplateDiagram implements TemplateModelSubscriber, DESModelSubscri
 		FSAModel fsa = ModelManager.instance().createModel(FSAModel.class,
 				TemplateModel.FSA_NAME_PREFIX + layout.label);
 		fsa.setParentModel(model);
-		fsa.modelSaved();
 		model.assignFSA(component.getId(), fsa);
 		component2FSA.put(component,fsa);
 		FSA2component.put(fsa,component);
@@ -854,24 +855,26 @@ public class TemplateDiagram implements TemplateModelSubscriber, DESModelSubscri
 		model.setAnnotation(Annotable.LAYOUT, emptyConnectors);
 	}
 
-	public void modelNameChanged(DESModelMessage arg0)
+	public void fsaEventSetChanged(FSAMessage arg0)
 	{
+		flagModel(arg0.getSource());
 	}
 
-	public void saveStatusChanged(DESModelMessage arg0)
+	public void fsaStructureChanged(FSAMessage arg0)
 	{
-		if(arg0.getEventType()==DESModelMessage.DIRTY)
+		flagModel(arg0.getSource());
+	}
+	
+	protected void flagModel(FSAModel model)
+	{
+		TemplateComponent component=FSA2component.get(model);
+		if(component!=null)
 		{
-			TemplateComponent component=FSA2component.get(arg0.getSource());
-			if(component!=null)
+			component.getModel().setAnnotation(Entity.FLAG_MARK,new Object());
+			Entity entity=getEntityFor(component);
+			if(entity!=null)
 			{
-				try{throw new RuntimeException();}catch(Exception e){e.printStackTrace();}
-				component.getModel().setAnnotation(Entity.FLAG_MARK,new Object());
-				Entity entity=getEntityFor(component);
-				if(entity!=null)
-				{
-					entity.update();
-				}
+				entity.update();
 			}
 		}
 	}

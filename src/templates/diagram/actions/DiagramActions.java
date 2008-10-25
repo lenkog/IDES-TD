@@ -670,7 +670,6 @@ public class DiagramActions
 							newModel.add(newModel.assembleEvent(event));
 						}
 					}
-					newModel.modelSaved();
 					CompoundEdit allEdits=new CompoundEdit();
 					DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 							diagram,

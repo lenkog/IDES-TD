@@ -2,6 +2,7 @@ package templates.model.v3;
 
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAEvent;
+import ides.api.plugin.model.DESEvent;
 
 import java.util.Hashtable;
 
@@ -81,13 +82,13 @@ public class Link implements TemplateLink
 		return null;
 	}
 
-	public FSAEvent getRightEvent()
+	public DESEvent getRightEvent()
 	{
 		if (!right.hasModel())
 		{
 			return null;
 		}
-		for (FSAEvent event : right.getModel().getEventSet())
+		for (DESEvent event : right.getModel().getEventSet())
 		{
 			if (event.getSymbol().equals(rightEvent))
 			{
@@ -115,13 +116,13 @@ public class Link implements TemplateLink
 		return null;
 	}
 
-	public FSAEvent getLeftEvent()
+	public DESEvent getLeftEvent()
 	{
 		if (!left.hasModel())
 		{
 			return null;
 		}
-		for (FSAEvent event : left.getModel().getEventSet())
+		for (DESEvent event : left.getModel().getEventSet())
 		{
 			if (event.getSymbol().equals(leftEvent))
 			{

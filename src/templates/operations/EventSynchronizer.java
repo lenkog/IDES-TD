@@ -1,5 +1,14 @@
 package templates.operations;
 
+import ides.api.model.fsa.FSAEvent;
+import ides.api.model.fsa.FSAModel;
+import ides.api.model.fsa.FSAState;
+import ides.api.plugin.model.DESEvent;
+import ides.api.plugin.model.DESEventSet;
+import ides.api.plugin.model.ModelManager;
+import ides.api.plugin.operation.Operation;
+import ides.api.plugin.operation.OperationManager;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,15 +19,6 @@ import java.util.Set;
 import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
 import templates.model.TemplateModel;
-
-import ides.api.core.Hub;
-import ides.api.model.fsa.FSAEvent;
-import ides.api.model.fsa.FSAEventSet;
-import ides.api.model.fsa.FSAModel;
-import ides.api.model.fsa.FSAState;
-import ides.api.plugin.model.ModelManager;
-import ides.api.plugin.operation.Operation;
-import ides.api.plugin.operation.OperationManager;
 
 public class EventSynchronizer
 {
@@ -36,7 +36,7 @@ public class EventSynchronizer
 		{
 			FSAModel fsa = module.getModel().clone();
 			Map<String, String> eventMap = new HashMap<String, String>();
-			for (FSAEvent event : fsa.getEventSet())
+			for (DESEvent event : fsa.getEventSet())
 			{
 				String newName = getUniqueEventName(module, event.getId());
 				eventMap.put(event.getSymbol(), newName);
@@ -53,7 +53,7 @@ public class EventSynchronizer
 			moduleFSA = (FSAModel)sync.perform(new Object[] { moduleFSA,
 					i.next() })[0];
 		}
-		FSAEventSet systemEvents = moduleFSA.getEventSet().copy();
+		DESEventSet systemEvents = moduleFSA.getEventSet().copy();
 		Set<FSAModel> channelsFSA = new HashSet<FSAModel>();
 		for (TemplateComponent channel : channels)
 		{
@@ -83,7 +83,7 @@ public class EventSynchronizer
 						.get(module).get(moduleEvent));
 			}
 			FSAModel fsa = channel.getModel().clone();
-			for (FSAEvent event : fsa.getEventSet())
+			for (DESEvent event : fsa.getEventSet())
 			{
 				if (channelEventMap.containsKey(event.getSymbol()))
 				{
@@ -94,7 +94,7 @@ public class EventSynchronizer
 					event.setSymbol(getUniqueEventName(channel, event.getId()));
 				}
 			}
-			FSAEventSet toSelfloop = systemEvents.subtract(fsa.getEventSet());
+			DESEventSet toSelfloop = systemEvents.subtract(fsa.getEventSet());
 			fsa = (FSAModel)OperationManager
 					.instance().getOperation("selfloop").perform(new Object[] {
 							fsa, toSelfloop })[0];
@@ -131,7 +131,7 @@ public class EventSynchronizer
 	{
 		for(FSAModel fsa:fsas)
 		{
-			for (FSAEvent event : fsa.getEventSet())
+			for (DESEvent event : fsa.getEventSet())
 			{
 				long[] pointer = getEventPointer(event.getSymbol());
 				FSAModel original = model.getComponent(pointer[0]).getModel();

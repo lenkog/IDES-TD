@@ -41,7 +41,7 @@ public class SimpleIcon implements EntityIcon
 		flaggedW=Math.max(context.getFontMetrics().stringWidth(flaggedTag)+2*SPACING,BOX_DISTANCE);
 		flaggedH=h;
 		flaggedDeltaY=deltaY;
-		flaggedDeltaX=(w-context.getFontMetrics().stringWidth(flaggedTag))/2;
+		flaggedDeltaX=(flaggedW-context.getFontMetrics().stringWidth(flaggedTag))/2;
 	}
 	
 	public SimpleIcon()
