@@ -23,6 +23,7 @@ public class EntityPopup extends JPopupMenu
 		{
 			add(new UIActions.SetModuleAction(canvas, entity));
 			add(new UIActions.ShowSupAction(canvas,entity));
+//			add(new UIActions.SetControllabilityAction(canvas,entity));
 		}
 		else
 		{

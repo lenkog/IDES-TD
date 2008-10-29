@@ -452,4 +452,38 @@ public class UIActions
 			Hub.getWorkspace().setActiveModel(sup.getName());
 		}
 	}
+	
+	public static class SetControllabilityAction extends AbstractAction
+	{
+
+		private static final long serialVersionUID = 35724268661411961L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Entity channel;
+
+		public SetControllabilityAction(TemplateEditableCanvas canvas, Entity channel)
+		{
+			super(Hub.string("TD_comSetControllability"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintSetControllability"));
+			this.canvas = canvas;
+			this.channel = channel;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			if(!channel.getComponent().hasModel())
+			{
+				Hub.displayAlert(Hub.string("TD_noModelNoEvents"));
+			}
+			else
+			{
+				ControllabilityDialog.showAndModify(canvas,channel);
+			}
+		}
+	}
 }

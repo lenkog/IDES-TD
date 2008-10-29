@@ -1,5 +1,6 @@
 package templates.library;
 
+import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.io.FileLoadException;
@@ -29,38 +30,27 @@ public class TemplateLibrary
 		String errors="";
 		for(File file:dir.listFiles())
 		{
-			DESModel model=null;
+			FSAModel model=null;
 			try
 			{
-				model=Hub.getIOSubsystem().load(file);
-			}catch(IOException e)
+				model=loadTemplateModel(file);
+			}catch(FileLoadException e)
 			{
-				if (e instanceof FileLoadException)
-				{
-					model = ((FileLoadException)e).getPartialModel();
-				}
-				errors+=Hub.string("TD_cantLoadTemplate")+" "+file.getAbsolutePath()+" ["+e.getMessage()+"]\n";
+				model = (FSAModel)e.getPartialModel();
+				errors+=e.getMessage();
 			}
 			if(model==null)
 			{
 				continue;
 			}
-			if(!model.hasAnnotation(Template.TEMPLATE_DESC))
-			{
-				errors+=Hub.string("TD_cantLoadTemplate")+" "+file.getAbsolutePath()+" ["+Hub.string("TD_missingTemplateInfo")+"]\n";
-				continue;
-			}
-			if(!(model instanceof FSAModel))
-			{
-				errors+=Hub.string("TD_cantLoadTemplate")+" "+file.getAbsolutePath()+" ["+Hub.string("TD_nonFSATemplate")+"]\n";
-				continue;
-			}
 			TemplateDescriptor td=(TemplateDescriptor)model.getAnnotation(Template.TEMPLATE_DESC);
-			Template template=new FSATemplate(td,(FSAModel)model);
+			model.setName(td.tag);
+			model.modelSaved();
+			Template template=new FSATemplate(td,model);
 			templates.put(template.getName(),template);
 			files.put(template,file);
 		}
-		if(errors!="")
+		if(!"".equals(errors))
 		{
 			Hub.getNoticeManager().postErrorTemporary(Hub.string("TD_problemLoadingTemplate"),GeneralUtils.truncateMessage(errors));
 		}
@@ -99,6 +89,9 @@ public class TemplateLibrary
 			while(file.exists());
 		}
 		Hub.getIOSubsystem().save(model,file);
+		model.setAnnotation(Annotable.FILE,file);
+		model.setName(td.tag);
+		model.modelSaved();
 		Template template=new FSATemplate(td,model);		
 		templates.put(template.getName(),template);
 		files.put(template,file);
@@ -119,6 +112,79 @@ public class TemplateLibrary
 			templates.remove(name);
 			fireCollectionChanged();
 		}
+	}
+	
+	public void reloadTemplate(String name) throws IOException
+	{
+		Template oldTemplate=getTemplate(name);
+		if(oldTemplate==null)
+		{
+			return;
+		}
+		File file=files.get(oldTemplate);
+		templates.remove(oldTemplate.getName());
+		files.remove(oldTemplate);
+		fireCollectionChanged();
+		String errors="";
+		FSAModel model=null;
+		try
+		{
+			model=loadTemplateModel(file);
+		}catch(FileLoadException e)
+		{
+			if(e.getPartialModel()==null)
+			{
+				throw new IOException(e.getMessage());
+			}
+			else
+			{
+				model=(FSAModel)e.getPartialModel();
+				errors=e.getMessage();
+			}
+		}
+		Template newTemplate=new FSATemplate((TemplateDescriptor)model.getAnnotation(Template.TEMPLATE_DESC),model);
+		templates.put(newTemplate.getName(),newTemplate);
+		files.put(newTemplate,file);
+		fireCollectionChanged();
+		if(!"".equals(errors))
+		{
+			throw new IOException(errors);
+		}
+	}
+	
+	protected FSAModel loadTemplateModel(File file) throws FileLoadException
+	{
+		String errors="";
+		DESModel model=null;
+		try
+		{
+			model=Hub.getIOSubsystem().load(file);
+		}catch(IOException e)
+		{
+			if (e instanceof FileLoadException)
+			{
+				model = ((FileLoadException)e).getPartialModel();
+			}
+			errors+=Hub.string("TD_cantLoadTemplate")+" "+file.getAbsolutePath()+" ["+e.getMessage()+"]\n";
+		}
+		if(model==null)
+		{
+		}
+		else if(!model.hasAnnotation(Template.TEMPLATE_DESC))
+		{
+			errors+=Hub.string("TD_cantLoadTemplate")+" "+file.getAbsolutePath()+" ["+Hub.string("TD_missingTemplateInfo")+"]\n";
+			model=null;
+		}
+		else if(!(model instanceof FSAModel))
+		{
+			errors+=Hub.string("TD_cantLoadTemplate")+" "+file.getAbsolutePath()+" ["+Hub.string("TD_nonFSATemplate")+"]\n";
+			model=null;
+		}
+		if(model==null||!"".equals(errors))
+		{
+			throw new FileLoadException(errors,model);
+		}
+		return (FSAModel)model;
 	}
 	
 	protected void fireCollectionChanged()

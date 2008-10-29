@@ -9,8 +9,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -30,10 +32,16 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
+import ides.api.core.Annotable;
 import ides.api.core.Hub;
+import ides.api.core.WorkspaceMessage;
+import ides.api.core.WorkspaceSubscriber;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.DESModel;
+import ides.api.plugin.model.DESModelMessage;
+import ides.api.plugin.model.DESModelSubscriber;
 import ides.api.plugin.presentation.Presentation;
+import ides.api.utilities.GeneralUtils;
 
 public class LibraryUI extends Box implements Presentation, TemplateLibraryListener, MouseMotionListener, MouseListener
 {
@@ -74,7 +82,7 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 		public void actionPerformed(ActionEvent evt)
 		{
 			Object[] templates=list.getSelectedValues();
-			if(JOptionPane.showConfirmDialog(Hub.getMainWindow(),Hub.string("TD_confirmDelTemplate"),Hub.string("TD_confirmDelTemplateTitle"),JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
+			if(JOptionPane.showConfirmDialog(Hub.getMainWindow(),GeneralUtils.JOptionPaneKeyBinder.messageLabel(Hub.string("TD_confirmDelTemplate")),Hub.string("TD_confirmDelTemplateTitle"),JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION)
 			{
 				return;
 			}
@@ -139,12 +147,85 @@ public class LibraryUI extends Box implements Presentation, TemplateLibraryListe
 			Template template=(Template)list.getSelectedValue();
 			if(template!=null)
 			{
+				if(template.getModel()!=Hub.getWorkspace().getModel(template.getModel().getName()))
+				{
+				TemplateUpdater updater=new TemplateUpdater(template.getName(),template.getModel(),(File)template.getModel().getAnnotation(Annotable.FILE));
+				template.getModel().addSubscriber(updater);
 				Hub.getWorkspace().addModel(template.getModel());
+				Hub.getWorkspace().addSubscriber(updater);
+				}
 				Hub.getWorkspace().setActiveModel(template.getModel().getName());
 			}
 		}
 	}
 
+	private class TemplateUpdater implements DESModelSubscriber, WorkspaceSubscriber
+	{
+		protected String template;
+		protected DESModel model;
+		protected File file;
+		public TemplateUpdater(String template,DESModel model, File file)
+		{
+			this.model=model;
+			this.template=template;
+			this.file=file;
+		}
+		public void modelNameChanged(DESModelMessage arg0)
+		{
+		}
+		public void saveStatusChanged(DESModelMessage arg0)
+		{
+//			try
+//			{
+//				throw new RuntimeException();
+//			} catch(Exception e)
+//			{
+//				e.printStackTrace();
+//			}
+			if(!file.equals(arg0.getSource().getAnnotation(Annotable.FILE)))
+			{
+				unsubscribeAndReload();
+			}
+		}
+		public void aboutToRearrangeWorkspace()
+		{
+		}
+		public void modelCollectionChanged(WorkspaceMessage arg0)
+		{
+			boolean found=false;
+			for(Iterator<DESModel> i=Hub.getWorkspace().getModels();i.hasNext();)
+			{
+				if(model==i.next())
+				{
+					found=true;
+					break;
+				}
+			}
+			if(!found)
+			{
+				unsubscribeAndReload();
+			}
+		}
+		public void modelSwitched(WorkspaceMessage arg0)
+		{
+		}
+		public void repaintRequired()
+		{
+		}
+		protected void unsubscribeAndReload()
+		{
+			model.removeSubscriber(this);
+			Hub.getWorkspace().removeSubscriber(this);
+			try
+			{
+				TemplateManager.instance().getMainLibrary().reloadTemplate(template);
+			}catch(IOException e)
+			{
+				Hub.displayAlert(Hub.string("TD_errorReloadingTemplate")+" "+template+".\n"+GeneralUtils.truncateMessage(e.getMessage()));
+			}			
+		}
+	}
+	
 	private static class TemplateListRenderer extends JLabel implements ListCellRenderer {
 	     public TemplateListRenderer() {
 	         setOpaque(true);

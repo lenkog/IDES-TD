@@ -9,6 +9,7 @@ import ides.api.plugin.io.FileSaveException;
 import ides.api.plugin.io.IOSubsytem;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.model.ModelManager;
+import ides.api.utilities.GeneralUtils;
 import ides.api.utilities.HeadTailInputStream;
 
 import java.awt.Color;
@@ -205,8 +206,8 @@ public class TemplateFileIO implements FileIOPlugin
 			}
 			message += Hub.string("TD_ioWarnOverwrite2") + "\n"
 					+ Hub.string("TD_ioWarnOverwrite3");
-			int choice = JOptionPane.showConfirmDialog(null,
-					message,
+			int choice = JOptionPane.showConfirmDialog(Hub.getMainWindow(),
+					GeneralUtils.JOptionPaneKeyBinder.messageLabel(message),
 					Hub.string("TD_ioWarnOverwriteTitle"),
 					JOptionPane.YES_NO_OPTION);
 			if (choice != JOptionPane.YES_OPTION)

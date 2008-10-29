@@ -1,5 +1,7 @@
 package templates.presentation;
 
+import ides.api.core.Hub;
+
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -107,6 +109,7 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 						else if(whichPart==Entity.ON_SUP)
 						{
 							new UIActions.ShowSupAction(canvas,(Entity)mouseDownOn).actionPerformed(null);
+//							new UIActions.SetControllabilityAction(canvas,(Entity)mouseDownOn).actionPerformed(null);
 						}
 					}
 					else if (mouseDownOn instanceof Connector)

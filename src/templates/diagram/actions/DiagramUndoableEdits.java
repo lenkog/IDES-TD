@@ -1,6 +1,8 @@
 package templates.diagram.actions;
 
 import ides.api.core.Hub;
+import ides.api.model.fsa.FSAEvent;
+import ides.api.model.fsa.FSAMessage;
 import ides.api.model.fsa.FSAModel;
 
 import java.awt.Color;
@@ -858,6 +860,91 @@ public class DiagramUndoableEdits
 			{
 				return Hub.string("TD_undoChangeIcon");
 			}
+		}
+	}
+	
+	public static class SetControllabilityEdit extends AbstractDiagramUndoableEdit
+	{
+		private static final long serialVersionUID = 519962377917961801L;
+
+		protected FSAModel model = null;
+		
+		protected long eventID;
+		protected boolean newControllable;
+		protected boolean oldControllable;
+		
+		public SetControllabilityEdit(FSAModel model, long eventID, boolean isControllable)
+		{
+			this.model = model;
+			this.eventID=eventID;
+			FSAEvent event=model.getEvent(eventID);
+			if(event!=null)
+			{
+				oldControllable=event.isControllable();
+			}
+			newControllable=isControllable;
+		}
+
+		@Override
+		public void redo() throws CannotRedoException
+		{
+			if (model == null)
+			{
+				throw new CannotRedoException();
+			}
+			FSAEvent event=model.getEvent(eventID);
+			if (event == null)
+			{
+				throw new CannotRedoException();
+			}
+			event.setControllable(newControllable);
+			model.fireFSAEventSetChanged(new FSAMessage(
+					FSAMessage.MODIFY,
+					FSAMessage.EVENT,
+					event.getId(),
+					model));
+		}
+
+		@Override
+		public void undo() throws CannotUndoException
+		{
+			if (model == null)
+			{
+				throw new CannotUndoException();
+			}
+			FSAEvent event=model.getEvent(eventID);
+			if (event == null)
+			{
+				throw new CannotUndoException();
+			}
+			event.setControllable(oldControllable);
+			model.fireFSAEventSetChanged(new FSAMessage(
+					FSAMessage.MODIFY,
+					FSAMessage.EVENT,
+					event.getId(),
+					model));
+		}
+
+		@Override
+		public boolean canUndo()
+		{
+			return (model != null && model.getEvent(eventID)!=null);
+		}
+
+		@Override
+		public boolean canRedo()
+		{
+			return (model != null && model.getEvent(eventID)!=null);
+		}
+
+		/**
+		 * Returns the name that should be displayed besides the Undo/Redo menu
+		 * items, so the user knows which action will be undone/redone.
+		 */
+		@Override
+		public String getPresentationName()
+		{
+			return Hub.string("TD_undoSetControllability");
 		}
 	}
 

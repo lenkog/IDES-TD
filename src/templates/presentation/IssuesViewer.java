@@ -262,7 +262,7 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 				.getWorkspace()
 				.getPresentationsOfType(TemplateConsistencyCanvas.class)
 				.iterator().next();
-		Hub.getWorkspace().setActivePresenttion(canvas.getName());
+		Hub.getWorkspace().setActivePresentation(canvas.getName());
 		int idx = issues.locationToIndex(e.getPoint());
 		if (idx < 0)
 		{

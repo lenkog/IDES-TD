@@ -374,7 +374,7 @@ public class AddTemplateDialog extends EscapeDialog
 			td.description=descArea.getText();
 			try
 			{
-				library.addTemplate(td,(FSAModel)modelsCombo.getSelectedItem());
+				library.addTemplate(td,((FSAModel)modelsCombo.getSelectedItem()).clone());
 			}
 			catch(IOException e)
 			{
