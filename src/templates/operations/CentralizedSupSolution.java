@@ -16,6 +16,7 @@ import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.ModelManager;
 import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
+import ides.api.presentation.fsa.FSAStateLabeller;
 
 public class CentralizedSupSolution implements Operation
 {
@@ -103,6 +104,8 @@ public class CentralizedSupSolution implements Operation
 		FSAModel[] models=EventSynchronizer.synchronizeAndCompose(model,model.getModules(),model.getChannels());
 		FSAModel moduleFSA = models[0];
 		FSAModel channelFSA = models[1];
+		FSAStateLabeller.labelCompositeStates(moduleFSA);
+		FSAStateLabeller.labelCompositeStates(channelFSA);
 		FSAModel supFSA = (FSAModel)OperationManager
 				.instance().getOperation("supcon").perform(new Object[] {
 						moduleFSA, channelFSA })[0];

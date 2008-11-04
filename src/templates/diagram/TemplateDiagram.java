@@ -153,6 +153,7 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 		component2FSA.clear();
 		FSA2component.clear();
 		connectors.clear();
+		boolean modelClean=!model.needsSave();
 		for (TemplateComponent component : model.getComponents())
 		{
 			EntityLayout layout = null;
@@ -176,6 +177,10 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 				FSA2component.put(component.getModel(),component);
 				component.getModel().addSubscriber(this);
 			}
+		}
+		if(modelClean)
+		{
+			model.modelSaved();
 		}
 		for (TemplateLink link : model.getLinks())
 		{

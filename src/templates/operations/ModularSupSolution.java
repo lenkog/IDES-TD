@@ -14,6 +14,7 @@ import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.ModelManager;
 import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
+import ides.api.presentation.fsa.FSAStateLabeller;
 
 public class ModularSupSolution implements Operation
 {
@@ -119,6 +120,8 @@ public class ModularSupSolution implements Operation
 			}
 			((FSAModel)result[0]).setName("M_" + channelName);
 			((FSAModel)result[2]).setName("S_" + channelName);
+//			FSAStateLabeller.labelCompositeStates((FSAModel)result[0]);
+//			FSAStateLabeller.labelCompositeStates((FSAModel)result[2]);
 			models.add((FSAModel)result[0]);
 			models.add((FSAModel)result[2]);
 			sups.add((FSAModel)result[2]);

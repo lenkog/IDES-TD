@@ -1,6 +1,5 @@
 package templates.operations;
 
-import ides.api.model.fsa.FSAEvent;
 import ides.api.model.fsa.FSAModel;
 import ides.api.model.fsa.FSAState;
 import ides.api.plugin.model.DESEvent;
@@ -8,11 +7,11 @@ import ides.api.plugin.model.DESEventSet;
 import ides.api.plugin.model.ModelManager;
 import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
+import ides.api.presentation.fsa.FSAStateLabeller;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,13 +45,14 @@ public class EventSynchronizer
 			eventRenaming.put(module, eventMap);
 		}
 		Operation sync = OperationManager.instance().getOperation("sync");
-		Iterator<FSAModel> i = modulesFSA.iterator();
-		FSAModel moduleFSA = i.next();
-		for (; i.hasNext();)
-		{
-			moduleFSA = (FSAModel)sync.perform(new Object[] { moduleFSA,
-					i.next() })[0];
-		}
+//		Iterator<FSAModel> i = modulesFSA.iterator();
+		FSAModel moduleFSA=(FSAModel)sync.perform(modulesFSA.toArray())[0];
+//		= i.next();
+//		for (; i.hasNext();)
+//		{
+//			moduleFSA = (FSAModel)sync.perform(new Object[] { moduleFSA,
+//					i.next() })[0];
+//		}
 		DESEventSet systemEvents = moduleFSA.getEventSet().copy();
 		Set<FSAModel> channelsFSA = new HashSet<FSAModel>();
 		for (TemplateComponent channel : channels)
@@ -105,13 +105,14 @@ public class EventSynchronizer
 		{
 			Operation product = OperationManager
 					.instance().getOperation("product");
-			i = channelsFSA.iterator();
-			channelFSA = i.next();
-			for (; i.hasNext();)
-			{
-				channelFSA = (FSAModel)product.perform(new Object[] { channelFSA,
-						i.next() })[0];
-			}
+//			i = channelsFSA.iterator();
+			channelFSA=(FSAModel)product.perform(channelsFSA.toArray())[0];
+//			= i.next();
+//			for (; i.hasNext();)
+//			{
+//				channelFSA = (FSAModel)product.perform(new Object[] { channelFSA,
+//						i.next() })[0];
+//			}
 		}
 		else
 		{

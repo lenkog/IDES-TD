@@ -5,6 +5,7 @@ import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.ModelManager;
 import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
+import ides.api.presentation.fsa.FSAStateLabeller;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -103,10 +104,13 @@ public class ChannelSup implements Operation
 		FSAModel[] models=EventSynchronizer.synchronizeAndCompose(model,modules,Arrays.asList(new TemplateComponent[]{channel}));
 		FSAModel moduleFSA = models[0];
 		FSAModel channelFSA = models[1];
+		FSAStateLabeller.labelCompositeStates(moduleFSA);
+		FSAStateLabeller.labelCompositeStates(channelFSA);
 		FSAModel supFSA = (FSAModel)OperationManager
 				.instance().getOperation("supcon").perform(new Object[] {
 						moduleFSA, channelFSA })[0];
 		EventSynchronizer.label4Humans(model,Arrays.asList(new FSAModel[]{moduleFSA,channelFSA,supFSA}));
+		FSAStateLabeller.labelCompositeStates(supFSA);
 		return new Object[] { moduleFSA, channelFSA, supFSA };
 	}
 }
