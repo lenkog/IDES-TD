@@ -15,7 +15,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -100,7 +99,19 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 				}
 			}
 		});
-		// getActionMap().put(escAction, escapeCommand);
+		getActionMap().put(escAction, new AbstractAction()
+		{
+			private static final long serialVersionUID = -3238931531794626118L;
+
+			public void actionPerformed(ActionEvent e)
+			{
+				if (isDrawingConnector())
+				{
+					finishConnector();
+					repaint();
+				}
+			}
+		});
 		refresh();
 	}
 
@@ -149,16 +160,16 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 			hilitedElement.draw(g2d);
 		}
 	}
-	
+
 	public void templateDiagramChanged(TemplateDiagramMessage message)
 	{
-		if(message.getOperationType()==TemplateDiagramMessage.OP_REMOVE&&message.getElements().contains(hilitedElement))
+		if (message.getOperationType() == TemplateDiagramMessage.OP_REMOVE
+				&& message.getElements().contains(hilitedElement))
 		{
-			hilitedElement=null;
+			hilitedElement = null;
 		}
 		super.templateDiagramChanged(message);
 	}
-
 
 	protected void autoZoom()
 	{
@@ -209,7 +220,7 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 
 	public MouseEvent transformMouseCoords(MouseEvent me)
 	{
-		Point p=componentToLocal(me.getPoint());
+		Point p = componentToLocal(me.getPoint());
 		return new MouseEvent((Component)me.getSource(), me.getID(), me
 				.getWhen(), me.getModifiersEx(), (int)p.x, (int)p.y, me
 				.getClickCount(), me.isPopupTrigger(), me.getButton());
@@ -372,5 +383,10 @@ public class TemplateEditableCanvas extends TemplateCanvas implements
 	public void finishConnector()
 	{
 		drawConnector = false;
+	}
+
+	public boolean isDrawingConnector()
+	{
+		return drawConnector;
 	}
 }

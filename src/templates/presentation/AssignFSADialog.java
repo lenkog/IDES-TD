@@ -2,7 +2,6 @@ package templates.presentation;
 
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
-import ides.api.plugin.model.DESModel;
 import ides.api.utilities.EscapeDialog;
 
 import java.awt.Component;
@@ -18,7 +17,6 @@ import java.awt.event.WindowListener;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -105,20 +103,23 @@ public class AssignFSADialog extends EscapeDialog
 			{
 				return;
 			}
-			FSACell cell=(FSACell)openModelsCombo.getSelectedItem();
+			FSACell cell = (FSACell)openModelsCombo.getSelectedItem();
 			FSAModel fsa = cell.fsa.clone();
 			me.onEscapeEvent();
-			EntityIcon icon=null;
-			if(cell.icon!=null&&(cell.icon instanceof EntityIcon))
+			EntityIcon icon = null;
+			if (cell.icon != null && (cell.icon instanceof EntityIcon))
 			{
-				icon=(EntityIcon)cell.icon;
-				if(cell.fsa.hasAnnotation(Entity.FLAG_MARK))
+				icon = (EntityIcon)cell.icon;
+				if (cell.fsa.hasAnnotation(Entity.FLAG_MARK))
 				{
-					fsa.setAnnotation(Entity.FLAG_MARK,new Object());
+					fsa.setAnnotation(Entity.FLAG_MARK, new Object());
 				}
 			}
-			new DiagramActions.AssignFSAAction(canvas.getDiagram(), entity, fsa, icon)
-					.execute();
+			new DiagramActions.AssignFSAAction(
+					canvas.getDiagram(),
+					entity,
+					fsa,
+					icon).execute();
 		}
 	};
 
@@ -130,11 +131,14 @@ public class AssignFSADialog extends EscapeDialog
 			{
 				return;
 			}
-			Template template=((TemplateCell)templatesCombo.getSelectedItem()).template;
+			Template template = ((TemplateCell)templatesCombo.getSelectedItem()).template;
 			FSAModel fsa = template.instantiate();
 			me.onEscapeEvent();
-			new DiagramActions.AssignFSAAction(canvas.getDiagram(), entity, fsa, template.getIcon().clone())
-					.execute();
+			new DiagramActions.AssignFSAAction(
+					canvas.getDiagram(),
+					entity,
+					fsa,
+					template.getIcon().clone()).execute();
 		}
 	};
 
@@ -169,7 +173,8 @@ public class AssignFSADialog extends EscapeDialog
 		private static final long serialVersionUID = -3672946556518152880L;
 
 		public FSAModel fsa;
-		public Icon icon=null;
+
+		public Icon icon = null;
 
 		public FSACell(FSAModel fsa)
 		{
@@ -181,7 +186,7 @@ public class AssignFSADialog extends EscapeDialog
 		public FSACell(FSAModel fsa, Icon icon)
 		{
 			super(icon);
-			this.icon=icon;
+			this.icon = icon;
 			setText(fsa.getName());
 			this.fsa = fsa;
 			setBorder(BorderFactory.createEmptyBorder(2, 1, 2, 1));
@@ -197,19 +202,19 @@ public class AssignFSADialog extends EscapeDialog
 		public TemplateCell(Template template)
 		{
 			super(template.getIcon());
-			setText(TemplateDescriptor.shortDescription(template.getDescription()));
+			setText(TemplateDescriptor.shortDescription(template
+					.getDescription()));
 			this.template = template;
 			setBorder(BorderFactory.createEmptyBorder(2, 1, 2, 1));
 		}
 	}
 
-	protected class JLabelListRenderer extends Box implements
-			ListCellRenderer
+	protected class JLabelListRenderer extends Box implements ListCellRenderer
 	{
 		private static final long serialVersionUID = -4858000916109104619L;
-		
-		protected JLabel defaultLabel=new JLabel();
-		
+
+		protected JLabel defaultLabel = new JLabel();
+
 		public JLabelListRenderer()
 		{
 			super(BoxLayout.X_AXIS);
@@ -221,7 +226,7 @@ public class AssignFSADialog extends EscapeDialog
 			JLabel label;
 			if (!(value instanceof JLabel))
 			{
-				defaultLabel.setText(value!=null?value.toString():"");
+				defaultLabel.setText(value != null ? value.toString() : "");
 				label = defaultLabel;
 			}
 			else
@@ -323,7 +328,8 @@ public class AssignFSADialog extends EscapeDialog
 		instance();
 
 		// prepare ComboBox with loaded FSAs
-		Set<FSAModel> openModels = new HashSet<FSAModel>(Hub.getWorkspace().getModelsOfType(FSAModel.class));
+		Set<FSAModel> openModels = new HashSet<FSAModel>(Hub
+				.getWorkspace().getModelsOfType(FSAModel.class));
 		Set<FSAModel> designModels = new HashSet<FSAModel>();
 		for (TemplateComponent c : canvas
 				.getDiagram().getModel().getComponents())
@@ -334,7 +340,7 @@ public class AssignFSADialog extends EscapeDialog
 				designModels.add(c.getModel());
 			}
 		}
-		if(entity.getComponent().hasModel())
+		if (entity.getComponent().hasModel())
 		{
 			openModels.remove(entity.getComponent().getModel());
 		}

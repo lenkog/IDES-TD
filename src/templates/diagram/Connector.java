@@ -3,7 +3,6 @@ package templates.diagram;
 import ides.api.core.Hub;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -19,13 +18,15 @@ import templates.model.TemplateLink;
 
 public class Connector extends DiagramElement
 {
-	protected class EventsBox extends Rectangle
+	protected class EventBox extends Rectangle
 	{
 		private static final long serialVersionUID = 219703659050182848L;
 
 		private static final int EVENT_LIST_LIMIT = 3;
 
 		private static final String ELLIPSES = "...";
+
+		private static final String EVENT_BINDER = "=";
 
 		protected class EventPair implements Comparable<EventPair>
 		{
@@ -52,16 +53,30 @@ public class Connector extends DiagramElement
 			}
 		}
 
-		protected boolean sideIsLeft = false;
+		protected boolean showBothEvents = false;
 
 		protected Vector<EventPair> events = new Vector<EventPair>();
 
-		public EventsBox(boolean isSideLeft)
+		public EventBox()
 		{
-			this.sideIsLeft = isSideLeft;
+			showBothEvents = true;
+			boolean isLeftLeft;
+			if (left.getLocation().x == right.getLocation().x)
+			{
+				isLeftLeft = left.getLocation().y < right.getLocation().y;
+			}
+			else if (left.getLocation().x > right.getLocation().x)
+			{
+				isLeftLeft = false;
+			}
+			else
+			{
+				isLeftLeft = true;
+			}
+
 			for (TemplateLink link : getLinks())
 			{
-				TemplateComponent component = isSideLeft ? getLeftEntity()
+				TemplateComponent component = isLeftLeft ? getLeftEntity()
 						.getComponent() : getRightEntity().getComponent();
 				events
 						.add(link.getLeftComponent() == component ? new EventPair(
@@ -97,12 +112,53 @@ public class Connector extends DiagramElement
 					}
 					else
 					{
-						int combinedWidth = globalFontRenderer
-								.getFontMetrics(globalFont
-										.deriveFont(Font.BOLD))
-								.stringWidth(pair.event1)
-								+ getGlobalFontMetrics().stringWidth(":"
+						int combinedWidth = getGlobalFontMetrics()
+								.stringWidth(pair.event1 + EVENT_BINDER
 										+ pair.event2);
+						maxWidth = Math.max(maxWidth, combinedWidth);
+					}
+				}
+				width = maxWidth;
+				height = getGlobalFontMetrics().getHeight() * events.size();
+			}
+		}
+
+		public EventBox(boolean isSideLeft)
+		{
+			this.showBothEvents = false;
+			for (TemplateLink link : getLinks())
+			{
+				events.add(new EventPair(isSideLeft ? link.getLeftEventName()
+						: link.getRightEventName(), ""));
+			}
+			Collections.sort(events);
+			if (events.size() > EVENT_LIST_LIMIT)
+			{
+				for (int i = 0; i < events.size() - EVENT_LIST_LIMIT; ++i)
+				{
+					events.removeElementAt(EVENT_LIST_LIMIT);
+				}
+				events.add(new EventPair());
+			}
+			if (events.isEmpty())
+			{
+				width = 0;
+				height = getGlobalFontMetrics().getHeight();
+			}
+			else
+			{
+				int maxWidth = 0;
+				for (EventPair pair : events)
+				{
+					if (pair.isEllipses)
+					{
+						maxWidth = Math.max(maxWidth, getGlobalFontMetrics()
+								.stringWidth(ELLIPSES));
+					}
+					else
+					{
+						int combinedWidth = getGlobalFontMetrics()
+								.stringWidth(pair.event1);
 						maxWidth = Math.max(maxWidth, combinedWidth);
 					}
 				}
@@ -115,10 +171,12 @@ public class Connector extends DiagramElement
 		{
 			if (events.isEmpty())
 			{
-				g2d.drawString(Hub.string("TD_noLinkEvents"), x + 1, y
-						+ getGlobalFontMetrics().getHeight()
-						- getGlobalFontMetrics().getDescent());
-
+				if (showBothEvents)
+				{
+					g2d.drawString(Hub.string("TD_noLinkEvents"), x + 1, y
+							+ getGlobalFontMetrics().getHeight()
+							- getGlobalFontMetrics().getDescent());
+				}
 			}
 			else
 			{
@@ -128,25 +186,28 @@ public class Connector extends DiagramElement
 							- getGlobalFontMetrics().getDescent();
 					if (events.elementAt(i).isEllipses)
 					{
-						g2d.drawString(ELLIPSES, x + 1, y + deltaY);
+						g2d.drawString(ELLIPSES, x, y + deltaY);
 					}
 					else
 					{
-						g2d.setFont(globalFont.deriveFont(Font.BOLD));
-						g2d.drawString(events.elementAt(i).event1, x + 1, y
-								+ deltaY);
-						int deltaX = globalFontRenderer
-								.getFontMetrics(globalFont
-										.deriveFont(Font.BOLD))
-								.stringWidth(events.elementAt(i).event1);
 						g2d.setFont(globalFont);
-						g2d.drawString(":" + events.elementAt(i).event2, x
-								+ deltaX + 1, y + deltaY);
+						g2d.drawString(events.elementAt(i).event1, x, y
+								+ deltaY);
+						if (showBothEvents)
+						{
+							int deltaX = getGlobalFontMetrics()
+									.stringWidth(events.elementAt(i).event1);
+							g2d.drawString(EVENT_BINDER
+									+ events.elementAt(i).event2, x + deltaX, y
+									+ deltaY);
+						}
 					}
 				}
 			}
 		}
 	}
+
+	protected static Color BACKGROUND_COLOR = new Color(224, 224, 224, 200);
 
 	private final static int SENSITIVITY = 4;
 
@@ -168,9 +229,11 @@ public class Connector extends DiagramElement
 
 	protected Line2D line;
 
-	protected EventsBox leftEventBox;
+	protected EventBox leftEventBox;
 
-	protected EventsBox rightEventBox;
+	protected EventBox rightEventBox;
+
+	protected EventBox centerEventBox;
 
 	public Connector(Entity left, Entity right, Collection<TemplateLink> links)
 	// throws MissingLayoutException
@@ -285,30 +348,83 @@ public class Connector extends DiagramElement
 		if (highlight)
 		{
 			Color temp = g2d.getColor();
-			g2d.setColor(Color.WHITE);
-			g2d.fillRect(leftEventBox.x - 1,
-					leftEventBox.y - 1,
-					leftEventBox.width + 2,
-					leftEventBox.height + 2);
-			g2d.fillRect(rightEventBox.x - 1,
-					rightEventBox.y - 1,
-					rightEventBox.width + 2,
-					rightEventBox.height + 2);
+			g2d.setColor(BACKGROUND_COLOR);
+			if (leftEventBox.width > 0)
+			{
+				g2d.fillRect(leftEventBox.x - 2,
+						leftEventBox.y - 1,
+						leftEventBox.width + 4,
+
+						leftEventBox.height + 2);
+			}
+			if (rightEventBox.width > 0)
+			{
+				g2d.fillRect(rightEventBox.x - 2,
+						rightEventBox.y - 1,
+						rightEventBox.width + 4,
+						rightEventBox.height + 2);
+			}
 			g2d.setColor(temp);
+			leftEventBox.draw(g2d);
+			rightEventBox.draw(g2d);
+			g2d.setColor(Color.WHITE);
+			g2d.fillRect(centerEventBox.x - 1,
+					centerEventBox.y - 1,
+					centerEventBox.width + 2,
+					centerEventBox.height + 2);
+			g2d.setColor(temp);
+			g2d.setStroke(MARKER_STROKE);
+			g2d.drawRect(centerEventBox.x - 1,
+					centerEventBox.y - 1,
+					centerEventBox.width + 2,
+					centerEventBox.height + 2);
+			if (centerEventBox.y + centerEventBox.height + 1 > (int)(line
+					.getY1() + (line.getY2() - line.getY1()) / 2))
+			{
+				if (centerEventBox.x > (int)(line.getX1() + (line.getX2() - line
+						.getX1()) / 2))
+				{
+					g2d
+							.drawLine(centerEventBox.x - 1,
+									centerEventBox.y + centerEventBox.height
+											/ 2,
+									(int)(line.getX1() + (line.getX2() - line
+											.getX1()) / 2),
+									(int)(line.getY1() + (line.getY2() - line
+											.getY1()) / 2));
+				}
+				else
+				{
+					g2d
+							.drawLine(centerEventBox.x + centerEventBox.width
+									+ 1,
+									centerEventBox.y + centerEventBox.height
+											/ 2,
+									(int)(line.getX1() + (line.getX2() - line
+											.getX1()) / 2),
+									(int)(line.getY1() + (line.getY2() - line
+											.getY1()) / 2));
+				}
+			}
+			else
+			{
+				g2d
+						.drawLine(centerEventBox.x + centerEventBox.width / 2,
+								centerEventBox.y + centerEventBox.height + 1,
+								(int)(line.getX1() + (line.getX2() - line
+										.getX1()) / 2),
+								(int)(line.getY1() + (line.getY2() - line
+										.getY1()) / 2));
+			}
 		}
-		leftEventBox.draw(g2d);
-		rightEventBox.draw(g2d);
+		centerEventBox.draw(g2d);
 		if (highlight)
 		{
-			g2d.setStroke(MARKER_STROKE);
-			g2d.drawRect(leftEventBox.x - 1,
-					leftEventBox.y - 1,
-					leftEventBox.width + 2,
-					leftEventBox.height + 2);
-			g2d.drawRect(rightEventBox.x - 1,
-					rightEventBox.y - 1,
-					rightEventBox.width + 2,
-					rightEventBox.height + 2);
+			// g2d.setStroke(MARKER_STROKE);
+			// g2d.drawRect(rightEventBox.x - 1,
+			// rightEventBox.y - 1,
+			// rightEventBox.width + 2,
+			// rightEventBox.height + 2);
 		}
 	}
 
@@ -318,6 +434,7 @@ public class Connector extends DiagramElement
 				.getY1()
 				+ delta.y, (float)line.getX2() + delta.x, (float)line.getY2()
 				+ delta.y);
+		centerEventBox.translate(delta.x, delta.y);
 		leftEventBox.translate(delta.x, delta.y);
 		rightEventBox.translate(delta.x, delta.y);
 	}
@@ -330,7 +447,9 @@ public class Connector extends DiagramElement
 
 	protected void computeBounds()
 	{
-		bounds = line.getBounds().union(leftEventBox).union(rightEventBox);
+		bounds = line
+				.getBounds().union(centerEventBox).union(leftEventBox)
+				.union(rightEventBox);
 	}
 
 	public void update()
@@ -341,6 +460,11 @@ public class Connector extends DiagramElement
 				.signum(location1.y - location2.y)
 				: ((float)location1.y - location2.y)
 						/ (location1.x - location2.x);
+		// quad1
+		// 0=entity Right left of entity Left,
+		// 1=entity Right above entity Left,
+		// 2=entity Right right of entity Left,
+		// 3=entity Right below entity Left
 		int quad1 = 0;
 		if (Math.abs(slope) > 1)
 		{
@@ -370,8 +494,40 @@ public class Connector extends DiagramElement
 				left.getPorts()[quad1].y,
 				right.getPorts()[quad2].x,
 				right.getPorts()[quad2].y);
-		leftEventBox = new EventsBox(true);
-		rightEventBox = new EventsBox(false);
+		centerEventBox = new EventBox();
+		leftEventBox = new EventBox(true);
+		rightEventBox = new EventBox(false);
+		double midpointX = Math.min(line.getX1(), line.getX2())
+				+ Math.abs(line.getX1() - line.getX2()) / 2;
+		double midpointY = Math.min(line.getY1(), line.getY2())
+				+ Math.abs(line.getY1() - line.getY2()) / 2;
+		if (line.getY1() - line.getY2() == 0)
+		{
+			centerEventBox.x = (int)(midpointX - centerEventBox.width / 2);
+			centerEventBox.y = (int)(midpointY - centerEventBox.height - LABEL_SPACING);
+		}
+		else if (line.getX1() - line.getX2() == 0)
+		{
+			centerEventBox.x = (int)(midpointX + LABEL_SPACING);
+			centerEventBox.y = (int)(midpointY - centerEventBox.height / 2);
+		}
+		else
+		{
+			double lineS = (line.getY2() - line.getY1())
+					/ (line.getX2() - line.getX1());
+			double lineD = line.getY1() - lineS * line.getX1();
+			double cornerX = midpointX - Math.signum(lineS)
+					* (centerEventBox.getWidth() / 2 + LABEL_SPACING);
+			double cornerY = midpointY + centerEventBox.getHeight() / 2
+					+ LABEL_SPACING;
+			double perpendicularS = -1 / lineS;
+			double perpendicularD = cornerY - perpendicularS * cornerX;
+			double intersectX = (perpendicularD - lineD)
+					/ (lineS - perpendicularS);
+			double intersectY = lineS * intersectX + lineD;
+			centerEventBox.x = (int)(midpointX + intersectX - cornerX - centerEventBox.width / 2);
+			centerEventBox.y = (int)(midpointY + intersectY - cornerY - centerEventBox.height / 2);
+		}
 		if (quad1 == 0 || quad1 == 2)
 		{
 			boolean below;
@@ -385,29 +541,35 @@ public class Connector extends DiagramElement
 			}
 			if (quad1 == 0)
 			{
-				leftEventBox.x = left.getPorts()[0].x - leftEventBox.width
-						- LABEL_SPACING;
-				leftEventBox.y = left.getPorts()[0].y
-						- (below ? 0 : (LABEL_SPACING + leftEventBox.height));
-				rightEventBox.x = right.getPorts()[2].x;
-				rightEventBox.y = right.getPorts()[2].y
-						- (below ? (LABEL_SPACING + rightEventBox.height) : 0);
+				leftEventBox.x = left.getPorts()[0].x
+						- (below ? leftEventBox.width + LABEL_SPACING
+								: -LABEL_SPACING);
+				leftEventBox.y = left.getPorts()[0].y + LABEL_SPACING;
+				rightEventBox.x = right.getPorts()[2].x
+						- (below ? rightEventBox.width + LABEL_SPACING
+								: -LABEL_SPACING);
+				rightEventBox.y = right.getPorts()[2].y + LABEL_SPACING;
 			}
 			else
 			{
-				leftEventBox.x = left.getPorts()[2].x;
-				leftEventBox.y = left.getPorts()[2].y
-						- (below ? 0 : (LABEL_SPACING + leftEventBox.height));
-				rightEventBox.x = right.getPorts()[0].x - rightEventBox.width
-						- LABEL_SPACING;
-				rightEventBox.y = right.getPorts()[0].y
-						- (below ? (LABEL_SPACING + rightEventBox.height) : 0);
+				leftEventBox.x = left.getPorts()[2].x
+						- (below ? -LABEL_SPACING : leftEventBox.width
+								+ LABEL_SPACING);
+				leftEventBox.y = left.getPorts()[2].y + LABEL_SPACING;
+				rightEventBox.x = right.getPorts()[0].x
+						- (below ? -LABEL_SPACING : rightEventBox.width
+								+ LABEL_SPACING);
+				rightEventBox.y = right.getPorts()[0].y + LABEL_SPACING;
 			}
 		}
 		else
 		{
 			boolean onLeft;
-			if (location1.x - location2.x > 0)
+			if (location1.x == location2.x)
+			{
+				onLeft = quad1 != 1;
+			}
+			else if (location1.x - location2.x > 0)
 			{
 				onLeft = false;
 			}
@@ -417,23 +579,25 @@ public class Connector extends DiagramElement
 			}
 			if (quad1 == 1)
 			{
-				leftEventBox.y = left.getPorts()[1].y - leftEventBox.height
-						- LABEL_SPACING;
+				leftEventBox.y = left.getPorts()[1].y + LABEL_SPACING;
 				leftEventBox.x = left.getPorts()[1].x
-						- (onLeft ? (LABEL_SPACING + leftEventBox.width) : 0);
-				rightEventBox.y = right.getPorts()[3].y;
+						- (onLeft ? -LABEL_SPACING : leftEventBox.width
+								+ LABEL_SPACING);
+				rightEventBox.y = right.getPorts()[3].y + LABEL_SPACING;
 				rightEventBox.x = right.getPorts()[3].x
-						- (onLeft ? 0 : (LABEL_SPACING + rightEventBox.width));
+						- (onLeft ? -LABEL_SPACING : rightEventBox.width
+								+ LABEL_SPACING);
 			}
 			else
 			{
-				leftEventBox.y = left.getPorts()[3].y;
+				leftEventBox.y = left.getPorts()[3].y + LABEL_SPACING;
 				leftEventBox.x = left.getPorts()[3].x
-						- (onLeft ? (LABEL_SPACING + leftEventBox.width) : 0);
-				rightEventBox.y = right.getPorts()[1].y - rightEventBox.height
-						- LABEL_SPACING;
+						- (onLeft ? leftEventBox.width + LABEL_SPACING
+								: -LABEL_SPACING);
+				rightEventBox.y = right.getPorts()[1].y + LABEL_SPACING;
 				rightEventBox.x = right.getPorts()[1].x
-						- (onLeft ? 0 : (LABEL_SPACING + rightEventBox.width));
+						- (onLeft ? rightEventBox.width + LABEL_SPACING
+								: -LABEL_SPACING);
 			}
 		}
 		computeBounds();
@@ -442,14 +606,15 @@ public class Connector extends DiagramElement
 	@Override
 	public boolean contains(Point p)
 	{
-		return line.ptSegDist(p) < SENSITIVITY || leftEventBox.contains(p)
-				|| rightEventBox.contains(p);
+		return centerEventBox.contains(p)
+				|| (line.getP1().distance(p) >= Entity.PORT_RADIUS
+						&& line.getP2().distance(p) >= Entity.PORT_RADIUS && line
+						.ptSegDist(p) < SENSITIVITY);
 	}
 
 	public boolean intersects(Rectangle r)
 	{
-		return line.intersects(r) || leftEventBox.intersects(r)
-				|| rightEventBox.intersects(r)
+		return line.intersects(r) || centerEventBox.intersects(r)
 				|| line.ptSegDist(r.getMinX(), r.getMinY()) < SENSITIVITY
 				|| line.ptSegDist(r.getMinX(), r.getMaxY()) < SENSITIVITY
 				|| line.ptSegDist(r.getMaxX(), r.getMinY()) < SENSITIVITY
@@ -458,7 +623,7 @@ public class Connector extends DiagramElement
 
 	public int whereisPoint(Point p)
 	{
-		if (leftEventBox.contains(p) || rightEventBox.contains(p))
+		if (centerEventBox.contains(p))
 		{
 			return ON_LABEL;
 		}

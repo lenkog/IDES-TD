@@ -1,5 +1,9 @@
 package templates.io;
 
+import ides.api.core.Hub;
+import ides.api.plugin.io.FormatTranslationException;
+import ides.api.plugin.io.ImportExportPlugin;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -12,12 +16,6 @@ import javax.imageio.ImageIO;
 
 import templates.diagram.TemplateDiagram;
 import templates.model.TemplateModel;
-
-import ides.api.core.Hub;
-import ides.api.model.fsa.FSAModel;
-import ides.api.plugin.io.FormatTranslationException;
-import ides.api.plugin.io.IOPluginManager;
-import ides.api.plugin.io.ImportExportPlugin;
 
 public class PNGExporter implements ImportExportPlugin
 {
@@ -49,7 +47,7 @@ public class PNGExporter implements ImportExportPlugin
 			throw new FormatTranslationException(e);
 		}
 
-		TemplateDiagram diagram=new TemplateDiagram(a);
+		TemplateDiagram diagram = new TemplateDiagram(a);
 
 		Rectangle bounds = diagram.getBounds();
 		if (bounds.height == 0 || bounds.width == 0)
@@ -107,6 +105,5 @@ public class PNGExporter implements ImportExportPlugin
 	{
 		return ext;
 	}
-
 
 }

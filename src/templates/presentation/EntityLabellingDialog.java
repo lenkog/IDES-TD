@@ -40,15 +40,13 @@ public class EntityLabellingDialog extends EscapeDialog
 
 	protected static TemplateEditableCanvas canvas = null;
 
-	// the main job will be handled by commitListener on focusLost
 	protected Action enterListener = new AbstractAction()
 	{
 		private static final long serialVersionUID = 4258152153714537489L;
 
 		public void actionPerformed(ActionEvent actionEvent)
 		{
-			canvas.setUIInteraction(false);
-			setVisible(false);
+			commitAndClose();
 		}
 	};
 
@@ -56,14 +54,7 @@ public class EntityLabellingDialog extends EscapeDialog
 	{
 		public void focusLost(FocusEvent e)
 		{
-			if (canvas != null && !area.getText().equals(entity.getLabel()))
-			{
-				new DiagramActions.LabelEntityAction(
-						canvas.getDiagram(),
-						entity,
-						area.getText()).execute();
-			}
-			me.setVisible(false);
+			instance().commitAndClose();
 		}
 
 		public void focusGained(FocusEvent e)
@@ -79,7 +70,7 @@ public class EntityLabellingDialog extends EscapeDialog
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
-				onEscapeEvent();
+				commitAndClose();
 			}
 		});
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -160,5 +151,17 @@ public class EntityLabellingDialog extends EscapeDialog
 		area.removeFocusListener(commitOnFocusLost);
 		canvas.setUIInteraction(false);
 		setVisible(false);
+	}
+	
+	protected void commitAndClose()
+	{
+		if (canvas != null && !area.getText().equals(entity.getLabel()))
+		{
+			new DiagramActions.LabelEntityAction(
+					canvas.getDiagram(),
+					entity,
+					area.getText()).execute();
+		}
+		onEscapeEvent();		
 	}
 }

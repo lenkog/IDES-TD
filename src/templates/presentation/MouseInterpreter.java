@@ -1,7 +1,5 @@
 package templates.presentation;
 
-import ides.api.core.Hub;
-
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -31,7 +29,7 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 
 	protected boolean draggedSelection = false;
 
-	protected boolean creatingConnector = false;
+	private int connectorClickCount = 0;
 
 	protected Entity connectorOrigin = null;
 
@@ -57,20 +55,6 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 								.getAdjacentConnectors((Entity)mouseDownOn));
 					}
 					diagram.setSelection(elements);
-				}
-				if (!creatingConnector)
-				{
-					if (mouseDownOn != null && mouseDownOn instanceof Entity)
-					{
-						int whichPart = ((Entity)mouseDownOn).whereisPoint(arg0
-								.getPoint());
-						if (whichPart == Entity.ON_PORT)
-						{
-							canvas.startConnector(arg0.getPoint());
-							creatingConnector = true;
-							connectorOrigin = (Entity)mouseDownOn;
-						}
-					}
 				}
 			}
 			else if (arg0.getClickCount() == 2)
@@ -106,10 +90,11 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 										.actionPerformed(null);
 							}
 						}
-						else if(whichPart==Entity.ON_SUP)
+						else if (whichPart == Entity.ON_SUP)
 						{
-							new UIActions.ShowSupAction(canvas,(Entity)mouseDownOn).actionPerformed(null);
-//							new UIActions.SetControllabilityAction(canvas,(Entity)mouseDownOn).actionPerformed(null);
+							new UIActions.ShowSupAction(
+									canvas,
+									(Entity)mouseDownOn).actionPerformed(null);
 						}
 					}
 					else if (mouseDownOn instanceof Connector)
@@ -120,31 +105,32 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 				}
 			}
 		}
-		else if (arg0.getButton() == MouseEvent.BUTTON3) // right button
+	}
+
+	public void mousePopupTrigger(MouseEvent arg0)
+	{
+		if (arg0.getClickCount() == 1)
 		{
-			if (arg0.getClickCount() == 1)
+			if (mouseDownOn == null)
 			{
-				if (mouseDownOn == null)
+				Point p = canvas.localToComponent(arg0.getPoint());
+				new DiagramPopup(canvas, arg0.getPoint())
+						.show(canvas, p.x, p.y);
+			}
+			else
+			{
+				if (mouseDownOn instanceof Entity)
 				{
 					Point p = canvas.localToComponent(arg0.getPoint());
-					new DiagramPopup(canvas, arg0.getPoint()).show(canvas,
+					new EntityPopup(canvas, (Entity)mouseDownOn).show(canvas,
 							p.x,
 							p.y);
 				}
-				else
+				else if (mouseDownOn instanceof Connector)
 				{
-					if (mouseDownOn instanceof Entity)
-					{
-						Point p = canvas.localToComponent(arg0.getPoint());
-						new EntityPopup(canvas, (Entity)mouseDownOn)
-								.show(canvas, p.x, p.y);
-					}
-					else if (mouseDownOn instanceof Connector)
-					{
-						Point p = canvas.localToComponent(arg0.getPoint());
-						new ConnectorPopup(canvas, (Connector)mouseDownOn)
-								.show(canvas, p.x, p.y);
-					}
+					Point p = canvas.localToComponent(arg0.getPoint());
+					new ConnectorPopup(canvas, (Connector)mouseDownOn)
+							.show(canvas, p.x, p.y);
 				}
 			}
 		}
@@ -164,23 +150,6 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 
 	public void mousePressed(MouseEvent arg0)
 	{
-		if (creatingConnector)
-		{
-			canvas.finishConnector();
-			if (diagram.getEntityAt(arg0.getPoint()) != null)
-			{
-				Entity connectorEnd = (Entity)diagram.getEntityAt(arg0
-						.getPoint());
-				if (connectorEnd != connectorOrigin
-						&& diagram.getConnector(connectorOrigin, connectorEnd) == null)
-				{
-					new DiagramActions.CreateAndMatchConnectorAction(
-							diagram,
-							connectorOrigin,
-							connectorEnd).execute();
-				}
-			}
-		}
 		mouseDownAt = arg0.getPoint();
 		if (diagram.getConnectorAt(arg0.getPoint()) != null)
 		{
@@ -209,13 +178,67 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 			mouseDownOn = null;
 			diagram.clearSelection();
 		}
+		if (canvas.isDrawingConnector()
+				&& (arg0.getButton() != MouseEvent.BUTTON1
+						|| mouseDownOn == null || !(mouseDownOn instanceof Entity)))
+		{
+			cancelConnector();
+		}
+		if (arg0.isPopupTrigger())
+		{
+			cancelConnector();
+			mousePopupTrigger(arg0);
+		}
+		else if (!canvas.isDrawingConnector()
+				&& arg0.getButton() == MouseEvent.BUTTON1
+				&& mouseDownOn != null && mouseDownOn instanceof Entity)
+		{
+			int whichPart = ((Entity)mouseDownOn).whereisPoint(arg0.getPoint());
+			if (whichPart == Entity.ON_PORT)
+			{
+				canvas.startConnector(arg0.getPoint());
+				connectorOrigin = (Entity)mouseDownOn;
+				connectorClickCount = 0;
+				diagram.setSelection(Arrays
+						.asList(new DiagramElement[] { mouseDownOn }));
+			}
+
+		}
 	}
 
 	public void mouseReleased(MouseEvent arg0)
 	{
-		if (creatingConnector)
+		if (canvas.isDrawingConnector()
+				&& arg0.getButton() != MouseEvent.BUTTON1)
 		{
-			creatingConnector = false;
+			cancelConnector();
+		}
+		if (arg0.isPopupTrigger())
+		{
+			cancelConnector();
+			mousePopupTrigger(arg0);
+		}
+		if (canvas.isDrawingConnector())
+		{
+			if (lastDragLocation == null && mouseDownAt.equals(arg0.getPoint()))
+			{
+				++connectorClickCount;
+			}
+			if (lastDragLocation != null || connectorClickCount > 1)
+			// mouse was dragged or mouse was clicked two times
+			{
+				cancelConnector();
+				Entity connectorEnd = diagram.getEntityAt(arg0.getPoint());
+				if (connectorEnd != null
+						&& connectorEnd != connectorOrigin
+						&& diagram.getConnector(connectorOrigin, connectorEnd) == null)
+				{
+					new DiagramActions.CreateAndMatchConnectorAction(
+							diagram,
+							connectorOrigin,
+							connectorEnd).execute();
+				}
+			}
 		}
 		if (draggedSelection)
 		{
@@ -232,6 +255,15 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		lastDragLocation = null;
 	}
 
+	protected void cancelConnector()
+	{
+		if (canvas.isDrawingConnector())
+		{
+			canvas.finishConnector();
+			canvas.repaint();
+		}
+	}
+
 	public void mouseDragged(MouseEvent arg0)
 	{
 		if (lastDragLocation == null)
@@ -240,34 +272,41 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		}
 		if (mouseDownOn != null)
 		{
-			Collection<DiagramElement> selection = diagram.getSelection();
-			boolean hasEntities = false;
-			for (DiagramElement element : selection)
+			if (!canvas.isDrawingConnector())
 			{
-				if (element instanceof Entity)
-				{
-					hasEntities = true;
-					break;
-				}
-			}
-			if (!selection.isEmpty() && hasEntities)
-			{
-				draggedSelection = true;
+				Collection<DiagramElement> selection = diagram.getSelection();
+				boolean hasEntities = false;
 				for (DiagramElement element : selection)
 				{
 					if (element instanceof Entity)
 					{
-						element.translate(new Point(arg0.getPoint().x
-								- lastDragLocation.x, arg0.getPoint().y
-								- lastDragLocation.y));
-						for (Connector c : diagram
-								.getAdjacentConnectors((Entity)element))
-						{
-							c.update();
-						}
+						hasEntities = true;
+						break;
 					}
 				}
-				canvas.repaint();
+				if (!selection.isEmpty() && hasEntities)
+				{
+					draggedSelection = true;
+					for (DiagramElement element : selection)
+					{
+						if (element instanceof Entity)
+						{
+							element.translate(new Point(arg0.getPoint().x
+									- lastDragLocation.x, arg0.getPoint().y
+									- lastDragLocation.y));
+							for (Connector c : diagram
+									.getAdjacentConnectors((Entity)element))
+							{
+								c.update();
+							}
+						}
+					}
+					canvas.repaint();
+				}
+			}
+			else
+			{
+				mouseMoved(arg0);
 			}
 		}
 		else
@@ -312,7 +351,7 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 				}
 			}
 		}
-		if (creatingConnector)
+		if (canvas.isDrawingConnector())
 		{
 			canvas.repaint();
 		}

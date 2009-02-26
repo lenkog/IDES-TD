@@ -1,11 +1,17 @@
 package templates.library;
 
+import ides.api.core.Hub;
+import ides.api.plugin.io.FileIOPlugin;
+import ides.api.plugin.io.FileLoadException;
+import ides.api.plugin.io.FileSaveException;
+import ides.api.plugin.io.UnsupportedVersionException;
+import ides.api.plugin.model.DESModel;
+import ides.api.utilities.HeadTailInputStream;
+
 import java.awt.Color;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,17 +24,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import templates.model.TemplateModel;
-
-import ides.api.core.Hub;
-import ides.api.plugin.io.FileIOPlugin;
-import ides.api.plugin.io.FileLoadException;
-import ides.api.plugin.io.FileSaveException;
-import ides.api.plugin.io.UnsupportedVersionException;
-import ides.api.plugin.model.DESModel;
-import ides.api.plugin.model.ModelManager;
-import ides.api.utilities.HeadTailInputStream;
 
 public class TemplateMetaIO implements FileIOPlugin
 {
@@ -192,18 +187,23 @@ public class TemplateMetaIO implements FileIOPlugin
 		{
 			throw new FileSaveException("TD_ioUnsupportedTag");
 		}
-		if(!arg1.hasAnnotation(Template.TEMPLATE_DESC))
+		if (!arg1.hasAnnotation(Template.TEMPLATE_DESC))
 		{
 			return;
 		}
-		TemplateDescriptor td=(TemplateDescriptor)arg1.getAnnotation(Template.TEMPLATE_DESC);
-		stream.println("\t<"+ELEMENT_INFO+" "+ATTRIBUTE_TAG+"=\""+td.tag+"\" "+ATTRIBUTE_COLOR+"=\"#"
-				+ (td.color.getRed()<16?"0":"")+Integer.toHexString(td.color.getRed())
-				+ (td.color.getGreen()<16?"0":"")+Integer.toHexString(td.color.getGreen())
-				+ (td.color.getBlue()<16?"0":"")+Integer.toHexString(td.color.getBlue())
-				+ "\">");
-		stream.println("\t\t<"+ELEMENT_DESC+">"+td.description+"</"+ELEMENT_DESC+">");
-		stream.println("\t</"+ELEMENT_INFO+">");
+		TemplateDescriptor td = (TemplateDescriptor)arg1
+				.getAnnotation(Template.TEMPLATE_DESC);
+		stream.println("\n\t<" + ELEMENT_INFO + " " + ATTRIBUTE_TAG + "=\""
+				+ td.tag + "\" " + ATTRIBUTE_COLOR + "=\"#"
+				+ (td.color.getRed() < 16 ? "0" : "")
+				+ Integer.toHexString(td.color.getRed())
+				+ (td.color.getGreen() < 16 ? "0" : "")
+				+ Integer.toHexString(td.color.getGreen())
+				+ (td.color.getBlue() < 16 ? "0" : "")
+				+ Integer.toHexString(td.color.getBlue()) + "\">");
+		stream.println("\t\t<" + ELEMENT_DESC + ">" + td.description + "</"
+				+ ELEMENT_DESC + ">");
+		stream.println("\t</" + ELEMENT_INFO + ">");
 	}
 
 }

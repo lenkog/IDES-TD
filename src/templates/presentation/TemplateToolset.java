@@ -1,7 +1,6 @@
 package templates.presentation;
 
 import ides.api.core.Hub;
-import ides.api.model.fsa.FSASubscriber;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.model.DESModelMessage;
 import ides.api.plugin.model.DESModelSubscriber;
@@ -10,7 +9,6 @@ import ides.api.plugin.presentation.Toolset;
 import ides.api.plugin.presentation.UIDescriptor;
 import ides.api.plugin.presentation.UnsupportedModelException;
 
-import javax.sound.sampled.DataLine;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -19,18 +17,16 @@ import javax.swing.TransferHandler;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import templates.diagram.SimpleIcon;
 import templates.library.LibraryUI;
 import templates.model.TemplateModel;
-import templates.model.TemplateModelMessage;
 import templates.model.TemplateModelSubscriber;
 
 public class TemplateToolset implements Toolset
 {
-	protected static LibraryUI library=null;
+	protected static LibraryUI library = null;
 
-	protected static TransferHandler transferHandler=new CanvasTransferHandler();
-	
+	protected static TransferHandler transferHandler = new CanvasTransferHandler();
+
 	protected class TemplateUID implements UIDescriptor
 	{
 		protected TemplateModel model;
@@ -40,14 +36,14 @@ public class TemplateToolset implements Toolset
 		protected TemplateConsistencyCanvas consistency;
 
 		protected IssuesViewer issues;
-		
+
 		protected Presentation statusBar;
 
 		public TemplateUID(TemplateModel model)
 		{
-			if(library==null)
+			if (library == null)
 			{
-				library=new LibraryUI();
+				library = new LibraryUI();
 			}
 			this.model = model;
 			canvas = new TemplateEditableCanvas(model);
@@ -57,7 +53,7 @@ public class TemplateToolset implements Toolset
 			consistency.setName(Hub.string("TD_consistencyCanvasTitle"));
 			consistency.setTransferHandler(transferHandler);
 			issues = new IssuesViewer(canvas.getDiagram());
-			statusBar=new TemplateStatusBar(model,issues);
+			statusBar = new TemplateStatusBar(model, issues);
 		}
 
 		public Presentation[] getLeftPanePresentations()
@@ -119,38 +115,46 @@ public class TemplateToolset implements Toolset
 		return new TemplateUID((TemplateModel)model);
 	}
 
-	protected static class TemplateStatusBar extends JLabel implements Presentation, DESModelSubscriber, ListDataListener 
+	protected static class TemplateStatusBar extends JLabel implements
+			Presentation, DESModelSubscriber, ListDataListener
 	{
 		private static final long serialVersionUID = 341918799019344384L;
 
-		private boolean trackModel=true;
+		private boolean trackModel = true;
+
 		protected TemplateModel model;
+
 		protected IssuesViewer issueList;
-		
-		public TemplateStatusBar(TemplateModel model,IssuesViewer issueList)
+
+		public TemplateStatusBar(TemplateModel model, IssuesViewer issueList)
 		{
-			this.model=model;
-			this.issueList=issueList;
+			this.model = model;
+			this.issueList = issueList;
 			model.addSubscriber((DESModelSubscriber)this);
 			issueList.addIssuesListener(this);
 			refresh();
 		}
-		
+
 		public void refresh()
 		{
-			String issues="";
-			if(issueList.getIssueCount()>0)
+			String issues = "";
+			if (issueList.getIssueCount() > 0)
 			{
-				if(issueList.getIssueCount()==1)
+				if (issueList.getIssueCount() == 1)
 				{
-					issues=" "+Hub.string("TD_statusBarIssues1a")+" "+issueList.getIssueCount()+" "+Hub.string("TD_statusBarIssues2a");
+					issues = " " + Hub.string("TD_statusBarIssues1a") + " "
+							+ issueList.getIssueCount() + " "
+							+ Hub.string("TD_statusBarIssues2a");
 				}
 				else
 				{
-					issues=" "+Hub.string("TD_statusBarIssues1b")+" "+issueList.getIssueCount()+" "+Hub.string("TD_statusBarIssues2b");					
+					issues = " " + Hub.string("TD_statusBarIssues1b") + " "
+							+ issueList.getIssueCount() + " "
+							+ Hub.string("TD_statusBarIssues2b");
 				}
 			}
-			setText(model.getName() + ":  " + +model.getComponentCount() + " "+Hub.string("TD_statsBarEntities")+"."+issues);
+			setText(model.getName() + ":  " + +model.getComponentCount() + " "
+					+ Hub.string("TD_statsBarEntities") + "." + issues);
 		}
 
 		public void forceRepaint()
@@ -177,10 +181,10 @@ public class TemplateToolset implements Toolset
 
 		public void setTrackModel(boolean b)
 		{
-			if(trackModel!=b)
+			if (trackModel != b)
 			{
-				trackModel=b;
-				if(trackModel)
+				trackModel = b;
+				if (trackModel)
 				{
 					model.addSubscriber((DESModelSubscriber)this);
 					issueList.addIssuesListener(this);

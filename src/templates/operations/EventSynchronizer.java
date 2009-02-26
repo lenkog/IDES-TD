@@ -7,7 +7,6 @@ import ides.api.plugin.model.DESEventSet;
 import ides.api.plugin.model.ModelManager;
 import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
-import ides.api.presentation.fsa.FSAStateLabeller;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,14 +44,14 @@ public class EventSynchronizer
 			eventRenaming.put(module, eventMap);
 		}
 		Operation sync = OperationManager.instance().getOperation("sync");
-//		Iterator<FSAModel> i = modulesFSA.iterator();
-		FSAModel moduleFSA=(FSAModel)sync.perform(modulesFSA.toArray())[0];
-//		= i.next();
-//		for (; i.hasNext();)
-//		{
-//			moduleFSA = (FSAModel)sync.perform(new Object[] { moduleFSA,
-//					i.next() })[0];
-//		}
+		// Iterator<FSAModel> i = modulesFSA.iterator();
+		FSAModel moduleFSA = (FSAModel)sync.perform(modulesFSA.toArray())[0];
+		// = i.next();
+		// for (; i.hasNext();)
+		// {
+		// moduleFSA = (FSAModel)sync.perform(new Object[] { moduleFSA,
+		// i.next() })[0];
+		// }
 		DESEventSet systemEvents = moduleFSA.getEventSet().copy();
 		Set<FSAModel> channelsFSA = new HashSet<FSAModel>();
 		for (TemplateComponent channel : channels)
@@ -75,7 +74,7 @@ public class EventSynchronizer
 					moduleEvent = link.getLeftEventName();
 					channelEvent = link.getRightEventName();
 				}
-				if(!eventRenaming.containsKey(module))
+				if (!eventRenaming.containsKey(module))
 				{
 					throw new IllegalArgumentException();
 				}
@@ -105,32 +104,33 @@ public class EventSynchronizer
 		{
 			Operation product = OperationManager
 					.instance().getOperation("product");
-//			i = channelsFSA.iterator();
-			channelFSA=(FSAModel)product.perform(channelsFSA.toArray())[0];
-//			= i.next();
-//			for (; i.hasNext();)
-//			{
-//				channelFSA = (FSAModel)product.perform(new Object[] { channelFSA,
-//						i.next() })[0];
-//			}
+			// i = channelsFSA.iterator();
+			channelFSA = (FSAModel)product.perform(channelsFSA.toArray())[0];
+			// = i.next();
+			// for (; i.hasNext();)
+			// {
+			// channelFSA = (FSAModel)product.perform(new Object[] { channelFSA,
+			// i.next() })[0];
+			// }
 		}
 		else
 		{
-			channelFSA=ModelManager.instance().createModel(FSAModel.class);
-			FSAState s=channelFSA.assembleState();
+			channelFSA = ModelManager.instance().createModel(FSAModel.class);
+			FSAState s = channelFSA.assembleState();
 			s.setInitial(true);
 			s.setMarked(true);
 			channelFSA.add(s);
 			channelFSA = (FSAModel)OperationManager
-			.instance().getOperation("selfloop").perform(new Object[] {
-					channelFSA, systemEvents })[0];
+					.instance().getOperation("selfloop").perform(new Object[] {
+							channelFSA, systemEvents })[0];
 		}
 		return new FSAModel[] { moduleFSA, channelFSA };
 	}
-	
-	public static void label4Humans(TemplateModel model,Collection<FSAModel> fsas)
+
+	public static void label4Humans(TemplateModel model,
+			Collection<FSAModel> fsas)
 	{
-		for(FSAModel fsa:fsas)
+		for (FSAModel fsa : fsas)
 		{
 			for (DESEvent event : fsa.getEventSet())
 			{
@@ -144,7 +144,7 @@ public class EventSynchronizer
 				}
 				event.setSymbol(fsaName + ":"
 						+ original.getEvent(pointer[1]).getSymbol());
-			}			
+			}
 		}
 	}
 

@@ -81,7 +81,6 @@ public class ChannelSup implements Operation
 		}
 		TemplateModel model = (TemplateModel)arg0[0];
 		TemplateComponent channel = model.getComponent((Long)arg0[1]);
-		Set<FSAModel> modulesFSA = new HashSet<FSAModel>();
 		Set<TemplateComponent> modules = new HashSet<TemplateComponent>();
 		for (TemplateLink link : model.getAdjacentLinks(channel.getId()))
 		{
@@ -101,7 +100,9 @@ public class ChannelSup implements Operation
 					channel.getModel().clone(),
 					ModelManager.instance().createModel(FSAModel.class) };
 		}
-		FSAModel[] models=EventSynchronizer.synchronizeAndCompose(model,modules,Arrays.asList(new TemplateComponent[]{channel}));
+		FSAModel[] models = EventSynchronizer.synchronizeAndCompose(model,
+				modules,
+				Arrays.asList(new TemplateComponent[] { channel }));
 		FSAModel moduleFSA = models[0];
 		FSAModel channelFSA = models[1];
 		FSAStateLabeller.labelCompositeStates(moduleFSA);
@@ -109,7 +110,8 @@ public class ChannelSup implements Operation
 		FSAModel supFSA = (FSAModel)OperationManager
 				.instance().getOperation("supcon").perform(new Object[] {
 						moduleFSA, channelFSA })[0];
-		EventSynchronizer.label4Humans(model,Arrays.asList(new FSAModel[]{moduleFSA,channelFSA,supFSA}));
+		EventSynchronizer.label4Humans(model, Arrays.asList(new FSAModel[] {
+				moduleFSA, channelFSA, supFSA }));
 		FSAStateLabeller.labelCompositeStates(supFSA);
 		return new Object[] { moduleFSA, channelFSA, supFSA };
 	}

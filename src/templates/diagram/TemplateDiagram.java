@@ -6,8 +6,6 @@ import ides.api.model.fsa.FSAMessage;
 import ides.api.model.fsa.FSAModel;
 import ides.api.model.fsa.FSASubscriber;
 import ides.api.plugin.model.DESModel;
-import ides.api.plugin.model.DESModelMessage;
-import ides.api.plugin.model.DESModelSubscriber;
 import ides.api.plugin.model.ModelManager;
 
 import java.awt.Graphics2D;
@@ -114,11 +112,11 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 
 	protected Map<TemplateLink, Connector> link2Connector = new HashMap<TemplateLink, Connector>();
 
-	//keep track of previous FSA for a component
+	// keep track of previous FSA for a component
 	protected Map<TemplateComponent, FSAModel> component2FSA = new HashMap<TemplateComponent, FSAModel>();
-	
-	//speed up retrieval of component for an FSA model
-	protected Map<FSAModel, TemplateComponent> FSA2component = new HashMap<FSAModel,TemplateComponent>();
+
+	// speed up retrieval of component for an FSA model
+	protected Map<FSAModel, TemplateComponent> FSA2component = new HashMap<FSAModel, TemplateComponent>();
 
 	protected TemplateModel model;
 
@@ -146,14 +144,14 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 		component2Entity.clear();
 		entities.clear();
 		link2Connector.clear();
-		for(FSAModel fsa:component2FSA.values())
+		for (FSAModel fsa : component2FSA.values())
 		{
 			fsa.removeSubscriber(this);
 		}
 		component2FSA.clear();
 		FSA2component.clear();
 		connectors.clear();
-		boolean modelClean=!model.needsSave();
+		boolean modelClean = !model.needsSave();
 		for (TemplateComponent component : model.getComponents())
 		{
 			EntityLayout layout = null;
@@ -173,12 +171,12 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 			{
 				component.getModel().setName(TemplateModel.FSA_NAME_PREFIX
 						+ layout.label);
-				component2FSA.put(component,component.getModel());
-				FSA2component.put(component.getModel(),component);
+				component2FSA.put(component, component.getModel());
+				FSA2component.put(component.getModel(), component);
 				component.getModel().addSubscriber(this);
 			}
 		}
-		if(modelClean)
+		if (modelClean)
 		{
 			model.modelSaved();
 		}
@@ -251,9 +249,10 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 		if (message.getOperationType() == TemplateModelMessage.OP_MODIFY
 				&& message.getElementType() == TemplateModelMessage.ELEMENT_COMPONENT)
 		{
-			TemplateComponent component=model.getComponent(message.getElementId());
-			FSAModel fsa=component2FSA.get(component);
-			if(fsa!=null)
+			TemplateComponent component = model.getComponent(message
+					.getElementId());
+			FSAModel fsa = component2FSA.get(component);
+			if (fsa != null)
 			{
 				fsa.removeSubscriber(this);
 				FSA2component.remove(fsa);
@@ -262,10 +261,12 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 			Entity entity = component2Entity.get(component);
 			if (entity != null)
 			{
-				if(entity.getComponent().hasModel())
+				if (entity.getComponent().hasModel())
 				{
-					component2FSA.put(entity.getComponent(),entity.getComponent().getModel());
-					FSA2component.put(entity.getComponent().getModel(),entity.getComponent());
+					component2FSA.put(entity.getComponent(), entity
+							.getComponent().getModel());
+					FSA2component.put(entity.getComponent().getModel(), entity
+							.getComponent());
 					entity.getComponent().getModel().addSubscriber(this);
 				}
 				entity.update();
@@ -312,8 +313,8 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 				TemplateModel.FSA_NAME_PREFIX + layout.label);
 		fsa.setParentModel(model);
 		model.assignFSA(component.getId(), fsa);
-		component2FSA.put(component,fsa);
-		FSA2component.put(fsa,component);
+		component2FSA.put(component, fsa);
+		FSA2component.put(fsa, component);
 		fsa.addSubscriber(this);
 		model.addSubscriber((TemplateModelSubscriber)this);
 		fireDiagramChanged(new TemplateDiagramMessage(
@@ -335,10 +336,12 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 			model.addComponent(entity.getComponent());
 			entities.add(entity);
 			component2Entity.put(entity.getComponent(), entity);
-			if(entity.getComponent().hasModel())
+			if (entity.getComponent().hasModel())
 			{
-				component2FSA.put(entity.getComponent(),entity.getComponent().getModel());
-				FSA2component.put(entity.getComponent().getModel(),entity.getComponent());
+				component2FSA.put(entity.getComponent(), entity
+						.getComponent().getModel());
+				FSA2component.put(entity.getComponent().getModel(), entity
+						.getComponent());
 				entity.getComponent().getModel().addSubscriber(this);
 			}
 		}
@@ -358,12 +361,14 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 		{
 			return;
 		}
-		if(entity.getComponent().hasModel())
+		if (entity.getComponent().hasModel())
 		{
-			DESModel fsa=Hub.getWorkspace().getModel(entity.getComponent().getModel().getName());
-			if(entity.getComponent().getModel()==fsa)
+			DESModel fsa = Hub.getWorkspace().getModel(entity
+					.getComponent().getModel().getName());
+			if (entity.getComponent().getModel() == fsa)
 			{
-				Hub.getWorkspace().removeModel(entity.getComponent().getModel().getName());
+				Hub.getWorkspace().removeModel(entity
+						.getComponent().getModel().getName());
 			}
 		}
 		clearSelection();
@@ -378,7 +383,7 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 				model.removeLink(link.getId());
 			}
 		}
-		if(entity.getComponent().hasModel())
+		if (entity.getComponent().hasModel())
 		{
 			entity.getComponent().getModel().removeSubscriber(this);
 			FSA2component.remove(entity.getComponent().getModel());
@@ -413,7 +418,7 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 				Arrays.asList(new DiagramElement[] { entity }),
 				TemplateDiagramMessage.OP_MODIFY));
 	}
-	
+
 	public void setEntityIcon(Entity entity, EntityIcon icon)
 	{
 		entity.setIcon(icon);
@@ -421,7 +426,7 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 		fireDiagramChanged(new TemplateDiagramMessage(
 				this,
 				Arrays.asList(new DiagramElement[] { entity }),
-				TemplateDiagramMessage.OP_MODIFY));		
+				TemplateDiagramMessage.OP_MODIFY));
 	}
 
 	public Entity getEntityAt(Point location)
@@ -869,15 +874,15 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 	{
 		flagModel(arg0.getSource());
 	}
-	
+
 	protected void flagModel(FSAModel model)
 	{
-		TemplateComponent component=FSA2component.get(model);
-		if(component!=null)
+		TemplateComponent component = FSA2component.get(model);
+		if (component != null)
 		{
-			component.getModel().setAnnotation(Entity.FLAG_MARK,new Object());
-			Entity entity=getEntityFor(component);
-			if(entity!=null)
+			component.getModel().setAnnotation(Entity.FLAG_MARK, new Object());
+			Entity entity = getEntityFor(component);
+			if (entity != null)
 			{
 				entity.update();
 			}

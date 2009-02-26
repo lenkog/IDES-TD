@@ -1,6 +1,10 @@
 package templates.operations;
 
-import java.util.Iterator;
+import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
+import ides.api.plugin.operation.Operation;
+import ides.api.plugin.operation.OperationManager;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,13 +12,6 @@ import templates.model.TemplateComponent;
 import templates.model.TemplateModel;
 import templates.model.Validator;
 import templates.model.Validator.ValidatorResult;
-
-import ides.api.core.Hub;
-import ides.api.model.fsa.FSAModel;
-import ides.api.plugin.model.ModelManager;
-import ides.api.plugin.operation.Operation;
-import ides.api.plugin.operation.OperationManager;
-import ides.api.presentation.fsa.FSAStateLabeller;
 
 public class ModularSupSolution implements Operation
 {
@@ -60,7 +57,7 @@ public class ModularSupSolution implements Operation
 
 	public int getNumberOfOutputs()
 	{
-		return 1;
+		return -1;
 	}
 
 	public Class<?>[] getTypeOfInputs()
@@ -109,6 +106,7 @@ public class ModularSupSolution implements Operation
 		.instance().getOperation("tdchannelsup");
 		List<FSAModel> models=new LinkedList<FSAModel>();
 		List<FSAModel> sups=new LinkedList<FSAModel>();
+		List<String> descriptions=new LinkedList<String>();
 		for(TemplateComponent channel:model.getChannels())
 		{
 			Object[] result=channelsup.perform(new Object[]{model,channel.getId()});
@@ -119,12 +117,15 @@ public class ModularSupSolution implements Operation
 						.length());
 			}
 			((FSAModel)result[0]).setName("M_" + channelName);
+			((FSAModel)result[1]).setName("C_" + channelName);
 			((FSAModel)result[2]).setName("S_" + channelName);
-//			FSAStateLabeller.labelCompositeStates((FSAModel)result[0]);
-//			FSAStateLabeller.labelCompositeStates((FSAModel)result[2]);
 			models.add((FSAModel)result[0]);
+			models.add((FSAModel)result[1]);
 			models.add((FSAModel)result[2]);
 			sups.add((FSAModel)result[2]);
+			descriptions.add(Hub.string("TD_modulesDesc")+" \""+channelName+"\"");
+			descriptions.add(Hub.string("TD_adjChannel")+" \""+channelName+"\"");
+			descriptions.add(Hub.string("TD_supDesc")+" \""+channelName+"\"");
 			warnings.addAll(channelsup.getWarnings());
 		}
 		if(sups.isEmpty())
@@ -135,19 +136,20 @@ public class ModularSupSolution implements Operation
 		}
 		Operation lm=OperationManager.instance().getOperation("localmodular");
 		Boolean isLM=(Boolean)lm.perform(sups.toArray())[0];
+		description=new String[models.size()+1];
+		System.arraycopy(descriptions.toArray(),0,description,0,descriptions.size());
 		if(isLM)
 		{
-			description[0]=Hub.string("TD_checklmPos");
+			description[description.length-1]=Hub.string("TD_checklmPos");
 		}
 		else
 		{
-			description[0]=Hub.string("TD_checklmNeg");
+			description[description.length-1]=Hub.string("TD_checklmNeg");
 		}
-		for(FSAModel m:models)
-		{
-			Hub.getWorkspace().addModel(m);
-		}
-		return new Object[]{isLM};
+		Object[] ret=new Object[models.size()+1];
+		System.arraycopy(models.toArray(),0,ret,0,models.size());
+		ret[ret.length-1]=isLM;
+		return ret;
 	}
 
 }

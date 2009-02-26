@@ -1,16 +1,5 @@
 package templates.operations;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import templates.model.TemplateComponent;
-import templates.model.TemplateModel;
-import templates.model.Validator;
-import templates.model.Validator.ValidatorResult;
-
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.model.ModelManager;
@@ -18,12 +7,19 @@ import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
 import ides.api.presentation.fsa.FSAStateLabeller;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import templates.model.TemplateModel;
+import templates.model.Validator;
+import templates.model.Validator.ValidatorResult;
+
 public class CentralizedSupSolution implements Operation
 {
 
-	private static final String[] description = {
-			Hub.string("TD_sysDesc"),Hub.string("TD_specDesc"),Hub.string("TD_supDesc")
-	};
+	private static final String[] description = { Hub.string("TD_sysDesc"),
+			Hub.string("TD_specDesc"), Hub.string("TD_supDesc") };
 
 	protected List<String> warnings = new LinkedList<String>();
 
@@ -97,11 +93,12 @@ public class CentralizedSupSolution implements Operation
 				return new Object[] {
 						ModelManager.instance().createModel(FSAModel.class),
 						ModelManager.instance().createModel(FSAModel.class),
-						ModelManager.instance().createModel(FSAModel.class)
-						};
+						ModelManager.instance().createModel(FSAModel.class) };
 			}
 		}
-		FSAModel[] models=EventSynchronizer.synchronizeAndCompose(model,model.getModules(),model.getChannels());
+		FSAModel[] models = EventSynchronizer.synchronizeAndCompose(model,
+				model.getModules(),
+				model.getChannels());
 		FSAModel moduleFSA = models[0];
 		FSAModel channelFSA = models[1];
 		FSAStateLabeller.labelCompositeStates(moduleFSA);
@@ -109,7 +106,8 @@ public class CentralizedSupSolution implements Operation
 		FSAModel supFSA = (FSAModel)OperationManager
 				.instance().getOperation("supcon").perform(new Object[] {
 						moduleFSA, channelFSA })[0];
-		EventSynchronizer.label4Humans(model,Arrays.asList(new FSAModel[]{moduleFSA,channelFSA,supFSA}));
+		EventSynchronizer.label4Humans(model, Arrays.asList(new FSAModel[] {
+				moduleFSA, channelFSA, supFSA }));
 		return new Object[] { moduleFSA, channelFSA, supFSA };
 	}
 }

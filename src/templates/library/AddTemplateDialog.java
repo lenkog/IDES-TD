@@ -1,12 +1,15 @@
 package templates.library;
 
+import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
+import ides.api.plugin.model.DESModel;
+import ides.api.utilities.EscapeDialog;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.SystemColor;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -24,7 +27,6 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
@@ -35,15 +37,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 
-import templates.diagram.Entity;
 import templates.model.TemplateComponent;
 import templates.model.TemplateModel;
-import templates.presentation.AssignFSADialog;
-import templates.presentation.TemplateEditableCanvas;
-import ides.api.core.Hub;
-import ides.api.model.fsa.FSAModel;
-import ides.api.plugin.model.DESModel;
-import ides.api.utilities.EscapeDialog;
 
 public class AddTemplateDialog extends EscapeDialog
 {
@@ -63,7 +58,7 @@ public class AddTemplateDialog extends EscapeDialog
 			}
 		});
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		 this.setMinimumSize(new Dimension(250, 350));
+		this.setMinimumSize(new Dimension(250, 350));
 
 		Box mainBox = Box.createVerticalBox();
 		mainBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -73,21 +68,24 @@ public class AddTemplateDialog extends EscapeDialog
 		tagBox.setBorder(BorderFactory.createTitledBorder(Hub
 				.string("TD_tagBoxTitle")));
 		tagField = new JTextField(5);
-		tagField.setMaximumSize(new Dimension(tagField.getMaximumSize().width,tagField.getMinimumSize().height));
+		tagField.setMaximumSize(new Dimension(
+				tagField.getMaximumSize().width,
+				tagField.getMinimumSize().height));
 		tagBox.add(tagField);
 		specBox.add(tagBox);
 		specBox.add(Box.createRigidArea(new Dimension(10, 0)));
 		Box colorBox = Box.createHorizontalBox();
 		colorBox.setBorder(BorderFactory.createTitledBorder(Hub
 				.string("TD_colorBoxTitle")));
-		colorIcon=new ColorIcon();
+		colorIcon = new ColorIcon();
 		JButton colorButton = new JButton(colorIcon);
 		colorButton.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent arg0)
 			{
-				Color newColor=JColorChooser.showDialog(me,Hub.string("TD_colorChooserTitle"),colorIcon.getColor());
-				if(newColor!=null)
+				Color newColor = JColorChooser.showDialog(me, Hub
+						.string("TD_colorChooserTitle"), colorIcon.getColor());
+				if (newColor != null)
 				{
 					colorIcon.setColor(newColor);
 				}
@@ -103,7 +101,9 @@ public class AddTemplateDialog extends EscapeDialog
 		selectModelBox.setBorder(BorderFactory.createTitledBorder(Hub
 				.string("TD_modelBoxTitle")));
 		modelsCombo = new JComboBox();
-		modelsCombo.setMaximumSize(new Dimension(modelsCombo.getMaximumSize().width,modelsCombo.getPreferredSize().height));
+		modelsCombo.setMaximumSize(new Dimension(
+				modelsCombo.getMaximumSize().width,
+				modelsCombo.getPreferredSize().height));
 		modelsCombo.setRenderer(new FSARenderer());
 		selectModelBox.add(modelsCombo);
 		mainBox.add(selectModelBox);
@@ -140,12 +140,14 @@ public class AddTemplateDialog extends EscapeDialog
 
 		getContentPane().add(mainBox);
 
-		//resize OK button
+		// resize OK button
 		pack();
-		commitButton.setPreferredSize(new Dimension(Math.max(commitButton.getWidth(),cancelButton.getWidth()),
-				Math.max(commitButton.getHeight(),cancelButton.getHeight())));
-		cancelButton.setPreferredSize(new Dimension(Math.max(commitButton.getWidth(),cancelButton.getWidth()),
-				Math.max(commitButton.getHeight(),cancelButton.getHeight())));
+		commitButton.setPreferredSize(new Dimension(Math.max(commitButton
+				.getWidth(), cancelButton.getWidth()), Math.max(commitButton
+				.getHeight(), cancelButton.getHeight())));
+		cancelButton.setPreferredSize(new Dimension(Math.max(commitButton
+				.getWidth(), cancelButton.getWidth()), Math.max(commitButton
+				.getHeight(), cancelButton.getHeight())));
 		commitButton.invalidate();
 		cancelButton.invalidate();
 	}
@@ -175,13 +177,13 @@ public class AddTemplateDialog extends EscapeDialog
 	protected static JTextField tagField;
 
 	protected static JTextArea descArea;
-	
+
 	protected static JButton commitButton;
-	
+
 	protected static TemplateLibrary library;
-	
+
 	protected static Template oldTemplate;
-	
+
 	public static void addTemplate(TemplateLibrary library)
 	{
 		Set<FSAModel> openModels = new HashSet<FSAModel>();
@@ -213,24 +215,25 @@ public class AddTemplateDialog extends EscapeDialog
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
-		addTemplate(library,sortedModels);
-	}
-	
-	public static void addTemplate(TemplateLibrary library,FSAModel model)
-	{
-		addTemplate(library,Arrays.asList(new FSAModel[]{model}));
+		addTemplate(library, sortedModels);
 	}
 
-	protected static void addTemplate(TemplateLibrary library, Collection<FSAModel> models)
+	public static void addTemplate(TemplateLibrary library, FSAModel model)
 	{
-		if(models.isEmpty())
+		addTemplate(library, Arrays.asList(new FSAModel[] { model }));
+	}
+
+	protected static void addTemplate(TemplateLibrary library,
+			Collection<FSAModel> models)
+	{
+		if (models.isEmpty())
 		{
 			Hub.displayAlert(Hub.string("TD_noModels4Template"));
 			return;
 		}
-		
+
 		instance();
-		me.library=library;
+		AddTemplateDialog.library = library;
 		commitButton.removeActionListener(commitAdd);
 		commitButton.removeActionListener(commitEdit);
 		commitButton.addActionListener(commitAdd);
@@ -241,7 +244,7 @@ public class AddTemplateDialog extends EscapeDialog
 		{
 			modelsCombo.addItem(fsa);
 		}
-		if(models.size()==1)
+		if (models.size() == 1)
 		{
 			modelsCombo.setSelectedIndex(0);
 		}
@@ -258,12 +261,13 @@ public class AddTemplateDialog extends EscapeDialog
 		me.setLocation(Hub.getCenteredLocationForDialog(me.getSize()));
 		me.setVisible(true);
 	}
-	
-	protected static void editTemplate(TemplateLibrary library, Template template)
+
+	protected static void editTemplate(TemplateLibrary library,
+			Template template)
 	{
 		instance();
-		me.library=library;
-		oldTemplate=template;
+		AddTemplateDialog.library = library;
+		oldTemplate = template;
 
 		commitButton.removeActionListener(commitAdd);
 		commitButton.removeActionListener(commitEdit);
@@ -284,16 +288,16 @@ public class AddTemplateDialog extends EscapeDialog
 	@Override
 	public void onEscapeEvent()
 	{
-		oldTemplate=null;
+		oldTemplate = null;
 		setVisible(false);
 	}
-	
+
 	protected static class ColorIcon implements Icon
 	{
-		protected static final int size=20;
-		
-		Color color=Color.WHITE;
-		
+		protected static final int size = 20;
+
+		Color color = Color.WHITE;
+
 		public int getIconHeight()
 		{
 			return size;
@@ -306,15 +310,15 @@ public class AddTemplateDialog extends EscapeDialog
 
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
-			Color old=g.getColor();
+			Color old = g.getColor();
 			g.setColor(color);
-			g.fillRect(x,y,size,size);
+			g.fillRect(x, y, size, size);
 			g.setColor(old);
 		}
-		
+
 		public void setColor(Color color)
 		{
-			this.color=color;
+			this.color = color;
 		}
 
 		public Color getColor()
@@ -322,109 +326,116 @@ public class AddTemplateDialog extends EscapeDialog
 			return color;
 		}
 	}
-	
-	private static class FSARenderer extends JLabel implements ListCellRenderer {
-	     public FSARenderer() {
-	         setOpaque(true);
-	     }
-	     public Component getListCellRendererComponent(
-	         JList list,
-	         Object value,
-	         int index,
-	         boolean isSelected,
-	         boolean cellHasFocus)
-	     {
-	    	 if(value == null)
-	    	 {
-	    		 setText("");
-	    	 }
-	    	 else if(value instanceof FSAModel)
-	    	 {
-	    		 setText(((FSAModel)value).getName());
-	    	 }
-	    	 else
-	    	 {
-	    		 setText(value.toString());
-	    	 }
-	         setBackground(isSelected ? SystemColor.textHighlight : SystemColor.text);
-	         setForeground(isSelected ? SystemColor.textHighlightText : SystemColor.textText);
-	         return this;
-	     }
-	 }
 
-	
-	
-	protected static ActionListener commitAdd=new ActionListener()
+	private static class FSARenderer extends JLabel implements ListCellRenderer
+	{
+		private static final long serialVersionUID = 4274427026504609797L;
+
+		public FSARenderer()
+		{
+			setOpaque(true);
+		}
+
+		public Component getListCellRendererComponent(JList list, Object value,
+				int index, boolean isSelected, boolean cellHasFocus)
+		{
+			if (value == null)
+			{
+				setText("");
+			}
+			else if (value instanceof FSAModel)
+			{
+				setText(((FSAModel)value).getName());
+			}
+			else
+			{
+				setText(value.toString());
+			}
+			setBackground(isSelected ? SystemColor.textHighlight
+					: SystemColor.text);
+			setForeground(isSelected ? SystemColor.textHighlightText
+					: SystemColor.textText);
+			return this;
+		}
+	}
+
+	protected static ActionListener commitAdd = new ActionListener()
 	{
 		public void actionPerformed(ActionEvent arg0)
 		{
-			if(tagField.getText().length()==0||descArea.getText().length()==0||modelsCombo.getSelectedIndex()<0)
+			if (tagField.getText().length() == 0
+					|| descArea.getText().length() == 0
+					|| modelsCombo.getSelectedIndex() < 0)
 			{
 				Hub.displayAlert(Hub.string("TD_incompleteTemplateInfo"));
 				return;
 			}
-			if(library.getTemplate(tagField.getText())!=null)
+			if (library.getTemplate(tagField.getText()) != null)
 			{
 				Hub.displayAlert(Hub.string("TD_duplicateTag"));
 				return;
 			}
-			TemplateDescriptor td=new TemplateDescriptor();
-			td.tag=tagField.getText();
-			td.color=colorIcon.getColor();
-			td.description=descArea.getText();
+			TemplateDescriptor td = new TemplateDescriptor();
+			td.tag = tagField.getText();
+			td.color = colorIcon.getColor();
+			td.description = descArea.getText();
 			try
 			{
-				library.addTemplate(td,((FSAModel)modelsCombo.getSelectedItem()).clone());
+				library.addTemplate(td, ((FSAModel)modelsCombo
+						.getSelectedItem()).clone());
 			}
-			catch(IOException e)
+			catch (IOException e)
 			{
-				Hub.displayAlert(Hub.string("TD_errorCreatingTemplate")+" ["+
-						e.getMessage()+"]");
+				Hub.displayAlert(Hub.string("TD_errorCreatingTemplate") + " ["
+						+ e.getMessage() + "]");
 				return;
 			}
 			me.onEscapeEvent();
 		}
 	};
-	
-	protected static ActionListener commitEdit=new ActionListener()
+
+	protected static ActionListener commitEdit = new ActionListener()
 	{
 		public void actionPerformed(ActionEvent arg0)
 		{
-			if(tagField.getText().length()==0||descArea.getText().length()==0)
+			if (tagField.getText().length() == 0
+					|| descArea.getText().length() == 0)
 			{
 				Hub.displayAlert(Hub.string("TD_incompleteTemplateInfo"));
 				return;
 			}
-			TemplateDescriptor td=new TemplateDescriptor();
-			td.tag=tagField.getText();
-			td.color=colorIcon.getColor();
-			td.description=descArea.getText();
+			TemplateDescriptor td = new TemplateDescriptor();
+			td.tag = tagField.getText();
+			td.color = colorIcon.getColor();
+			td.description = descArea.getText();
 			try
 			{
 				library.removeTemplate(oldTemplate.getName());
-			}catch(IOException e)
+			}
+			catch (IOException e)
 			{
-				Hub.displayAlert(Hub.string("TD_errorEditingTemplate")+" ["+
-						e.getMessage()+"]");
+				Hub.displayAlert(Hub.string("TD_errorEditingTemplate") + " ["
+						+ e.getMessage() + "]");
 				return;
 			}
 			try
 			{
-				library.addTemplate(td,oldTemplate.getModel());
+				library.addTemplate(td, oldTemplate.getModel());
 			}
-			catch(IOException e)
+			catch (IOException e)
 			{
-				Hub.displayAlert(Hub.string("TD_errorEditingTemplate")+" ["+
-						e.getMessage()+"]");
+				Hub.displayAlert(Hub.string("TD_errorEditingTemplate") + " ["
+						+ e.getMessage() + "]");
 				try
 				{
-					td.tag=oldTemplate.getName();
-					td.color=oldTemplate.getIcon().getColor();
-					td.description=oldTemplate.getDescription();
-					library.addTemplate(td,oldTemplate.getModel());
+					td.tag = oldTemplate.getName();
+					td.color = oldTemplate.getIcon().getColor();
+					td.description = oldTemplate.getDescription();
+					library.addTemplate(td, oldTemplate.getModel());
 				}
-				catch(IOException ex){
-					//there's nothing more to try
+				catch (IOException ex)
+				{
+					// there's nothing more to try
 				}
 				return;
 			}

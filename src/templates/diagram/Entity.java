@@ -9,18 +9,17 @@ import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
 import java.util.Vector;
 
-import javax.swing.Icon;
-
 import templates.model.TemplateComponent;
 import templates.utils.EntityIcon;
 
 public class Entity extends DiagramElement
 {
 	/**
-	 * Denotes if the FSA model for an entity has been modified after being assigned to the entity.
+	 * Denotes if the FSA model for an entity has been modified after being
+	 * assigned to the entity.
 	 */
-	public static final String FLAG_MARK="templates.diagram.Entity.flag";
-	
+	public static final String FLAG_MARK = "templates.diagram.Entity.flag";
+
 	protected class LabelBox extends Rectangle
 	{
 		private static final long serialVersionUID = -3359948297694123889L;
@@ -59,10 +58,11 @@ public class Entity extends DiagramElement
 			}
 		}
 	}
-	
+
 	protected static final int LABEL_SPACING = 5;
 
-	private static final int PORT_RADIUS = 5;
+	public static final int PORT_RADIUS = 5;
+
 	private static final int HALO_RADIUS = 8;
 
 	public final static int ON_NADA = 0;
@@ -72,8 +72,8 @@ public class Entity extends DiagramElement
 	public final static int ON_LABEL = 2;
 
 	public final static int ON_PORT = 4;
-	
-	public final static int ON_SUP=8;
+
+	public final static int ON_SUP = 8;
 
 	protected TemplateComponent component;
 
@@ -81,15 +81,18 @@ public class Entity extends DiagramElement
 
 	private Rectangle bounds;
 
-	private EntityIcon icon=new SimpleIcon();
+	private EntityIcon icon = new SimpleIcon();
 
 	private LabelBox labelBox;
 
 	private Ellipse2D[] ports = new Ellipse2D[4];
-	
+
 	private Ellipse2D supHalo;
-	private static final String HALO_LABEL="S";
+
+	private static final String HALO_LABEL = "S";
+
 	private int haloDX;
+
 	private int haloDY;
 
 	public Entity(TemplateComponent component) throws MissingLayoutException
@@ -118,9 +121,14 @@ public class Entity extends DiagramElement
 				layout.location.x - icon.getIconWidth() / 2,
 				layout.location.y - icon.getIconHeight() / 2,
 				icon.getIconWidth(),
-				icon.getIconHeight()).union(labelBox).union(ports[0]
-				.getBounds()).union(ports[1].getBounds()).union(ports[2]
-				.getBounds()).union(component.getType()==TemplateComponent.TYPE_CHANNEL?ports[3].getBounds().union(supHalo.getBounds()):ports[3].getBounds());
+				icon.getIconHeight())
+				.union(labelBox)
+				.union(ports[0].getBounds())
+				.union(ports[1].getBounds())
+				.union(ports[2].getBounds())
+				.union(component.getType() == TemplateComponent.TYPE_CHANNEL ? ports[3]
+						.getBounds().union(supHalo.getBounds())
+						: ports[3].getBounds());
 	}
 
 	public TemplateComponent getComponent()
@@ -171,10 +179,12 @@ public class Entity extends DiagramElement
 		drawCore(g2d);
 		if (highlight)
 		{
-			if(component.getType()==TemplateComponent.TYPE_CHANNEL)
+			if (component.getType() == TemplateComponent.TYPE_CHANNEL)
 			{
 				g2d.draw(supHalo);
-				g2d.drawString(HALO_LABEL,(int)supHalo.getCenterX()+haloDX,(int)supHalo.getCenterY()+haloDY);
+				g2d.drawString(HALO_LABEL,
+						(int)supHalo.getCenterX() + haloDX,
+						(int)supHalo.getCenterY() + haloDY);
 			}
 			g2d.setStroke(MARKER_STROKE);
 			g2d.drawRect(labelBox.x - 1,
@@ -211,7 +221,8 @@ public class Entity extends DiagramElement
 		icon.paintIcon(null,
 				g2d,
 				layout.location.x - icon.getIconWidth() / 2,
-				layout.location.y - icon.getIconHeight() / 2,g2d.getColor());
+				layout.location.y - icon.getIconHeight() / 2,
+				g2d.getColor());
 		labelBox.draw(g2d);
 	}
 
@@ -235,9 +246,11 @@ public class Entity extends DiagramElement
 
 	public void update()
 	{
-		icon=new SimpleIcon(layout.tag,layout.color,DiagramElement.getGlobalFontRenderer());
+		icon = new SimpleIcon(layout.tag, layout.color, DiagramElement
+				.getGlobalFontRenderer());
 		icon.setIsModule(component.getType() != TemplateComponent.TYPE_CHANNEL);
-		icon.setFlagged(component.hasModel()&&component.getModel().hasAnnotation(FLAG_MARK));
+		icon.setFlagged(component.hasModel()
+				&& component.getModel().hasAnnotation(FLAG_MARK));
 		int maxWidth = 3 * icon.getIconWidth();
 		String[] words = layout.label.split(" ");
 		Vector<String> lines = new Vector<String>();
@@ -305,12 +318,16 @@ public class Entity extends DiagramElement
 				(int)labelBox.getMaxY() + 1,
 				2 * PORT_RADIUS,
 				2 * PORT_RADIUS);
-		if(component.getType()==TemplateComponent.TYPE_CHANNEL)
+		if (component.getType() == TemplateComponent.TYPE_CHANNEL)
 		{
-		supHalo=new Ellipse2D.Float(layout.location.x+icon.getIconWidth()/4,layout.location.y-icon.getIconHeight()/4-2*HALO_RADIUS,
-				2*HALO_RADIUS,2*HALO_RADIUS);
-		haloDX=-getGlobalFontMetrics().stringWidth(HALO_LABEL)/2+1;
-		haloDY=getGlobalFontMetrics().getAscent()/2;
+			supHalo = new Ellipse2D.Float(
+					layout.location.x + icon.getIconWidth() / 4,
+					layout.location.y - icon.getIconHeight() / 4 - 2
+							* HALO_RADIUS,
+					2 * HALO_RADIUS,
+					2 * HALO_RADIUS);
+			haloDX = -getGlobalFontMetrics().stringWidth(HALO_LABEL) / 2 + 1;
+			haloDY = getGlobalFontMetrics().getAscent() / 2;
 		}
 		computeBounds();
 	}
@@ -333,7 +350,8 @@ public class Entity extends DiagramElement
 						&& p.x <= layout.location.x + icon.getIconWidth() / 2
 						&& p.y >= layout.location.y - icon.getIconHeight() / 2 && p.y <= layout.location.y
 						+ icon.getIconHeight() / 2)
-				||(component.getType()==TemplateComponent.TYPE_CHANNEL&&supHalo.contains(p));
+				|| (component.getType() == TemplateComponent.TYPE_CHANNEL && supHalo
+						.contains(p));
 	}
 
 	public boolean intersects(Rectangle r)
@@ -348,7 +366,8 @@ public class Entity extends DiagramElement
 						layout.location.y - icon.getIconHeight() / 2,
 						icon.getIconWidth(),
 						icon.getIconHeight()).intersects(r)
-		||(component.getType()==TemplateComponent.TYPE_CHANNEL&&supHalo.intersects(r));
+				|| (component.getType() == TemplateComponent.TYPE_CHANNEL && supHalo
+						.intersects(r));
 	}
 
 	public int whereisPoint(Point p)
@@ -362,7 +381,8 @@ public class Entity extends DiagramElement
 		{
 			return ON_PORT;
 		}
-		if(component.getType()==TemplateComponent.TYPE_CHANNEL&&supHalo.contains(p))
+		if (component.getType() == TemplateComponent.TYPE_CHANNEL
+				&& supHalo.contains(p))
 		{
 			return ON_SUP;
 		}
@@ -409,11 +429,11 @@ public class Entity extends DiagramElement
 	{
 		return icon;
 	}
-	
+
 	public void setIcon(EntityIcon icon)
 	{
-		layout.color=icon.getColor();
-		layout.tag=icon.getTag();
+		layout.color = icon.getColor();
+		layout.tag = icon.getTag();
 		update();
 	}
 }

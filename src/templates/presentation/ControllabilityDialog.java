@@ -2,17 +2,12 @@ package templates.presentation;
 
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAEvent;
-import ides.api.model.fsa.FSAMessage;
 import ides.api.model.fsa.FSAModel;
 import ides.api.utilities.EscapeDialog;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -34,14 +29,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
-import templates.diagram.Connector;
-import templates.diagram.DiagramElement;
 import templates.diagram.Entity;
 import templates.diagram.actions.DiagramUndoableEdits;
 
@@ -122,12 +112,15 @@ public class ControllabilityDialog extends EscapeDialog
 		{
 			public void mouseClicked(MouseEvent arg0)
 			{
-				int idx=eventList.locationToIndex(arg0.getPoint());
-				if(idx>=0&&eventList.getCellBounds(idx,idx).contains(arg0.getPoint())&&
-						eventList.getModel().getElementAt(idx) instanceof JCheckBox)
+				int idx = eventList.locationToIndex(arg0.getPoint());
+				if (idx >= 0
+						&& eventList.getCellBounds(idx, idx).contains(arg0
+								.getPoint())
+						&& eventList.getModel().getElementAt(idx) instanceof JCheckBox)
 				{
-					((JCheckBox)eventList.getModel().getElementAt(idx)).setSelected(!
-							((JCheckBox)eventList.getModel().getElementAt(idx)).isSelected());
+					((JCheckBox)eventList.getModel().getElementAt(idx))
+							.setSelected(!((JCheckBox)eventList
+									.getModel().getElementAt(idx)).isSelected());
 				}
 				eventList.repaint();
 			}
@@ -135,25 +128,25 @@ public class ControllabilityDialog extends EscapeDialog
 			public void mouseEntered(MouseEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			public void mouseExited(MouseEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			public void mousePressed(MouseEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			public void mouseReleased(MouseEvent arg0)
 			{
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
 
@@ -162,37 +155,40 @@ public class ControllabilityDialog extends EscapeDialog
 	}
 
 	protected static JList eventList;
+
 	protected static CompoundEdit edits;
 
 	public static void showAndModify(TemplateEditableCanvas canvas,
 			Entity channel)
 	{
-//		canvas.setUIInteraction(true);
-		ControllabilityDialog.canvas=canvas;
+		// canvas.setUIInteraction(true);
+		ControllabilityDialog.canvas = canvas;
 		instance();
-		edits=new CompoundEdit();
-		
-		List<FSAEvent> events=new LinkedList<FSAEvent>();
-		for(Iterator<FSAEvent> i=channel.getComponent().getModel().getEventIterator();i.hasNext();)
+		edits = new CompoundEdit();
+
+		List<FSAEvent> events = new LinkedList<FSAEvent>();
+		for (Iterator<FSAEvent> i = channel
+				.getComponent().getModel().getEventIterator(); i.hasNext();)
 		{
 			events.add(i.next());
 		}
 		Collections.sort(events);
 		DefaultListModel listModel = new DefaultListModel();
-		for(FSAEvent event:events)
+		for (FSAEvent event : events)
 		{
-			JCheckBox box=new JCheckBox();
+			JCheckBox box = new JCheckBox();
 			box.setText(event.getSymbol());
 			box.setSelected(event.isControllable());
-			box.addItemListener(new ControllabilitySetter(channel.getComponent().getModel(),event.getId(),edits));
+			box.addItemListener(new ControllabilitySetter(channel
+					.getComponent().getModel(), event.getId(), edits));
 			listModel.addElement(box);
 		}
-		if(events.isEmpty())
+		if (events.isEmpty())
 		{
 			listModel.addElement(Hub.string("TD_noEventsInModel"));
 		}
 		eventList.setModel(listModel);
-		
+
 		instance().pack();
 		Point p = canvas.localToScreen(channel.getLocation());
 		if (p.x + me.getWidth() > Toolkit
@@ -221,18 +217,19 @@ public class ControllabilityDialog extends EscapeDialog
 		eventList.setListData(new Object[0]);
 	}
 
-	protected class JCheckBoxListRenderer extends Box implements ListCellRenderer
+	protected class JCheckBoxListRenderer extends Box implements
+			ListCellRenderer
 	{
 
 		private static final long serialVersionUID = -8828783426676456157L;
 
 		protected JLabel label;
-		
+
 		public JCheckBoxListRenderer()
 		{
 			super(BoxLayout.X_AXIS);
-			label=new JLabel();
-			label.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+			label = new JLabel();
+			label.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 		}
 
 		public Component getListCellRendererComponent(JList list, Object value,
@@ -270,20 +267,26 @@ public class ControllabilityDialog extends EscapeDialog
 	private static class ControllabilitySetter implements ItemListener
 	{
 		protected FSAModel model;
+
 		protected long eventID;
+
 		protected CompoundEdit allEdits;
-		
-		public ControllabilitySetter(FSAModel model, long eventID, CompoundEdit edit)
+
+		public ControllabilitySetter(FSAModel model, long eventID,
+				CompoundEdit edit)
 		{
-			this.model=model;
-			this.eventID=eventID;
-			this.allEdits=edit;
+			this.model = model;
+			this.eventID = eventID;
+			this.allEdits = edit;
 		}
 
 		public void itemStateChanged(ItemEvent e)
 		{
-			JCheckBox box=(JCheckBox)e.getSource();
-			UndoableEdit edit=new DiagramUndoableEdits.SetControllabilityEdit(model,eventID,box.isSelected());
+			JCheckBox box = (JCheckBox)e.getSource();
+			UndoableEdit edit = new DiagramUndoableEdits.SetControllabilityEdit(
+					model,
+					eventID,
+					box.isSelected());
 			edit.redo();
 			allEdits.addEdit(edit);
 		}

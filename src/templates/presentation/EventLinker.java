@@ -467,7 +467,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				link.paint(g2d);
 			}
 		}
-		if (selectedLink != null)
+		if (selectedLink != null && links.contains(selectedLink))
 		{
 			Color temp = g2d.getColor();
 			g2d.setColor(SELECTED_COLOR);
@@ -536,6 +536,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 	public void unlinkAll()
 	{
 		links.clear();
+		selectedLink = null;
 		repaint();
 	}
 
@@ -630,39 +631,6 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 
 	public void mouseClicked(MouseEvent arg0)
 	{
-		for (LabelLink link : links)
-		{
-			if (link.contains(arg0.getPoint()))
-			{
-				selectedLink = link;
-				repaint();
-				break;
-			}
-		}
-		if (arg0.getButton() == MouseEvent.BUTTON3)
-		{
-			if (selectedLink != null)
-			{
-				JPopupMenu popup = new JPopupMenu();
-				popup.add(deleteSelectedLink);
-				popup.show(arg0.getComponent(), arg0.getPoint().x, arg0
-						.getPoint().y);
-			}
-			else
-			{
-				EventLabel label = getLabelAt(arg0.getPoint());
-				if (label != null && !label.isInModel)
-				{
-					JPopupMenu popup = new JPopupMenu();
-					AbstractAction action = new AddEventToModel(getLabelAt(arg0
-							.getPoint()));
-					action.setEnabled(label.mom.getComponent().hasModel());
-					popup.add(action);
-					popup.show(arg0.getComponent(), arg0.getPoint().x, arg0
-							.getPoint().y);
-				}
-			}
-		}
 	}
 
 	public void mouseEntered(MouseEvent arg0)
@@ -676,7 +644,14 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 	public void mousePressed(MouseEvent arg0)
 	{
 		requestFocus();
-		selectedLink = null;
+		if (selectedLink != null && !selectedLink.contains(arg0.getPoint()))
+		{
+			selectedLink = null;
+		}
+		if (arg0.isPopupTrigger())
+		{
+			mousePopupTrigger(arg0);
+		}
 		if (arg0.getButton() != MouseEvent.BUTTON1)
 		{
 			mouseDownOn = null;
@@ -701,6 +676,22 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 
 	public void mouseReleased(MouseEvent arg0)
 	{
+		if (selectedLink != null && !selectedLink.contains(arg0.getPoint()))
+		{
+			selectedLink = null;
+		}
+		if (!wasDragging && selectedLink == null)
+		{
+			for (LabelLink link : links)
+			{
+				if (link.contains(arg0.getPoint()))
+				{
+					selectedLink = link;
+					repaint();
+					break;
+				}
+			}
+		}
 		if (wasDragging && mouseDownOn != null)
 		{
 			EventLabel choice = getLabelAt(arg0.getPoint());
@@ -712,6 +703,36 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 		wasDragging = false;
 		repaint();
+		if (arg0.isPopupTrigger())
+		{
+			mousePopupTrigger(arg0);
+		}
+	}
+
+	public void mousePopupTrigger(MouseEvent arg0)
+	{
+		if (selectedLink != null)
+		{
+			JPopupMenu popup = new JPopupMenu();
+			popup.add(deleteSelectedLink);
+			popup.show(arg0.getComponent(),
+					arg0.getPoint().x,
+					arg0.getPoint().y);
+		}
+		else
+		{
+			EventLabel label = getLabelAt(arg0.getPoint());
+			if (label != null && !label.isInModel)
+			{
+				JPopupMenu popup = new JPopupMenu();
+				AbstractAction action = new AddEventToModel(getLabelAt(arg0
+						.getPoint()));
+				action.setEnabled(label.mom.getComponent().hasModel());
+				popup.add(action);
+				popup.show(arg0.getComponent(), arg0.getPoint().x, arg0
+						.getPoint().y);
+			}
+		}
 	}
 
 	public void commitChanges()

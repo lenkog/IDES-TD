@@ -1,6 +1,5 @@
 package templates.model;
 
-import ides.api.model.fsa.FSAEvent;
 import ides.api.plugin.model.DESElement;
 import ides.api.plugin.model.DESEvent;
 

@@ -1,7 +1,6 @@
 package templates.model.v3;
 
 import ides.api.core.Hub;
-import ides.api.model.fsa.FSAEvent;
 import ides.api.plugin.model.DESEvent;
 
 import java.util.Hashtable;

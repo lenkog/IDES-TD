@@ -5,11 +5,8 @@ import ides.api.model.fsa.FSAEvent;
 import ides.api.model.fsa.FSAMessage;
 import ides.api.model.fsa.FSAModel;
 
-import java.awt.Color;
 import java.awt.Point;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -647,9 +644,9 @@ public class DiagramUndoableEdits
 		protected Entity entity = null;
 
 		protected FSAModel oldModel = null;
-		
+
 		protected FSAModel newModel = null;
-		
+
 		public AssignFSAEdit(TemplateDiagram diagram, Entity entity,
 				FSAModel newModel)
 		{
@@ -668,7 +665,8 @@ public class DiagramUndoableEdits
 			}
 			if (entity.getComponent().hasModel()
 					&& Hub.getWorkspace().getModel(entity
-							.getComponent().getModel().getName())==entity.getComponent().getModel())
+							.getComponent().getModel().getName()) == entity
+							.getComponent().getModel())
 			{
 				Hub.getWorkspace().removeModel(entity
 						.getComponent().getModel().getName());
@@ -691,7 +689,8 @@ public class DiagramUndoableEdits
 			}
 			if (entity.getComponent().hasModel()
 					&& Hub.getWorkspace().getModel(entity
-							.getComponent().getModel().getName())==entity.getComponent().getModel())
+							.getComponent().getModel().getName()) == entity
+							.getComponent().getModel())
 			{
 				Hub.getWorkspace().removeModel(entity
 						.getComponent().getModel().getName());
@@ -792,7 +791,7 @@ public class DiagramUndoableEdits
 			return Hub.string("TD_undoSetType");
 		}
 	}
-	
+
 	public static class SetIconEdit extends AbstractDiagramUndoableEdit
 	{
 		private static final long serialVersionUID = 2630730309577424765L;
@@ -805,7 +804,8 @@ public class DiagramUndoableEdits
 
 		protected EntityIcon newIcon;
 
-		public SetIconEdit(TemplateDiagram diagram, Entity entity, EntityIcon newIcon)
+		public SetIconEdit(TemplateDiagram diagram, Entity entity,
+				EntityIcon newIcon)
 		{
 			this.diagram = diagram;
 			this.entity = entity;
@@ -820,7 +820,7 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotRedoException();
 			}
-			diagram.setEntityIcon(entity,newIcon);
+			diagram.setEntityIcon(entity, newIcon);
 		}
 
 		@Override
@@ -830,7 +830,7 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotUndoException();
 			}
-			diagram.setEntityIcon(entity,oldIcon);
+			diagram.setEntityIcon(entity, oldIcon);
 		}
 
 		@Override
@@ -862,27 +862,31 @@ public class DiagramUndoableEdits
 			}
 		}
 	}
-	
-	public static class SetControllabilityEdit extends AbstractDiagramUndoableEdit
+
+	public static class SetControllabilityEdit extends
+			AbstractDiagramUndoableEdit
 	{
 		private static final long serialVersionUID = 519962377917961801L;
 
 		protected FSAModel model = null;
-		
+
 		protected long eventID;
+
 		protected boolean newControllable;
+
 		protected boolean oldControllable;
-		
-		public SetControllabilityEdit(FSAModel model, long eventID, boolean isControllable)
+
+		public SetControllabilityEdit(FSAModel model, long eventID,
+				boolean isControllable)
 		{
 			this.model = model;
-			this.eventID=eventID;
-			FSAEvent event=model.getEvent(eventID);
-			if(event!=null)
+			this.eventID = eventID;
+			FSAEvent event = model.getEvent(eventID);
+			if (event != null)
 			{
-				oldControllable=event.isControllable();
+				oldControllable = event.isControllable();
 			}
-			newControllable=isControllable;
+			newControllable = isControllable;
 		}
 
 		@Override
@@ -892,7 +896,7 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotRedoException();
 			}
-			FSAEvent event=model.getEvent(eventID);
+			FSAEvent event = model.getEvent(eventID);
 			if (event == null)
 			{
 				throw new CannotRedoException();
@@ -912,7 +916,7 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotUndoException();
 			}
-			FSAEvent event=model.getEvent(eventID);
+			FSAEvent event = model.getEvent(eventID);
 			if (event == null)
 			{
 				throw new CannotUndoException();
@@ -928,13 +932,13 @@ public class DiagramUndoableEdits
 		@Override
 		public boolean canUndo()
 		{
-			return (model != null && model.getEvent(eventID)!=null);
+			return (model != null && model.getEvent(eventID) != null);
 		}
 
 		@Override
 		public boolean canRedo()
 		{
-			return (model != null && model.getEvent(eventID)!=null);
+			return (model != null && model.getEvent(eventID) != null);
 		}
 
 		/**

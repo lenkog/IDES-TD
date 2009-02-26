@@ -7,6 +7,8 @@ import ides.api.plugin.operation.OperationManager;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 
 import javax.swing.AbstractAction;
@@ -341,14 +343,14 @@ public class UIActions
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			Color color=JColorChooser.showDialog(Hub.getMainWindow(),
-					Hub.string("TD_colorBoxTitle"),entity.getIcon().getColor());
-			if(color!=null)
+			Color color = JColorChooser.showDialog(Hub.getMainWindow(), Hub
+					.string("TD_colorBoxTitle"), entity.getIcon().getColor());
+			if (color != null)
 			{
 				new DiagramActions.SetIconColorAction(
-					canvas.getDiagram(),
-					Arrays.asList(new Entity[]{entity}),
-					color).execute();
+						canvas.getDiagram(),
+						Arrays.asList(new Entity[] { entity }),
+						color).execute();
 			}
 		}
 	}
@@ -375,10 +377,8 @@ public class UIActions
 
 		public void actionPerformed(ActionEvent evt)
 		{
-				new DiagramActions.DefaultIconAction(
-					canvas.getDiagram(),
-					Arrays.asList(new Entity[]{entity})
-					).execute();
+			new DiagramActions.DefaultIconAction(canvas.getDiagram(), Arrays
+					.asList(new Entity[] { entity })).execute();
 		}
 	}
 
@@ -401,9 +401,11 @@ public class UIActions
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			if(entity.getComponent().hasModel())
+			if (entity.getComponent().hasModel())
 			{
-				AddTemplateDialog.addTemplate(TemplateManager.instance().getMainLibrary(),entity.getComponent().getModel());
+				AddTemplateDialog.addTemplate(TemplateManager
+						.instance().getMainLibrary(), entity
+						.getComponent().getModel());
 			}
 		}
 	}
@@ -452,7 +454,60 @@ public class UIActions
 			Hub.getWorkspace().setActiveModel(sup.getName());
 		}
 	}
-	
+
+	public static class ConnectAction extends AbstractAction
+	{
+		private static final long serialVersionUID = -5487737966864595772L;
+
+		// private static ImageIcon icon = new ImageIcon();
+
+		protected TemplateEditableCanvas canvas;
+
+		private Entity entity;
+
+		public ConnectAction(TemplateEditableCanvas canvas, Entity entity)
+		{
+			super(Hub.string("TD_comConnect"));
+			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
+			// .getResource("images/icons/edit_delete.gif")));
+			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintConnect"));
+			this.canvas = canvas;
+			this.entity = entity;
+		}
+
+		public void actionPerformed(ActionEvent evt)
+		{
+			if (canvas.isDrawingConnector())
+			{
+				canvas.finishConnector();
+				canvas.repaint();
+			}
+			Point p = canvas.localToComponent(entity.getPorts()[3]);
+			MouseEvent me = new MouseEvent(
+					canvas,
+					p.hashCode(),
+					System.currentTimeMillis(),
+					InputEvent.BUTTON1_DOWN_MASK,
+					(int)p.x,
+					(int)p.y,
+					0,
+					false,
+					MouseEvent.BUTTON1);
+			canvas.mousePressed(me);
+			me = new MouseEvent(
+					canvas,
+					me.hashCode(),
+					System.currentTimeMillis(),
+					InputEvent.BUTTON1_MASK,
+					(int)p.x,
+					(int)p.y,
+					1,
+					false,
+					MouseEvent.BUTTON1);
+			canvas.mouseReleased(me);
+		}
+	}
+
 	public static class SetControllabilityAction extends AbstractAction
 	{
 
@@ -464,25 +519,27 @@ public class UIActions
 
 		private Entity channel;
 
-		public SetControllabilityAction(TemplateEditableCanvas canvas, Entity channel)
+		public SetControllabilityAction(TemplateEditableCanvas canvas,
+				Entity channel)
 		{
 			super(Hub.string("TD_comSetControllability"));
 			// icon.setImage(Toolkit.getDefaultToolkit().createImage(Hub
 			// .getResource("images/icons/edit_delete.gif")));
-			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintSetControllability"));
+			putValue(SHORT_DESCRIPTION, Hub
+					.string("TD_comHintSetControllability"));
 			this.canvas = canvas;
 			this.channel = channel;
 		}
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			if(!channel.getComponent().hasModel())
+			if (!channel.getComponent().hasModel())
 			{
 				Hub.displayAlert(Hub.string("TD_noModelNoEvents"));
 			}
 			else
 			{
-				ControllabilityDialog.showAndModify(canvas,channel);
+				ControllabilityDialog.showAndModify(canvas, channel);
 			}
 		}
 	}

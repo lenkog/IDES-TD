@@ -5,6 +5,7 @@ import ides.api.utilities.EscapeDialog;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -46,7 +47,7 @@ public class AssignEventsDialog extends EscapeDialog
 	{
 		public void windowActivated(WindowEvent arg0)
 		{
-			me.onEscapeEvent();
+			me.commitAndClose();
 		}
 
 		public void windowClosed(WindowEvent arg0)
@@ -107,7 +108,7 @@ public class AssignEventsDialog extends EscapeDialog
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
-				onEscapeEvent();
+				commitAndClose();
 			}
 		});
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -267,8 +268,39 @@ public class AssignEventsDialog extends EscapeDialog
 
 		mainBox.add(infoBox);
 
+		JButton OKButton = new JButton(Hub.string("OK"));
+		OKButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				commitAndClose();
+			}
+		});
+		JButton cancelButton = new JButton(Hub.string("cancel"));
+		cancelButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				onEscapeEvent();
+			}
+		});
+		JPanel p = new JPanel(new FlowLayout());
+		p.add(OKButton);
+		p.add(cancelButton);
+
+		mainBox.add(Box.createRigidArea(new Dimension(0, 5)));
+		mainBox.add(p);
+
 		getContentPane().add(mainBox);
 
+		pack();
+		OKButton.setPreferredSize(new Dimension(Math.max(OKButton.getWidth(),
+				cancelButton.getWidth()), OKButton.getHeight()));
+		OKButton.invalidate();
+		cancelButton
+				.setPreferredSize(new Dimension(Math.max(OKButton.getWidth(),
+						cancelButton.getWidth()), cancelButton.getHeight()));
+		cancelButton.invalidate();
 	}
 
 	protected static AssignEventsDialog instance()
@@ -292,12 +324,18 @@ public class AssignEventsDialog extends EscapeDialog
 	{
 		Hub.getMainWindow().removeWindowListener(onFocusLost);
 		setVisible(false);
-		linker.commitChanges();
+		// linker.commitChanges();
 		canvas.setUIInteraction(false);
 		linkerPanel.removeAll();
 		linker = null;
 		leftIcon.removeAll();
 		rightIcon.removeAll();
+	}
+
+	public void commitAndClose()
+	{
+		linker.commitChanges();
+		onEscapeEvent();
 	}
 
 	protected static JPanel leftIcon = new JPanel();
