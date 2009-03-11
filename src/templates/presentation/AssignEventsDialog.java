@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import templates.diagram.Connector;
 import templates.diagram.Entity;
@@ -43,11 +44,27 @@ public class AssignEventsDialog extends EscapeDialog
 
 	protected static TemplateEditableCanvas canvas = null;
 
-	protected static WindowListener onFocusLost = new WindowListener()
+	protected static WindowListener commitOnFocusLost = new WindowListener()
 	{
 		public void windowActivated(WindowEvent arg0)
 		{
-			me.commitAndClose();
+			if (arg0.getOppositeWindow() != null
+					&& !Hub
+							.getUserInterface()
+							.isWindowActivationAfterNoticePopup(arg0))
+			{
+				instance().commitAndClose();
+			}
+			else
+			{
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						instance().requestFocus();
+					}
+				});
+			}
 		}
 
 		public void windowClosed(WindowEvent arg0)
@@ -322,7 +339,7 @@ public class AssignEventsDialog extends EscapeDialog
 	@Override
 	public void onEscapeEvent()
 	{
-		Hub.getMainWindow().removeWindowListener(onFocusLost);
+		Hub.getMainWindow().removeWindowListener(commitOnFocusLost);
 		setVisible(false);
 		// linker.commitChanges();
 		canvas.setUIInteraction(false);
@@ -391,7 +408,18 @@ public class AssignEventsDialog extends EscapeDialog
 		instance().setLocation(Hub.getCenteredLocationForDialog(new Dimension(
 				instance().getWidth(),
 				instance().getHeight())));
-		Hub.getMainWindow().addWindowListener(onFocusLost);
+		boolean hasOurListener = false;
+		for (int i = 0; i < Hub.getMainWindow().getWindowListeners().length; ++i)
+		{
+			if (Hub.getMainWindow().getWindowListeners()[i] == commitOnFocusLost)
+			{
+				hasOurListener = true;
+			}
+		}
+		if (!hasOurListener)
+		{
+			Hub.getMainWindow().addWindowListener(commitOnFocusLost);
+		}
 		instance().setVisible(true);
 	}
 

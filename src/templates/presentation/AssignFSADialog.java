@@ -32,6 +32,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 
 import templates.diagram.Entity;
 import templates.diagram.actions.DiagramActions;
@@ -63,10 +64,27 @@ public class AssignFSADialog extends EscapeDialog
 		}
 	};
 
-	protected static WindowListener onFocusLost = new WindowListener()
+	protected static WindowListener commitOnFocusLost = new WindowListener()
 	{
 		public void windowActivated(WindowEvent arg0)
 		{
+			if (arg0.getOppositeWindow() != null
+					&& !Hub
+							.getUserInterface()
+							.isWindowActivationAfterNoticePopup(arg0))
+			{
+				instance().onEscapeEvent();
+			}
+			else
+			{
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						instance().requestFocus();
+					}
+				});
+			}
 		}
 
 		public void windowClosed(WindowEvent arg0)
@@ -79,7 +97,6 @@ public class AssignFSADialog extends EscapeDialog
 
 		public void windowDeactivated(WindowEvent arg0)
 		{
-			me.onEscapeEvent();
 		}
 
 		public void windowDeiconified(WindowEvent arg0)
@@ -391,16 +408,16 @@ public class AssignFSADialog extends EscapeDialog
 
 		me.pack();
 		boolean hasOurListener = false;
-		for (int i = 0; i < me.getWindowListeners().length; ++i)
+		for (int i = 0; i < Hub.getMainWindow().getWindowListeners().length; ++i)
 		{
-			if (me.getWindowListeners()[i] == onFocusLost)
+			if (Hub.getMainWindow().getWindowListeners()[i] == commitOnFocusLost)
 			{
 				hasOurListener = true;
 			}
 		}
 		if (!hasOurListener)
 		{
-			me.addWindowListener(onFocusLost);
+			Hub.getMainWindow().addWindowListener(commitOnFocusLost);
 		}
 		Point p = new Point(entity.getLocation().x, entity.getLocation().y);
 		p = canvas.localToScreen(p);
@@ -421,7 +438,7 @@ public class AssignFSADialog extends EscapeDialog
 	@Override
 	public void onEscapeEvent()
 	{
-		me.removeWindowListener(onFocusLost);
+		Hub.getMainWindow().removeWindowListener(commitOnFocusLost);
 		openModelsCombo.removeActionListener(onSelectModel);
 		openModelsCombo.removeAllItems();
 		templatesCombo.removeActionListener(onSelectTemplate);

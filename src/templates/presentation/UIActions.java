@@ -1,7 +1,9 @@
 package templates.presentation;
 
+import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
+import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
 
 import java.awt.Color;
@@ -438,16 +440,25 @@ public class UIActions
 				Hub.displayAlert(Hub.string("TD_cantComputeSup"));
 				return;
 			}
-			Object[] result = OperationManager
-					.instance().getOperation("tdchannelsup")
-					.perform(new Object[] { canvas.getModel(),
-							channel.getComponent().getId() });
+			Operation channelsup = OperationManager
+					.instance().getOperation("tdchannelsup");
+			Object[] result = channelsup.perform(new Object[] {
+					canvas.getModel(), channel.getComponent().getId() });
 			FSAModel sys = (FSAModel)result[0];
 			FSAModel spec = (FSAModel)result[1];
 			FSAModel sup = (FSAModel)result[2];
 			sys.setName("M_" + channel.getLabel());
 			spec.setName("C_" + channel.getLabel());
 			sup.setName("S_" + channel.getLabel());
+			sys.setAnnotation(Annotable.TEXT_ANNOTATION, channelsup.getName()
+					+ "(" + channel.getLabel() + "): "
+					+ channelsup.getDescriptionOfOutputs()[0]);
+			spec.setAnnotation(Annotable.TEXT_ANNOTATION, channelsup.getName()
+					+ "(" + channel.getLabel() + "): "
+					+ channelsup.getDescriptionOfOutputs()[1]);
+			sup.setAnnotation(Annotable.TEXT_ANNOTATION, channelsup.getName()
+					+ "(" + channel.getLabel() + "): "
+					+ channelsup.getDescriptionOfOutputs()[2]);
 			Hub.getWorkspace().addModel(sys);
 			Hub.getWorkspace().addModel(spec);
 			Hub.getWorkspace().addModel(sup);
