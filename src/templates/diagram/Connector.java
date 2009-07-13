@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) 2009, Lenko Grigorov
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package templates.diagram;
 
 import ides.api.core.Hub;
@@ -16,32 +40,81 @@ import templates.model.InconsistentModificationException;
 import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
 
+/**
+ * Class to maintain the graphical representation of {@link TemplateLink}s.
+ * 
+ * @author Lenko Grigorov
+ */
 public class Connector extends DiagramElement
 {
+	/**
+	 * Encapsulation of a graphical element which displays the events linked
+	 * through a {@link Connector}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected class EventBox extends Rectangle
 	{
 		private static final long serialVersionUID = 219703659050182848L;
 
+		/**
+		 * The maximum number of event pairs to be displayed on a single
+		 * {@link Connector}.
+		 */
 		private static final int EVENT_LIST_LIMIT = 3;
 
+		/**
+		 * The string abbreviation of event pairs beyond the maximal number.
+		 */
 		private static final String ELLIPSES = "...";
 
+		/**
+		 * The symbol to be used to indicate that two events forma pair.
+		 */
 		private static final String EVENT_BINDER = "=";
 
+		/**
+		 * A pair of events.
+		 * 
+		 * @author Lenko Grigorov
+		 */
 		protected class EventPair implements Comparable<EventPair>
 		{
+			/**
+			 * First event.
+			 */
 			public String event1;
 
+			/**
+			 * Second event.
+			 */
 			public String event2;
 
+			/**
+			 * Indicates if the event pair does not contain events but instead
+			 * stands for an abbreviation of event pairs. This is used when
+			 * there are too many event pairs.
+			 */
 			public boolean isEllipses = false;
 
+			/**
+			 * Construct an event pair.
+			 * 
+			 * @param event1
+			 *            first event
+			 * @param event2
+			 *            second event
+			 */
 			public EventPair(String event1, String event2)
 			{
 				this.event1 = event1;
 				this.event2 = event2;
 			}
 
+			/**
+			 * Construct an event pair which does not contain events but instead
+			 * stands for an abbreviation of event pairs.
+			 */
 			public EventPair()
 			{
 				isEllipses = true;
@@ -49,14 +122,39 @@ public class Connector extends DiagramElement
 
 			public int compareTo(EventPair o)
 			{
-				return event1.compareTo(o.event1);
+				if (isEllipses)
+				{
+					if (o.isEllipses)
+					{
+						return 0;
+					}
+					else
+					{
+						return 1;
+					}
+				}
+				else
+				{
+					return event1.compareTo(o.event1);
+				}
 			}
 		}
 
+		/**
+		 * Keeps track if the linked events on both sides of a connector have to
+		 * be shown. Some event boxes show only the list of linked events for
+		 * only one {@link TemplateComponent}.
+		 */
 		protected boolean showBothEvents = false;
 
+		/**
+		 * The pairs of linked events to be shown in the event box.
+		 */
 		protected Vector<EventPair> events = new Vector<EventPair>();
 
+		/**
+		 * Constructs an event box to display the pairs of linked events.
+		 */
 		public EventBox()
 		{
 			showBothEvents = true;
@@ -123,6 +221,16 @@ public class Connector extends DiagramElement
 			}
 		}
 
+		/**
+		 * Constructs an event box to display the linked events from only one
+		 * side of the connector.
+		 * 
+		 * @param isSideLeft
+		 *            whether to display the events for the "left"
+		 *            {@link TemplateComponent} linked by the connector (
+		 *            <code>true</code>), or the events for the "right"
+		 *            {@link TemplateComponent} (<code>false</code>)
+		 */
 		public EventBox(boolean isSideLeft)
 		{
 			this.showBothEvents = false;
@@ -167,6 +275,13 @@ public class Connector extends DiagramElement
 			}
 		}
 
+		/**
+		 * Render the event box.
+		 * 
+		 * @param g2d
+		 *            the graphical context where the event box has to be
+		 *            rendered
+		 */
 		public void draw(Graphics2D g2d)
 		{
 			if (events.isEmpty())
@@ -207,83 +322,189 @@ public class Connector extends DiagramElement
 		}
 	}
 
+	/**
+	 * Background color for the event boxes at the ends of the connector.
+	 */
 	protected static Color BACKGROUND_COLOR = new Color(224, 224, 224, 200);
 
+	/**
+	 * When approaching the connector with the mouse, how many pixels away
+	 * should the connector respond as if the mouse is over it.
+	 * 
+	 * @see #contains(Point)
+	 * @see #intersects(Rectangle)
+	 */
 	private final static int SENSITIVITY = 4;
 
+	/**
+	 * Offset of the event boxes in pixels, to produce spacing around the event
+	 * boxes.
+	 */
 	protected static final int LABEL_SPACING = 5;
 
+	/**
+	 * Constant to say mouse cursor is not over any part of the connector.
+	 * 
+	 * @see #whereisPoint(Point)
+	 */
 	public final static int ON_NADA = 0;
 
+	/**
+	 * Constant to say mouse cursor is over the line of the connector.
+	 * 
+	 * @see #whereisPoint(Point)
+	 */
 	public final static int ON_LINE = 1;
 
+	/**
+	 * Constant to say mouse cursor is over the event box in the center of the
+	 * connector.
+	 * 
+	 * @see #whereisPoint(Point)
+	 */
 	public final static int ON_LABEL = 2;
 
+	/**
+	 * The {@link TemplateLink}s visualized by this connector.
+	 */
 	protected Collection<TemplateLink> links = new HashSet<TemplateLink>();
 
+	/**
+	 * The "left" component linked by the connector.
+	 * <p>
+	 * A connector is symmetric. "Left" and "right" are used only to enable
+	 * addressing the two linked components separately.
+	 */
 	protected Entity left;
 
+	/**
+	 * The "right" component linked by the connector.
+	 * <p>
+	 * A connector is symmetric. "Left" and "right" are used only to enable
+	 * addressing the two linked components separately.
+	 */
 	protected Entity right;
 
+	/**
+	 * Cached bounds of the connector (smallest rectangle containing all parts
+	 * of the connector).
+	 */
 	private Rectangle bounds;
 
+	/**
+	 * The line that represents the connector.
+	 */
 	protected Line2D line;
 
+	/**
+	 * The event box listing the events of the "left" component which are linked
+	 * by the connector.
+	 * <p>
+	 * A connector is symmetric. "Left" and "right" are used only to enable
+	 * addressing the two linked components separately.
+	 */
 	protected EventBox leftEventBox;
 
+	/**
+	 * The event box listing the events of the "right" component which are
+	 * linked by the connector.
+	 * <p>
+	 * A connector is symmetric. "Left" and "right" are used only to enable
+	 * addressing the two linked components separately.
+	 */
 	protected EventBox rightEventBox;
 
+	/**
+	 * The event box in the center of the connector, displaying the event pairs
+	 * linked by the connector.
+	 */
 	protected EventBox centerEventBox;
 
+	/**
+	 * Construct a connector with the given parameters.
+	 * 
+	 * @param left
+	 *            the "left" component to be linked by the connector
+	 * @param right
+	 *            the "right" component to be linked by the connector
+	 * @param links
+	 *            a collection of the {@link TemplateLink}s to be encapsulated
+	 *            by the connector (can be empty)
+	 *            <p>
+	 *            A connector is symmetric. "Left" and "right" are used only to
+	 *            enable addressing the two linked components separately.
+	 */
 	public Connector(Entity left, Entity right, Collection<TemplateLink> links)
-	// throws MissingLayoutException
 	{
-		// layout = null;
-		// for (TemplateLink link : links)
-		// {
-		// if (link.hasAnnotation(Annotable.LAYOUT)
-		// && link.getAnnotation(Annotable.LAYOUT) instanceof
-		// DiagramElementLayout)
-		// {
-		// layout = (DiagramElementLayout)link
-		// .getAnnotation(Annotable.LAYOUT);
-		// break;
-		// }
-		// }
-		// if (layout == null)
-		// {
-		// throw new MissingLayoutException();
-		// }
-		// for (TemplateLink link : links)
-		// {
-		// link.setAnnotation(Annotable.LAYOUT, layout);
-		// }
 		this.left = left;
 		this.right = right;
 		this.links.addAll(links);
 		update();
 	}
 
+	/**
+	 * Retrieve the {@link TemplateLink}s encapsulated by the connector. If
+	 * there are no links associated with this connector, the returned
+	 * collection is empty.
+	 * 
+	 * @return the {@link TemplateLink}s encapsulated by the connector
+	 */
 	public Collection<TemplateLink> getLinks()
 	{
 		return new HashSet<TemplateLink>(links);
 	}
 
+	/**
+	 * Retrieve the "left" {@link Entity} linked by the connector.
+	 * <p>
+	 * A connector is symmetric. "Left" and "right" are used only to enable
+	 * addressing the two linked components separately.
+	 * 
+	 * @return the "left" {@link Entity} linked by the connector
+	 */
 	public Entity getLeftEntity()
 	{
 		return left;
 	}
 
+	/**
+	 * Retrieve the "right" {@link Entity} linked by the connector.
+	 * <p>
+	 * A connector is symmetric. "Left" and "right" are used only to enable
+	 * addressing the two linked components separately.
+	 * 
+	 * @return the "right" {@link Entity} linked by the connector
+	 */
 	public Entity getRightEntity()
 	{
 		return right;
 	}
 
+	/**
+	 * Retrieve the two {@link Entity}s linked by the connector.
+	 * 
+	 * @return the two {@link Entity}s linked by the connector
+	 */
 	public Entity[] getEntities()
 	{
 		return new Entity[] { left, right };
 	}
 
+	/**
+	 * Add a {@link TemplateLink} to the collection of links represented by the
+	 * connector. The link must be between the two {@link TemplateComponent}s
+	 * already linked by the connector.
+	 * <p>
+	 * NOTE: Do not use this method directly. Use
+	 * {@link TemplateDiagram#addLink(Connector, TemplateLink)} instead.
+	 * 
+	 * @param link
+	 *            the {@link TemplateLink} to be added to the collection of
+	 *            links represented by the connector
+	 * @throws InconsistentModificationException
+	 *             if the {@link TemplateLink} to be added does not link the
+	 *             same {@link TemplateComponent}s linked by the connector
+	 */
 	public void addLink(TemplateLink link)
 	{
 		if (!links.contains(link))
@@ -301,6 +522,18 @@ public class Connector extends DiagramElement
 		}
 	}
 
+	/**
+	 * Remove a {@link TemplateLink} from the collection of links represented by
+	 * this connector. If the link is not part of the collection, the method
+	 * does nothing.
+	 * <p>
+	 * NOTE: Do not use this method directly. Use
+	 * {@link TemplateDiagram#removeLink(Connector, TemplateLink)} instead.
+	 * 
+	 * @param link
+	 *            the {@link TemplateLink} to remove from the collection of
+	 *            links represented by this connector
+	 */
 	public void removeLink(TemplateLink link)
 	{
 		if (links.contains(link))
@@ -428,6 +661,10 @@ public class Connector extends DiagramElement
 		}
 	}
 
+	/**
+	 * NOTE: Do not use this method directly. Use
+	 * {@link TemplateDiagram#translate(Collection, Point)} instead.
+	 */
 	public void translate(Point delta)
 	{
 		line = new Line2D.Float((float)line.getX1() + delta.x, (float)line
@@ -445,6 +682,12 @@ public class Connector extends DiagramElement
 		return bounds;
 	}
 
+	/**
+	 * Computes the bounds of the connector (smallest rectangle containing all
+	 * elements of the connector) and caches the result.
+	 * 
+	 * @see #bounds
+	 */
 	protected void computeBounds()
 	{
 		bounds = line
@@ -452,6 +695,13 @@ public class Connector extends DiagramElement
 				.union(rightEventBox);
 	}
 
+	/**
+	 * Updates the connector to reflect any changes to the location of the
+	 * linked {@link Entity}s and/or the events being linked. In essence,
+	 * recomputes how the connector should be rendered. The layout of connectors
+	 * is computed in its entirety, no layout information needs to be preserved
+	 * between sessions.
+	 */
 	public void update()
 	{
 		Point location1 = left.getLocation();
@@ -621,6 +871,17 @@ public class Connector extends DiagramElement
 				|| line.ptSegDist(r.getMaxX(), r.getMaxY()) < SENSITIVITY;
 	}
 
+	/**
+	 * Checks on which part of the connector a given point lies. The answer can
+	 * be the line representing the connector, the event box in the center of
+	 * the connector, or nothing (i.e., the point does not lie on the
+	 * connector).
+	 * 
+	 * @param p
+	 *            the point to be checked
+	 * @return which part of the connector the point lies on ({@link #ON_LINE},
+	 *         {@link #ON_LABEL} or {@link #ON_NADA})
+	 */
 	public int whereisPoint(Point p)
 	{
 		if (centerEventBox.contains(p))

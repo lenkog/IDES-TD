@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) 2009, Lenko Grigorov
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package templates.model.v3;
 
 import ides.api.core.Hub;
@@ -25,8 +49,16 @@ import templates.model.TemplateModel;
 import templates.model.TemplateModelMessage;
 import templates.model.TemplateModelSubscriber;
 
+/**
+ * Implementation of {@link TemplateModel}.
+ * 
+ * @author Lenko Grigorov
+ */
 public class TemplateDesign implements TemplateModel, DESModelSubscriber
 {
+	/**
+	 * A map with the annotations of this element.
+	 */
 	protected Hashtable<String, Object> annotations = new Hashtable<String, Object>();
 
 	public Object getAnnotation(String key)
@@ -52,40 +84,30 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		}
 	}
 
+	/**
+	 * The collection of {@link DESModelSubscriber}s registered with the model.
+	 */
 	private ArrayList<DESModelSubscriber> modelSubscribers = new ArrayList<DESModelSubscriber>();
 
-	/**
-	 * Attaches the given subscriber to this publisher. The given subscriber
-	 * will receive notifications of changes from this publisher.
-	 * 
-	 * @param subscriber
-	 */
 	public void addSubscriber(DESModelSubscriber subscriber)
 	{
 		modelSubscribers.add(subscriber);
 	}
 
-	/**
-	 * Removes the given subscriber to this publisher. The given subscriber will
-	 * no longer receive notifications of changes from this publisher.
-	 * 
-	 * @param subscriber
-	 */
 	public void removeSubscriber(DESModelSubscriber subscriber)
 	{
 		modelSubscribers.remove(subscriber);
 	}
 
-	/**
-	 * Returns all current subscribers to this publisher.
-	 * 
-	 * @return all current subscribers to this publisher
-	 */
 	public DESModelSubscriber[] getDESModelSubscribers()
 	{
 		return modelSubscribers.toArray(new DESModelSubscriber[] {});
 	}
 
+	/**
+	 * The collection of {@link TemplateModelSubscriber}s registered with the
+	 * model.
+	 */
 	private ArrayList<TemplateModelSubscriber> templateSubscribers = new ArrayList<TemplateModelSubscriber>();
 
 	public void addSubscriber(TemplateModelSubscriber subscriber)
@@ -111,6 +133,9 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		}
 	}
 
+	/**
+	 * Keeps track if the model is "dirty", i.e., needs to be saved.
+	 */
 	protected boolean needsSave = false;
 
 	public boolean needsSave()
@@ -118,6 +143,13 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		return needsSave;
 	}
 
+	/**
+	 * Set the "dirty" state of the model and announce to listeners if the state
+	 * changed.
+	 * 
+	 * @param b
+	 *            the new "dirty" state of the model
+	 */
 	protected void setNeedsSave(boolean b)
 	{
 		if (b != needsSave)
@@ -134,6 +166,11 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		}
 	}
 
+	/**
+	 * Descriptor of the template design type of model.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class TemplateDesignDescriptor implements DESModelType
 	{
 
@@ -165,6 +202,9 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		}
 	}
 
+	/**
+	 * Maintains an instance of the descriptor of the template design type.
+	 */
 	public static TemplateDesignDescriptor myDescriptor = new TemplateDesignDescriptor();
 
 	public DESModelType getModelType()
@@ -172,21 +212,52 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		return myDescriptor;
 	}
 
+	/**
+	 * The name of the model.
+	 */
 	protected String name;
 
+	/**
+	 * The set of {@link TemplateComponent}s in the model.
+	 */
 	protected Set<TemplateComponent> components = new HashSet<TemplateComponent>();
 
+	/**
+	 * The set of {@link TemplateLink}s in the model.
+	 */
 	protected Set<TemplateLink> links = new HashSet<TemplateLink>();
 
+	/**
+	 * Next available id for {@link TemplateComponent}s.
+	 */
 	protected long freeComponentId = 0;
 
+	/**
+	 * Next available id for {@link TemplateLink}s.
+	 */
 	protected long freeLinkId = 0;
 
+	/**
+	 * Construct a new template design with the given name.
+	 * 
+	 * @param name
+	 *            the name for the new template design
+	 */
 	public TemplateDesign(String name)
 	{
 		this.name = name;
 	}
 
+	/**
+	 * Checks if the model contains a {@link TemplateComponent} with the given
+	 * id.
+	 * 
+	 * @param id
+	 *            the id of the component
+	 * @return <code>true</code> if the model contains a
+	 *         {@link TemplateComponent} with the given id; <code>false</code>
+	 *         otherwise
+	 */
 	protected boolean containsComponentId(long id)
 	{
 		for (TemplateComponent component : components)
@@ -199,6 +270,14 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		return false;
 	}
 
+	/**
+	 * Checks if the model contains a {@link TemplateLink} with the given id.
+	 * 
+	 * @param id
+	 *            the id of the link
+	 * @return <code>true</code> if the model contains a {@link TemplateLink}
+	 *         with the given id; <code>false</code> otherwise
+	 */
 	protected boolean containsLinkId(long id)
 	{
 		for (TemplateLink link : links)
@@ -359,7 +438,7 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		}
 		return null;
 	}
-	
+
 	public int getComponentCount()
 	{
 		return components.size();
@@ -505,6 +584,18 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		return ret;
 	}
 
+	/**
+	 * Retrieve the {@link TemplateComponent} containing the given
+	 * {@link FSAModel}.
+	 * 
+	 * @param fsa
+	 *            the {@link FSAModel} to be used in the search
+	 * @return the {@link TemplateComponent} containing the given
+	 *         {@link FSAModel} (if more than one {@link TemplateComponent}s
+	 *         contains the {@link FSAModel}, returns one of them arbitrarily);
+	 *         <code>null</code> if not {@link TemplateComponent} contains the
+	 *         given {@link FSAModel}
+	 */
 	protected TemplateComponent getComponentWithFSA(FSAModel fsa)
 	{
 		if (fsa == null)
@@ -641,6 +732,10 @@ public class TemplateDesign implements TemplateModel, DESModelSubscriber
 		return "" + component.getId();
 	}
 
+	/**
+	 * Maintains a pointer to the parent model of this model. Under normal
+	 * circumstances should be <code>null</code>.
+	 */
 	protected ParentModel parent = null;
 
 	public ParentModel getParentModel()

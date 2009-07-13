@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) 2009, Lenko Grigorov
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package templates.plugin;
 
 import ides.api.core.Hub;
@@ -22,6 +46,15 @@ import templates.operations.ChannelSup;
 import templates.operations.ModularSupSolution;
 import templates.presentation.TemplateToolset;
 
+/**
+ * The main class of the template design plugin. This is the class instantiated
+ * by IDES when loading the plugin.
+ * <p>
+ * The name of the JAR file with the plugin has to give the path to this class,
+ * i.e., <code>templates.plugin.TemplatesPlugin.jar</code>
+ * 
+ * @author Lenko Grigorov
+ */
 public class TemplatesPlugin implements Plugin
 {
 
@@ -76,18 +109,21 @@ public class TemplatesPlugin implements Plugin
 					ioPlugin.getIOTypeDescriptor(),
 					tag);
 		}
-		//registers meta loader/saver used by Template Library
-		//this will not impact loading/saving of FSA models not related to the library
-		TemplateMetaIO ioLibrary=new TemplateMetaIO();
+		// registers meta loader/saver used by Template Library
+		// this will not impact loading/saving of FSA models not related to the
+		// library
+		TemplateMetaIO ioLibrary = new TemplateMetaIO();
 		for (String tag : ioLibrary.getMetaTags())
 		{
-			IOPluginManager.instance().registerMetaLoader(ioLibrary,
-					"FSA",tag);
+			IOPluginManager
+					.instance().registerMetaLoader(ioLibrary, "FSA", tag);
 		}
-		IOPluginManager.instance().registerMetaSaver(ioLibrary,FSAModel.class);
-		//export
-		IOPluginManager.instance().registerExport(new JPEGExporter(),TemplateModel.class);
-		IOPluginManager.instance().registerExport(new PNGExporter(),TemplateModel.class);
+		IOPluginManager.instance().registerMetaSaver(ioLibrary, FSAModel.class);
+		// export
+		IOPluginManager.instance().registerExport(new JPEGExporter(),
+				TemplateModel.class);
+		IOPluginManager.instance().registerExport(new PNGExporter(),
+				TemplateModel.class);
 
 		// Operations
 		OperationManager.instance().register(new ChannelSup());

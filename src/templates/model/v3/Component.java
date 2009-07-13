@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) 2009, Lenko Grigorov
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ''AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package templates.model.v3;
 
 import ides.api.model.fsa.FSAModel;
@@ -6,8 +30,16 @@ import java.util.Hashtable;
 
 import templates.model.TemplateComponent;
 
+/**
+ * Implementation of {@link TemplateComponent}.
+ * 
+ * @author Lenko Grigorov
+ */
 public class Component implements TemplateComponent
 {
+	/**
+	 * A map with the annotations of this element.
+	 */
 	protected Hashtable<String, Object> annotations = new Hashtable<String, Object>();
 
 	public Object getAnnotation(String key)
@@ -33,12 +65,27 @@ public class Component implements TemplateComponent
 		}
 	}
 
+	/**
+	 * The id of the component.
+	 */
 	protected long id;
 
+	/**
+	 * The type of the component. By default is <i>module</i>.
+	 */
 	protected int type = TemplateComponent.TYPE_MODULE;
 
+	/**
+	 * The {@link FSAModel} associated with the component.
+	 */
 	protected FSAModel fsa = null;
 
+	/**
+	 * Construct a new component with the given parameters.
+	 * 
+	 * @param id
+	 *            the id of the component
+	 */
 	public Component(long id)
 	{
 		this.id = id;
