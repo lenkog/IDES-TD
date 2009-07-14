@@ -70,8 +70,6 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 	 */
 	private ArrayList<TemplateDiagramSubscriber> subscribers = new ArrayList<TemplateDiagramSubscriber>();
 
-	// //////////////////////////////////////////////////////////////////////
-
 	/**
 	 * Attaches the given subscriber to this template diagram. The given
 	 * subscriber will receive notifications of changes from this template

@@ -45,6 +45,7 @@ import templates.diagram.Entity;
 import templates.diagram.SimpleIcon;
 import templates.diagram.TemplateDiagram;
 import templates.library.Template;
+import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
 import templates.presentation.Helpers;
 import templates.utils.EntityIcon;
@@ -57,33 +58,92 @@ import templates.utils.EntityIcon;
 public class DiagramActions
 {
 
+	/**
+	 * Action which creates an {@link Entity} in a {@link TemplateDiagram}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class CreateEntityAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 4318087259767201282L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The location for the new {@link Entity}.
+		 */
 		protected Point location;
 
+		/**
+		 * A buffer which will store the new {@link Entity} so it can be passed
+		 * back.
+		 */
 		protected Entity[] buffer;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param location
+		 *            the location for the new {@link Entity}
+		 */
 		public CreateEntityAction(TemplateDiagram diagram, Point location)
 		{
 			this(null, diagram, location, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param location
+		 *            the location for the new {@link Entity}
+		 * @param buffer
+		 *            the buffer which will store the new {@link Entity} so the
+		 *            caller can get access to it
+		 */
 		public CreateEntityAction(TemplateDiagram diagram, Point location,
 				Entity[] buffer)
 		{
 			this(null, diagram, location, buffer);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param location
+		 *            the location for the new {@link Entity}
+		 */
 		public CreateEntityAction(CompoundEdit parent, TemplateDiagram diagram,
 				Point location)
 		{
 			this(parent, diagram, location, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param location
+		 *            the location for the new {@link Entity}
+		 * @param buffer
+		 *            the buffer which will store the new {@link Entity} so the
+		 *            caller can get access to it
+		 */
 		public CreateEntityAction(CompoundEdit parent, TemplateDiagram diagram,
 				Point location, Entity[] buffer)
 		{
@@ -110,41 +170,114 @@ public class DiagramActions
 		}
 	}
 
-	public static class CreateTemplateInstanceAction extends AbstractDiagramAction
+	/**
+	 * Action which creates a new instance of a {@link Template} in a
+	 * {@link TemplateDiagram}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
+	public static class CreateTemplateInstanceAction extends
+			AbstractDiagramAction
 	{
 		private static final long serialVersionUID = -8369451029215842373L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The template to be instantiated.
+		 */
 		protected Template template;
-		
+
+		/**
+		 * The location where the template instance should appear.
+		 */
 		protected Point location;
 
+		/**
+		 * A buffer which will store the new instance so it can be passed back.
+		 */
 		protected Entity[] buffer;
 
-		public CreateTemplateInstanceAction(TemplateDiagram diagram, Template template, Point location)
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param template
+		 *            the template to be instantiated
+		 * @param location
+		 *            the location where the template instance should appear
+		 */
+		public CreateTemplateInstanceAction(TemplateDiagram diagram,
+				Template template, Point location)
 		{
 			this(null, diagram, template, location, null);
 		}
 
-		public CreateTemplateInstanceAction(TemplateDiagram diagram, Template template, Point location,
-				Entity[] buffer)
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param template
+		 *            the template to be instantiated
+		 * @param location
+		 *            the location where the template instance should appear
+		 * @param buffer
+		 *            the buffer which will store the new {@link Template}
+		 *            instance so the caller can get access to it
+		 */
+		public CreateTemplateInstanceAction(TemplateDiagram diagram,
+				Template template, Point location, Entity[] buffer)
 		{
 			this(null, diagram, template, location, buffer);
 		}
 
-		public CreateTemplateInstanceAction(CompoundEdit parent, TemplateDiagram diagram,
-				Template template, Point location)
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param template
+		 *            the template to be instantiated
+		 * @param location
+		 *            the location where the template instance should appear
+		 */
+		public CreateTemplateInstanceAction(CompoundEdit parent,
+				TemplateDiagram diagram, Template template, Point location)
 		{
 			this(parent, diagram, template, location, null);
 		}
 
-		public CreateTemplateInstanceAction(CompoundEdit parent, TemplateDiagram diagram,
-				Template template, Point location, Entity[] buffer)
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param template
+		 *            the template to be instantiated
+		 * @param location
+		 *            the location where the template instance should appear
+		 * @param buffer
+		 *            the buffer which will store the new {@link Template}
+		 *            instance so the caller can get access to it
+		 */
+		public CreateTemplateInstanceAction(CompoundEdit parent,
+				TemplateDiagram diagram, Template template, Point location,
+				Entity[] buffer)
 		{
 			this.parentEdit = parent;
 			this.diagram = diagram;
-			this.template=template;
+			this.template = template;
 			this.location = location;
 			this.buffer = buffer;
 		}
@@ -153,11 +286,21 @@ public class DiagramActions
 		{
 			if (diagram != null)
 			{
-				CompoundEdit allEdits=new CompoundEdit();
-				Entity[] entityBuf=new Entity[1];
-				new DiagramActions.CreateEntityAction(allEdits,diagram,location,entityBuf).execute();
-				new DiagramActions.AssignFSAAction(allEdits,diagram,entityBuf[0],template.instantiate(),template.getIcon().clone()).execute();
-				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(Hub.string("TD_undoCreateEntity")));
+				CompoundEdit allEdits = new CompoundEdit();
+				Entity[] entityBuf = new Entity[1];
+				new DiagramActions.CreateEntityAction(
+						allEdits,
+						diagram,
+						location,
+						entityBuf).execute();
+				new DiagramActions.AssignFSAAction(
+						allEdits,
+						diagram,
+						entityBuf[0],
+						template.instantiate(),
+						template.getIcon().clone()).execute();
+				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(
+						Hub.string("TD_undoCreateEntity")));
 				allEdits.end();
 				if (buffer != null && buffer.length > 0)
 				{
@@ -168,36 +311,124 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which creates a {@link Connector} in a {@link TemplateDiagram}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class CreateConnectorAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 6870236352320831902L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The first {@link Entity} to be linked.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 */
 		protected Entity left;
 
+		/**
+		 * The second {@link Entity} to be linked.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 */
 		protected Entity right;
 
+		/**
+		 * A buffer which will store the new {@link Connector} so it can be
+		 * passed back.
+		 */
 		protected Connector[] buffer;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param left
+		 *            the first {@link Entity} to be linked
+		 * @param right
+		 *            the second {@link Entity} to be linked
+		 */
 		public CreateConnectorAction(TemplateDiagram diagram, Entity left,
 				Entity right)
 		{
 			this(null, diagram, left, right, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param left
+		 *            the first {@link Entity} to be linked
+		 * @param right
+		 *            the second {@link Entity} to be linked
+		 * @param buffer
+		 *            the buffer which will store the new {@link Connector} so
+		 *            the caller can get access to it
+		 */
 		public CreateConnectorAction(TemplateDiagram diagram, Entity left,
 				Entity right, Connector[] buffer)
 		{
 			this(null, diagram, left, right, buffer);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param left
+		 *            the first {@link Entity} to be linked
+		 * @param right
+		 *            the second {@link Entity} to be linked
+		 */
 		public CreateConnectorAction(CompoundEdit parent,
 				TemplateDiagram diagram, Entity left, Entity right)
 		{
 			this(parent, diagram, left, right, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param left
+		 *            the first {@link Entity} to be linked
+		 * @param right
+		 *            the second {@link Entity} to be linked
+		 * @param buffer
+		 *            the buffer which will store the new {@link Connector} so
+		 *            the caller can get access to it
+		 */
 		public CreateConnectorAction(CompoundEdit parent,
 				TemplateDiagram diagram, Entity left, Entity right,
 				Connector[] buffer)
@@ -227,37 +458,126 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which creates a {@link Connector} in a {@link TemplateDiagram} and
+	 * links the matching events from the linked {@link TemplateComponent}s.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class CreateAndMatchConnectorAction extends
 			AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 2328335456634040094L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The first {@link Entity} to be linked.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 */
 		protected Entity left;
 
+		/**
+		 * The second {@link Entity} to be linked.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 */
 		protected Entity right;
 
+		/**
+		 * A buffer which will store the new {@link Connector} so it can be
+		 * passed back.
+		 */
 		protected Connector[] buffer;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param left
+		 *            the first {@link Entity} to be linked
+		 * @param right
+		 *            the second {@link Entity} to be linked
+		 */
 		public CreateAndMatchConnectorAction(TemplateDiagram diagram,
 				Entity left, Entity right)
 		{
 			this(null, diagram, left, right, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param left
+		 *            the first {@link Entity} to be linked
+		 * @param right
+		 *            the second {@link Entity} to be linked
+		 * @param buffer
+		 *            the buffer which will store the new {@link Connector} so
+		 *            the caller can get access to it
+		 */
 		public CreateAndMatchConnectorAction(TemplateDiagram diagram,
 				Entity left, Entity right, Connector[] buffer)
 		{
 			this(null, diagram, left, right, buffer);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param left
+		 *            the first {@link Entity} to be linked
+		 * @param right
+		 *            the second {@link Entity} to be linked
+		 */
 		public CreateAndMatchConnectorAction(CompoundEdit parent,
 				TemplateDiagram diagram, Entity left, Entity right)
 		{
 			this(parent, diagram, left, right, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked entities separately.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param left
+		 *            the first {@link Entity} to be linked
+		 * @param right
+		 *            the second {@link Entity} to be linked
+		 * @param buffer
+		 *            the buffer which will store the new {@link Connector} so
+		 *            the caller can get access to it
+		 */
 		public CreateAndMatchConnectorAction(CompoundEdit parent,
 				TemplateDiagram diagram, Entity left, Entity right,
 				Connector[] buffer)
@@ -295,24 +615,91 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which creates a {@link TemplateLink} between two events from the
+	 * {@link TemplateComponent}s linked by a {@link Connector} and adds the new
+	 * {@link TemplateLink} to the {@link Connector}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class AddLinkAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = -8377001331734586265L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Connector} to which the new {@link TemplateLink} will be
+		 * added.
+		 */
 		protected Connector connector;
 
+		/**
+		 * The event (from the "left" {@link TemplateComponent}) which has to be
+		 * linked.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked components separately.
+		 */
 		protected String leftEvent;
 
+		/**
+		 * The event (from the "right" {@link TemplateComponent}) which has to
+		 * be linked.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked components separately.
+		 */
 		protected String rightEvent;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked components separately.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param connector
+		 *            the {@link Connector} to which the new
+		 *            {@link TemplateLink} will be added
+		 * @param leftEvent
+		 *            the event (from the "left" {@link TemplateComponent})
+		 *            which has to be linked
+		 * @param rightEvent
+		 *            the event (from the "right" {@link TemplateComponent})
+		 *            which has to be linked
+		 */
 		public AddLinkAction(TemplateDiagram diagram, Connector connector,
 				String leftEvent, String rightEvent)
 		{
 			this(null, diagram, connector, leftEvent, rightEvent);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * <p>
+		 * A connector is symmetric. "Left" and "right" are used only to enable
+		 * addressing the two linked components separately.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param connector
+		 *            the {@link Connector} to which the new
+		 *            {@link TemplateLink} will be added
+		 * @param leftEvent
+		 *            the event (from the "left" {@link TemplateComponent})
+		 *            which has to be linked
+		 * @param rightEvent
+		 *            the event (from the "right" {@link TemplateComponent})
+		 *            which has to be linked
+		 */
 		public AddLinkAction(CompoundEdit parent, TemplateDiagram diagram,
 				Connector connector, String leftEvent, String rightEvent)
 		{
@@ -338,20 +725,51 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which removes {@link DiagramElement}s from a
+	 * {@link TemplateDiagram}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class DeleteElementsAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 4993580265901392619L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link DiagramElement}s which need to be removed.
+		 */
 		protected Collection<DiagramElement> elements;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param elements
+		 *            the {@link DiagramElement}s which need to be removed
+		 */
 		public DeleteElementsAction(TemplateDiagram diagram,
 				Collection<DiagramElement> elements)
 		{
 			this(null, diagram, elements);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param elements
+		 *            the {@link DiagramElement}s which need to be removed
+		 */
 		public DeleteElementsAction(CompoundEdit parent,
 				TemplateDiagram diagram, Collection<DiagramElement> elements)
 		{
@@ -415,22 +833,61 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which removes {@link TemplateLink}s from a {@link Connector}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class RemoveLinksAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = -1134740009176987043L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Connector} from which to remove the {@link TemplateLink}s.
+		 */
 		protected Connector connector;
 
+		/**
+		 * The {@link TemplateLink}s to be removed.
+		 */
 		protected Collection<TemplateLink> links;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param connector
+		 *            the {@link Connector} from which to remove the
+		 *            {@link TemplateLink}s
+		 * @param links
+		 *            the {@link TemplateLink}s to be removed
+		 */
 		public RemoveLinksAction(TemplateDiagram diagram, Connector connector,
 				Collection<TemplateLink> links)
 		{
 			this(null, diagram, connector, links);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param connector
+		 *            the {@link Connector} from which to remove the
+		 *            {@link TemplateLink}s
+		 * @param links
+		 *            the {@link TemplateLink}s to be removed
+		 */
 		public RemoveLinksAction(CompoundEdit parent, TemplateDiagram diagram,
 				Connector connector, Collection<TemplateLink> links)
 		{
@@ -460,22 +917,60 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which finilizes the relocation of {@link DiagramElement}s in a
+	 * {@link TemplateDiagram}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class MovedSelectionAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = -1222866680866778507L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The displacement applied to the {@link DiagramElement}s.
+		 */
 		protected Point delta;
 
+		/**
+		 * The {@link DiagramElement}s which were relocated.
+		 */
 		protected Collection<DiagramElement> selection;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param selection
+		 *            the {@link DiagramElement}s which were relocated
+		 * @param delta
+		 *            the displacement applied to the {@link DiagramElement}s
+		 */
 		public MovedSelectionAction(TemplateDiagram diagram,
 				Collection<DiagramElement> selection, Point delta)
 		{
 			this(null, diagram, selection, delta);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param selection
+		 *            the {@link DiagramElement}s which were relocated
+		 * @param delta
+		 *            the displacement applied to the {@link DiagramElement}s
+		 */
 		public MovedSelectionAction(CompoundEdit parent,
 				TemplateDiagram diagram, Collection<DiagramElement> selection,
 				Point delta)
@@ -499,22 +994,59 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which sets the label of an {@link Entity}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class LabelEntityAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 6200645190959701337L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Entity} to be relabelled.
+		 */
 		protected Entity entity;
 
+		/**
+		 * The new label for the {@link Entity}.
+		 */
 		protected String label;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} to be relabelled
+		 * @param label
+		 *            the new label for the {@link Entity}
+		 */
 		public LabelEntityAction(TemplateDiagram diagram, Entity entity,
 				String label)
 		{
 			this(null, diagram, entity, label);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} to be relabelled
+		 * @param label
+		 *            the new label for the {@link Entity}
+		 */
 		public LabelEntityAction(CompoundEdit parent, TemplateDiagram diagram,
 				Entity entity, String label)
 		{
@@ -538,19 +1070,52 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which replaces the {@link TemplateLink}s in a {@link Connector}
+	 * with {@link TemplateLink}s only between matching events.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class MatchEventsAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 897761928605656221L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Connector} whose {@link TemplateLink}s should be replaced.
+		 */
 		protected Connector connector;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param connector
+		 *            the {@link Connector} whose {@link TemplateLink}s should
+		 *            be replaced
+		 */
 		public MatchEventsAction(TemplateDiagram diagram, Connector connector)
 		{
 			this(null, diagram, connector);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param connector
+		 *            the {@link Connector} whose {@link TemplateLink}s should
+		 *            be replaced
+		 */
 		public MatchEventsAction(CompoundEdit parent, TemplateDiagram diagram,
 				Connector connector)
 		{
@@ -585,19 +1150,50 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which translates a {@link TemplateDiagram} so that the diagram is
+	 * in view (all elements have positive co-ordinates).
+	 * <p>
+	 * This action is not a sublass of {@link AbstractDiagramAction} since some
+	 * methods of the abstract class depend on the functionality of this action.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class ShiftDiagramInViewAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 2907001062138002843L;
 
+		/**
+		 * If this action is not independent, the {@link UndoableEdit} the
+		 * action is part of. <code>null</code> if this action is independent.
+		 */
 		protected CompoundEdit parentEdit = null;
 
+		/**
+		 * The {@link TemplateDiagram} to be translated.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be translated
+		 */
 		public ShiftDiagramInViewAction(TemplateDiagram diagram)
 		{
 			this(null, diagram);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parentEdit
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be translated
+		 */
 		public ShiftDiagramInViewAction(CompoundEdit parentEdit,
 				TemplateDiagram diagram)
 		{
@@ -632,39 +1228,107 @@ public class DiagramActions
 			}
 		}
 
+		/**
+		 * Perform the action.
+		 */
 		public void execute()
 		{
 			actionPerformed(null);
 		}
 	}
 
+	/**
+	 * Action which assigns a blank {@link FSAModel} to the
+	 * {@link TemplateComponent} of an {@link Entity}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class AssignNewFSAAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 9167035481992348194L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Entity} whose {@link TemplateComponent} is to be assigned
+		 * a blank {@link FSAModel}.
+		 */
 		protected Entity entity;
 
+		/**
+		 * A buffer which will store the new {@link FSAModel} so it can be
+		 * passed back.
+		 */
 		protected FSAModel[] buffer;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} whose {@link TemplateComponent} is to
+		 *            be assigned a blank {@link FSAModel}
+		 */
 		public AssignNewFSAAction(TemplateDiagram diagram, Entity entity)
 		{
 			this(null, diagram, entity, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} whose {@link TemplateComponent} is to
+		 *            be assigned a blank {@link FSAModel}
+		 * @param buffer
+		 *            the buffer which will store the new {@link FSAModel} so
+		 *            the caller can get access to it
+		 */
 		public AssignNewFSAAction(TemplateDiagram diagram, Entity entity,
 				FSAModel[] buffer)
 		{
 			this(null, diagram, entity, buffer);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} whose {@link TemplateComponent} is to
+		 *            be assigned a blank {@link FSAModel}
+		 */
 		public AssignNewFSAAction(CompoundEdit parent, TemplateDiagram diagram,
 				Entity entity)
 		{
 			this(parent, diagram, entity, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} whose {@link TemplateComponent} is to
+		 *            be assigned a blank {@link FSAModel}
+		 * @param buffer
+		 *            the buffer which will store the new {@link FSAModel} so
+		 *            the caller can get access to it
+		 */
 		public AssignNewFSAAction(CompoundEdit parent, TemplateDiagram diagram,
 				Entity entity, FSAModel[] buffer)
 		{
@@ -699,58 +1363,136 @@ public class DiagramActions
 							newModel.add(newModel.assembleEvent(event));
 						}
 					}
-					CompoundEdit allEdits=new CompoundEdit();
+					CompoundEdit allEdits = new CompoundEdit();
 					DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 							diagram,
 							entity,
 							newModel);
 					edit.redo();
 					allEdits.addEdit(edit);
-					DiagramUndoableEdits.SetIconEdit iconEdit=new DiagramUndoableEdits.SetIconEdit(diagram,entity,new SimpleIcon());
+					DiagramUndoableEdits.SetIconEdit iconEdit = new DiagramUndoableEdits.SetIconEdit(
+							diagram,
+							entity,
+							new SimpleIcon());
 					iconEdit.redo();
 					allEdits.addEdit(iconEdit);
-					allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(edit.getPresentationName()));
+					allEdits
+							.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(
+									edit.getPresentationName()));
 					allEdits.end();
 					if (buffer != null && buffer.length > 0)
 					{
 						buffer[0] = newModel;
 					}
-					postEditAdjustCanvas(diagram,allEdits);
+					postEditAdjustCanvas(diagram, allEdits);
 				}
 			}
 		}
 	}
 
+	/**
+	 * Action which assigns an {@link FSAModel} to the {@link TemplateComponent}
+	 * of an {@link Entity}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class AssignFSAAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 7311186809287532347L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Entity} whose {@link TemplateComponent} is to be assigned
+		 * the {@link FSAModel}.
+		 */
 		protected Entity entity;
 
+		/**
+		 * The {@link FSAModel} to be assigned.
+		 */
 		protected FSAModel fsa;
-		
+
+		/**
+		 * The new icon for the {@link Entity}.
+		 */
 		protected EntityIcon icon;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} whose {@link TemplateComponent} is to
+		 *            be assigned the {@link FSAModel}
+		 * @param fsa
+		 *            the {@link FSAModel} to be assigned
+		 */
 		public AssignFSAAction(TemplateDiagram diagram, Entity entity,
 				FSAModel fsa)
 		{
 			this(null, diagram, entity, fsa);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} whose {@link TemplateComponent} is to
+		 *            be assigned the {@link FSAModel}
+		 * @param fsa
+		 *            the {@link FSAModel} to be assigned
+		 * @param icon
+		 *            the new icon for the {@link Entity}
+		 */
 		public AssignFSAAction(TemplateDiagram diagram, Entity entity,
 				FSAModel fsa, EntityIcon icon)
 		{
-			this(null, diagram, entity, fsa,icon);
+			this(null, diagram, entity, fsa, icon);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} whose {@link TemplateComponent} is to
+		 *            be assigned the {@link FSAModel}
+		 * @param fsa
+		 *            the {@link FSAModel} to be assigned
+		 */
 		public AssignFSAAction(CompoundEdit parent, TemplateDiagram diagram,
 				Entity entity, FSAModel fsa)
 		{
-			this(parent,diagram,entity,fsa,null);
+			this(parent, diagram, entity, fsa, null);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} whose {@link TemplateComponent} is to
+		 *            be assigned the {@link FSAModel}
+		 * @param fsa
+		 *            the {@link FSAModel} to be assigned
+		 * @param icon
+		 *            the new icon for the {@link Entity}
+		 */
 		public AssignFSAAction(CompoundEdit parent, TemplateDiagram diagram,
 				Entity entity, FSAModel fsa, EntityIcon icon)
 		{
@@ -758,49 +1500,97 @@ public class DiagramActions
 			this.diagram = diagram;
 			this.entity = entity;
 			this.fsa = fsa;
-			if(icon==null)
+			if (icon == null)
 			{
-				icon=new SimpleIcon();
+				icon = new SimpleIcon();
 			}
-			this.icon=icon;
+			this.icon = icon;
 		}
 
 		public void actionPerformed(ActionEvent e)
 		{
 			if (diagram != null)
 			{
-				CompoundEdit allEdits=new CompoundEdit();
+				CompoundEdit allEdits = new CompoundEdit();
 				DiagramUndoableEdits.AssignFSAEdit edit = new DiagramUndoableEdits.AssignFSAEdit(
 						diagram,
 						entity,
 						fsa);
 				edit.redo();
 				allEdits.addEdit(edit);
-				DiagramUndoableEdits.SetIconEdit iconEdit=new DiagramUndoableEdits.SetIconEdit(diagram,entity,icon);
+				DiagramUndoableEdits.SetIconEdit iconEdit = new DiagramUndoableEdits.SetIconEdit(
+						diagram,
+						entity,
+						icon);
 				iconEdit.redo();
 				allEdits.addEdit(iconEdit);
-				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(edit.getPresentationName()));
-				allEdits.end();				
-				postEditAdjustCanvas(diagram,allEdits);
+				allEdits.addEdit(new DiagramUndoableEdits.UndoableDummyLabel(
+						edit.getPresentationName()));
+				allEdits.end();
+				postEditAdjustCanvas(diagram, allEdits);
 			}
 		}
 	}
 
+	/**
+	 * Action which sets the type (<i>module</i> or <i>channel</i>) of the
+	 * {@link TemplateComponent} of an {@link Entity}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class SetTypeAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = -1774285258523292831L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Entity} which represents the {@link TemplateComponent}
+		 * whose type has to be set.
+		 */
 		protected Entity entity;
 
+		/**
+		 * The type to be set ({@link TemplateComponent#TYPE_MODULE} or
+		 * {@link TemplateComponent#TYPE_CHANNEL}).
+		 */
 		protected int type;
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} which represents the
+		 *            {@link TemplateComponent} whose type has to be set
+		 * @param type
+		 *            the type to be set ({@link TemplateComponent#TYPE_MODULE}
+		 *            or {@link TemplateComponent#TYPE_CHANNEL})
+		 */
 		public SetTypeAction(TemplateDiagram diagram, Entity entity, int type)
 		{
 			this(null, diagram, entity, type);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entity
+		 *            the {@link Entity} which represents the
+		 *            {@link TemplateComponent} whose type has to be set
+		 * @param type
+		 *            the type to be set ({@link TemplateComponent#TYPE_MODULE}
+		 *            or {@link TemplateComponent#TYPE_CHANNEL})
+		 */
 		public SetTypeAction(CompoundEdit parent, TemplateDiagram diagram,
 				Entity entity, int type)
 		{
@@ -824,21 +1614,62 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which sets the background color of the icons of {@link Entity}s.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class SetIconColorAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 8626414278661880945L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Entity}s to whose icons the background color has to be
+		 * set.
+		 */
 		protected Collection<Entity> entities;
-		
+
+		/**
+		 * The color for the background of the icons.
+		 */
 		protected Color color;
 
-		public SetIconColorAction(TemplateDiagram diagram, Collection<Entity> entities, Color color)
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entities
+		 *            the {@link Entity}s to whose icons the background color
+		 *            has to be set
+		 * @param color
+		 *            the color for the background of the icons
+		 */
+		public SetIconColorAction(TemplateDiagram diagram,
+				Collection<Entity> entities, Color color)
 		{
 			this(null, diagram, entities, color);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entities
+		 *            the {@link Entity}s to whose icons the background color
+		 *            has to be set
+		 * @param color
+		 *            the color for the background of the icons
+		 */
 		public SetIconColorAction(CompoundEdit parent, TemplateDiagram diagram,
 				Collection<Entity> entities, Color color)
 		{
@@ -850,22 +1681,22 @@ public class DiagramActions
 
 		public void actionPerformed(ActionEvent e)
 		{
-			if (diagram != null&&!entities.isEmpty())
+			if (diagram != null && !entities.isEmpty())
 			{
-				CompoundEdit allEdits=new CompoundEdit();
-				DiagramUndoableEdits.SetIconEdit edit=null;
-				for(Entity entity:entities)
+				CompoundEdit allEdits = new CompoundEdit();
+				DiagramUndoableEdits.SetIconEdit edit = null;
+				for (Entity entity : entities)
 				{
-					EntityIcon icon=entity.getIcon().clone();
+					EntityIcon icon = entity.getIcon().clone();
 					icon.setColor(color);
 					edit = new DiagramUndoableEdits.SetIconEdit(
-						diagram,
-						entity,
-						icon);
+							diagram,
+							entity,
+							icon);
 					edit.redo();
 					allEdits.addEdit(edit);
 				}
-				if(entities.size()>1)
+				if (entities.size() > 1)
 				{
 					edit.setLastOfMultiple(true);
 				}
@@ -875,19 +1706,50 @@ public class DiagramActions
 		}
 	}
 
+	/**
+	 * Action which resets the icons of {@link Entity}s to their default form.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class DefaultIconAction extends AbstractDiagramAction
 	{
 		private static final long serialVersionUID = 6507813585595950277L;
 
+		/**
+		 * The {@link TemplateDiagram} context to be used by the action.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Entity}s whose icons have to be reset.
+		 */
 		protected Collection<Entity> entities;
 
-		public DefaultIconAction(TemplateDiagram diagram, Collection<Entity> entities)
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entities
+		 *            the {@link Entity}s whose icons have to be reset
+		 */
+		public DefaultIconAction(TemplateDiagram diagram,
+				Collection<Entity> entities)
 		{
 			this(null, diagram, entities);
 		}
 
+		/**
+		 * Construct an action for the given parameters.
+		 * 
+		 * @param parent
+		 *            the {@link UndoableEdit} to which this action should add
+		 *            its own undo information
+		 * @param diagram
+		 *            the {@link TemplateDiagram} to be used by the action
+		 * @param entities
+		 *            the {@link Entity}s whose icons have to be reset
+		 */
 		public DefaultIconAction(CompoundEdit parent, TemplateDiagram diagram,
 				Collection<Entity> entities)
 		{
@@ -898,20 +1760,20 @@ public class DiagramActions
 
 		public void actionPerformed(ActionEvent e)
 		{
-			if (diagram != null&&!entities.isEmpty())
+			if (diagram != null && !entities.isEmpty())
 			{
-				CompoundEdit allEdits=new CompoundEdit();
-				DiagramUndoableEdits.SetIconEdit edit=null;
-				for(Entity entity:entities)
+				CompoundEdit allEdits = new CompoundEdit();
+				DiagramUndoableEdits.SetIconEdit edit = null;
+				for (Entity entity : entities)
 				{
 					edit = new DiagramUndoableEdits.SetIconEdit(
-						diagram,
-						entity,
-						new SimpleIcon());
+							diagram,
+							entity,
+							new SimpleIcon());
 					edit.redo();
 					allEdits.addEdit(edit);
 				}
-				if(entities.size()>1)
+				if (entities.size() > 1)
 				{
 					edit.setLastOfMultiple(true);
 				}
