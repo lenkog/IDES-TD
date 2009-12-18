@@ -24,6 +24,7 @@
 
 package templates.library;
 
+import ides.api.core.Annotable;
 import ides.api.model.fsa.FSAModel;
 
 import java.awt.datatransfer.DataFlavor;
@@ -31,29 +32,71 @@ import java.awt.datatransfer.DataFlavor;
 import templates.utils.EntityIcon;
 
 /**
- * Describes a template (of the type available in a template library).
+ * Describes a template (available in a template library).
  * 
  * @author Lenko Grigorov
  */
 public interface Template
 {
+	/**
+	 * The key to be used when a {@link TemplateDescriptor} is added as an
+	 * annotation.
+	 * 
+	 * @see Annotable
+	 */
 	public static final String TEMPLATE_DESC = "templates.library.TemplateDescriptor";
 
+	/**
+	 * The {@link DataFlavor} for a {@link Template}.
+	 */
 	public static final DataFlavor templateFlavor = new DataFlavor(
 			Template.class,
 			"template");
 
+	/**
+	 * The {@link DataFlavor} for an {@link FSAModel}.
+	 */
 	public static final DataFlavor fsaFlavor = new DataFlavor(
 			FSAModel.class,
 			"FSA");
 
+	/**
+	 * Retrieve the "ID" of the template. This is a short string which can be
+	 * used to identify the template, e.g., by displaying it inside the template
+	 * icon.
+	 * 
+	 * @return the "ID" of the template
+	 */
 	public String getName();
 
+	/**
+	 * Retrieve the icon of the template. This icon can be used when visualizing
+	 * the template.
+	 * 
+	 * @return the icon of the template
+	 */
 	public EntityIcon getIcon();
 
+	/**
+	 * Retrieve the description of the template. This can be a longer piece of
+	 * text including any notes about the template.
+	 * 
+	 * @return the description of the template
+	 */
 	public String getDescription();
 
+	/**
+	 * Retrieve the {@link FSAModel} on which the template is based.
+	 * 
+	 * @return the {@link FSAModel} on which the template is based
+	 */
 	public FSAModel getModel();
 
+	/**
+	 * Create a new instance of the template. The instance is a copy of the
+	 * underlying model.
+	 * 
+	 * @return a new instance of the template
+	 */
 	public FSAModel instantiate();
 }

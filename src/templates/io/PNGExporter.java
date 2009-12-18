@@ -48,20 +48,22 @@ import templates.model.TemplateModel;
  */
 public class PNGExporter implements ImportExportPlugin
 {
+	/**
+	 * The description of the exporter which will appear in the dialog box where
+	 * the user selects the export filter.
+	 */
 	protected static final String description = Hub.string("TD_pngName");
 
+	/**
+	 * The file extension of the output file format.
+	 */
 	protected static final String ext = "png";
 
+	/**
+	 * The number of pixels to use as a frame around the output image.
+	 */
 	protected final static int BORDER_SIZE = 10;
 
-	/**
-	 * Exports a file to a different format
-	 * 
-	 * @param src
-	 *            - the source file
-	 * @param dst
-	 *            - the destination
-	 */
 	public void exportFile(File src, File dst)
 			throws FormatTranslationException
 	{
@@ -108,28 +110,18 @@ public class PNGExporter implements ImportExportPlugin
 	}
 
 	/**
-	 * Import a file from a different format to the IDES file system
-	 * 
-	 * @param importFile
-	 *            - the source file
-	 * @return
+	 * Do nothing as import is not supported.
 	 */
 	public void importFile(File src, File dst)
 	{
 		return;
 	}
 
-	/**
-	 * Return a human readable description of the plugin
-	 */
 	public String getFileDescription()
 	{
 		return description;
 	}
 
-	/**
-	 * 
-	 */
 	public String getFileExtension()
 	{
 		return ext;

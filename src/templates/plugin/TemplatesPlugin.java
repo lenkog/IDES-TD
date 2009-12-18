@@ -83,6 +83,11 @@ public class TemplatesPlugin implements Plugin
 		return Hub.string("TD_VER");
 	}
 
+	/**
+	 * Register all classes necessary to work with template designs:
+	 * {@link TemplateModel}, {@link TemplateToolset}, {@link TemplateFileIO},
+	 * {@link TemplateMetaIO}, template operations, etc.
+	 */
 	public void initialize() throws PluginInitException
 	{
 		// Resources
@@ -131,6 +136,9 @@ public class TemplatesPlugin implements Plugin
 		OperationManager.instance().register(new CentralizedSupSolution());
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void unload()
 	{
 	}

@@ -65,16 +65,28 @@ import templates.model.TemplateComponent;
 import templates.model.TemplateModel;
 
 /**
- * The UI dialog for adding templates to the template library.
+ * The UI dialog for adding templates to the template library or for editing the
+ * properties of existing templates. It lets the user select the FSA model to be
+ * used as the base for the template, as well as the color, description, etc. of
+ * the template.
  * 
+ * @see #addTemplate(TemplateLibrary)
+ * @see #addTemplate(TemplateLibrary, FSAModel)
+ * @see #editTemplate(TemplateLibrary, Template)
  * @author Lenko Grigorov
  */
 public class AddTemplateDialog extends EscapeDialog
 {
 	private static final long serialVersionUID = -2871252921508560702L;
 
+	/**
+	 * Singleton instance.
+	 */
 	private static AddTemplateDialog me = null;
 
+	/**
+	 * Setup the dialog for adding/editing templates.
+	 */
 	private AddTemplateDialog()
 	{
 		super(Hub.getMainWindow(), Hub.string("TD_addTemplateTitle"), true);
@@ -126,7 +138,7 @@ public class AddTemplateDialog extends EscapeDialog
 
 		mainBox.add(Box.createRigidArea(new Dimension(0, 5)));
 
-		selectModelBox = Box.createHorizontalBox();
+		Box selectModelBox = Box.createHorizontalBox();
 		selectModelBox.setBorder(BorderFactory.createTitledBorder(Hub
 				.string("TD_modelBoxTitle")));
 		modelsCombo = new JComboBox();
@@ -181,6 +193,11 @@ public class AddTemplateDialog extends EscapeDialog
 		cancelButton.invalidate();
 	}
 
+	/**
+	 * Access the singleton instance of the dialog for adding/editing templates.
+	 * 
+	 * @return the singleton instance of the dialog
+	 */
 	public static AddTemplateDialog instance()
 	{
 		if (me == null)
@@ -190,6 +207,10 @@ public class AddTemplateDialog extends EscapeDialog
 		return me;
 	}
 
+	/**
+	 * @throws RuntimeException
+	 *             cloning is not allowed
+	 */
 	@Override
 	public Object clone()
 	{
@@ -197,22 +218,50 @@ public class AddTemplateDialog extends EscapeDialog
 				+ " not supported.");
 	}
 
-	protected static Box selectModelBox;
-
+	/**
+	 * The combo box listing the FSA models for the template.
+	 */
 	protected static JComboBox modelsCombo;
 
+	/**
+	 * The icon which displays the color selected for the template.
+	 */
 	protected static ColorIcon colorIcon;
 
+	/**
+	 * The text field where the user can enter the "ID" of the template.
+	 */
 	protected static JTextField tagField;
 
+	/**
+	 * The text area for the description of the template.
+	 */
 	protected static JTextArea descArea;
 
+	/**
+	 * The "OK" button to commit the addition of the new template to the library
+	 * or to commit the changes made to an existing template.
+	 */
 	protected static JButton commitButton;
 
+	/**
+	 * The template library where the new template has to be added or where the
+	 * existing template is located.
+	 */
 	protected static TemplateLibrary library;
 
+	/**
+	 * The existing template whose properties will be modified.
+	 */
 	protected static Template oldTemplate;
 
+	/**
+	 * Display the dialog to enable the addition of a new template to the
+	 * template library.
+	 * 
+	 * @param library
+	 *            the template library where the template has to be added
+	 */
 	public static void addTemplate(TemplateLibrary library)
 	{
 		Set<FSAModel> openModels = new HashSet<FSAModel>();
@@ -247,11 +296,32 @@ public class AddTemplateDialog extends EscapeDialog
 		addTemplate(library, sortedModels);
 	}
 
+	/**
+	 * Display the dialog to enable the addition of a new template to the
+	 * template library. The FSA model to serve as the basis for the new
+	 * template is predefined.
+	 * 
+	 * @param library
+	 *            the template library where the template has to be added
+	 * @param model
+	 *            the FSA model to serve as the basis of the template
+	 */
 	public static void addTemplate(TemplateLibrary library, FSAModel model)
 	{
 		addTemplate(library, Arrays.asList(new FSAModel[] { model }));
 	}
 
+	/**
+	 * Display the dialog to enable the addition of a new template to the
+	 * template library. The list of FSA models available to the user to select
+	 * as the basis of the new template is predefined.
+	 * 
+	 * @param library
+	 *            the template library where the template has to be added
+	 * @param models
+	 *            the list of FSA models which can serve as the basis of the
+	 *            template
+	 */
 	protected static void addTemplate(TemplateLibrary library,
 			Collection<FSAModel> models)
 	{
@@ -291,6 +361,17 @@ public class AddTemplateDialog extends EscapeDialog
 		me.setVisible(true);
 	}
 
+	/**
+	 * Display the dialog to enable the modification of the properties of an
+	 * existing template. The dialog is updated to reflect the current
+	 * properties of the template.
+	 * 
+	 * @param library
+	 *            the template library which contains the template which will be
+	 *            edited
+	 * @param template
+	 *            the template which will be edited
+	 */
 	protected static void editTemplate(TemplateLibrary library,
 			Template template)
 	{
@@ -314,6 +395,10 @@ public class AddTemplateDialog extends EscapeDialog
 		me.setVisible(true);
 	}
 
+	/**
+	 * Called to cancel the addition/editing of the template (e.g., when the
+	 * user presses the Esc key)
+	 */
 	@Override
 	public void onEscapeEvent()
 	{
@@ -321,50 +406,85 @@ public class AddTemplateDialog extends EscapeDialog
 		setVisible(false);
 	}
 
+	/**
+	 * Icon which displays a square with a selected background color.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class ColorIcon implements Icon
 	{
-		protected static final int size = 20;
+		/**
+		 * The length of the side of the icon (square).
+		 */
+		protected static final int SIZE = 20;
 
+		/**
+		 * The color of the background of the icon.
+		 */
 		Color color = Color.WHITE;
 
 		public int getIconHeight()
 		{
-			return size;
+			return SIZE;
 		}
 
 		public int getIconWidth()
 		{
-			return size;
+			return SIZE;
 		}
 
 		public void paintIcon(Component c, Graphics g, int x, int y)
 		{
 			Color old = g.getColor();
 			g.setColor(color);
-			g.fillRect(x, y, size, size);
+			g.fillRect(x, y, SIZE, SIZE);
 			g.setColor(old);
 		}
 
+		/**
+		 * Set the background color of the icon.
+		 * 
+		 * @param color
+		 *            the new background color of the icon
+		 */
 		public void setColor(Color color)
 		{
 			this.color = color;
 		}
 
+		/**
+		 * Retrieve the background color of the icon.
+		 * 
+		 * @return the background color of the icon
+		 */
 		public Color getColor()
 		{
 			return color;
 		}
 	}
 
+	/**
+	 * Renderer of FSA models when shown as items in a list. Displays the names
+	 * of the models.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	private static class FSARenderer extends JLabel implements ListCellRenderer
 	{
 		private static final long serialVersionUID = 4274427026504609797L;
 
+		/**
+		 * Initialize the renderer.
+		 */
 		public FSARenderer()
 		{
 			setOpaque(true);
 		}
 
+		/**
+		 * Retrieve the name of the given model and set up the rendering
+		 * component.
+		 */
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus)
 		{
@@ -388,8 +508,18 @@ public class AddTemplateDialog extends EscapeDialog
 		}
 	}
 
+	/**
+	 * Listener for the user action committing the addition of a new template to
+	 * the template library. This listener is attached to the "OK" button when
+	 * the dialog is displayed to add a new template.
+	 */
 	protected static ActionListener commitAdd = new ActionListener()
 	{
+		/**
+		 * Performs the addition of a new template to the template library. The
+		 * new template is created according to the properties specified in the
+		 * dialog.
+		 */
 		public void actionPerformed(ActionEvent arg0)
 		{
 			if (tagField.getText().length() == 0
@@ -423,8 +553,17 @@ public class AddTemplateDialog extends EscapeDialog
 		}
 	};
 
+	/**
+	 * Listener for the user action committing the modifications of an existing
+	 * template. This listener is attached to the "OK" button when the dialog is
+	 * displayed to edit an existing template.
+	 */
 	protected static ActionListener commitEdit = new ActionListener()
 	{
+		/**
+		 * Commits the modifications of the existing template. The new
+		 * properties of the template are specified in the dialog.
+		 */
 		public void actionPerformed(ActionEvent arg0)
 		{
 			if (tagField.getText().length() == 0

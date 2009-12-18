@@ -36,14 +36,36 @@ import templates.utils.EntityIcon;
  */
 public class FSATemplate implements Template
 {
+	/**
+	 * The "ID" of the template. This is a short string which will appear in the
+	 * icon of the template.
+	 */
 	protected String tag;
 
+	/**
+	 * The description of the template.
+	 */
 	protected String description;
 
+	/**
+	 * The {@link FSAModel} underlying the template.
+	 */
 	protected FSAModel model;
 
+	/**
+	 * The icon of the template.
+	 */
 	protected EntityIcon icon;
 
+	/**
+	 * Create a template based on an {@link FSAModel}, with the properties
+	 * provided in the given {@link TemplateDescriptor}.
+	 * 
+	 * @param td
+	 *            the descriptor with the properties for the new template
+	 * @param model
+	 *            the FSA model on which the template should be based
+	 */
 	public FSATemplate(TemplateDescriptor td, FSAModel model)
 	{
 		tag = td.tag;

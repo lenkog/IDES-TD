@@ -27,6 +27,7 @@ package templates.library;
 import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
+import ides.api.notice.NoticeManager;
 import ides.api.plugin.io.FileLoadException;
 import ides.api.plugin.io.IOSubsytem;
 import ides.api.plugin.model.DESModel;
@@ -41,18 +42,40 @@ import java.util.HashSet;
 import java.util.Map;
 
 /**
- * Provides the functionality of a library of {@link Template}s. 
+ * Library of {@link Template}s.
  * 
  * @author Lenko Grigorov
  */
 public class TemplateLibrary
 {
+	/**
+	 * A map with the templates in the library. The key is the "ID" of the
+	 * template.
+	 * 
+	 * @see Template#getName()
+	 */
 	Map<String, Template> templates = new HashMap<String, Template>();
 
+	/**
+	 * A map with the files where template models are saved.
+	 */
 	Map<Template, File> files = new HashMap<Template, File>();
 
+	/**
+	 * The directory which contains the files where the models of the templates
+	 * in the library are saved.
+	 */
 	File dir;
 
+	/**
+	 * Create a new template library using the files in the given directory.
+	 * Problems encountered when loading the templates are reported in the
+	 * {@link NoticeManager}.
+	 * 
+	 * @param dir
+	 *            the directory which contains the files where the models of the
+	 *            templates in the library are saved
+	 */
 	public TemplateLibrary(File dir)
 	{
 		this.dir = dir;
@@ -89,16 +112,43 @@ public class TemplateLibrary
 		}
 	}
 
+	/**
+	 * Retrieve the set of templates in the library.
+	 * 
+	 * @return the set of templates in the library
+	 */
 	public Collection<Template> getTemplates()
 	{
 		return new HashSet<Template>(templates.values());
 	}
 
+	/**
+	 * Retrieve the template with the given "ID".
+	 * 
+	 * @param name
+	 *            the "ID" of the template
+	 * @return the template with the given "ID" if the library contains it;
+	 *         <code>null</code> otherwise
+	 * @see Template#getName()
+	 */
 	public Template getTemplate(String name)
 	{
 		return templates.get(name);
 	}
 
+	/**
+	 * Add a new template to the library, with the given properties and
+	 * underlying model. The template is saved into a file in the directory of
+	 * templates.
+	 * 
+	 * @param td
+	 *            the properties of the new template
+	 * @param model
+	 *            the underlying model for the new template
+	 * @throws IOException
+	 *             when there is an IO problem while saving the new template
+	 *             into a file
+	 */
 	public void addTemplate(TemplateDescriptor td, FSAModel model)
 			throws IOException
 	{
@@ -137,6 +187,16 @@ public class TemplateLibrary
 		fireCollectionChanged();
 	}
 
+	/**
+	 * Remove a template from the library and remove the file with the template
+	 * from the directory of templates.
+	 * 
+	 * @param name
+	 *            the "ID" of the template to be removed
+	 * @throws IOException
+	 *             when there is an IO problem while removing the file of the
+	 *             template
+	 */
 	public void removeTemplate(String name) throws IOException
 	{
 		Template template = getTemplate(name);
@@ -153,6 +213,15 @@ public class TemplateLibrary
 		}
 	}
 
+	/**
+	 * Reload the given template from the file where the template is saved.
+	 * 
+	 * @param name
+	 *            the "ID" of the template to be reloaded
+	 * @throws IOException
+	 *             when there is an IO problem while loading the template from
+	 *             the file
+	 */
 	public void reloadTemplate(String name) throws IOException
 	{
 		Template oldTemplate = getTemplate(name);
@@ -193,6 +262,18 @@ public class TemplateLibrary
 		}
 	}
 
+	/**
+	 * Load the model of a template from the given file.
+	 * 
+	 * @param file
+	 *            the file containing the template model
+	 * @return the underlying model of the template, annotated with the
+	 *         description of the template
+	 * @throws FileLoadException
+	 *             when the loading of the template model failed; the exception
+	 *             may contain the partially-loaded model
+	 * @see TemplateDescriptor
+	 */
 	protected FSAModel loadTemplateModel(File file) throws FileLoadException
 	{
 		String errors = "";
@@ -234,6 +315,10 @@ public class TemplateLibrary
 		return (FSAModel)model;
 	}
 
+	/**
+	 * Announce a change in the content of the template library to all
+	 * subscribed listeners.
+	 */
 	protected void fireCollectionChanged()
 	{
 		for (TemplateLibraryListener listener : getTemplateLibraryListeners())
@@ -242,13 +327,18 @@ public class TemplateLibrary
 		}
 	}
 
+	/**
+	 * The listeners subscribed to receive notifications from this template
+	 * library.
+	 */
 	private ArrayList<TemplateLibraryListener> listeners = new ArrayList<TemplateLibraryListener>();
 
 	/**
-	 * Attaches the given subscriber to this publisher. The given subscriber
-	 * will receive notifications of changes from this publisher.
+	 * Subscribe the given listener to receive notifications from this template
+	 * library.
 	 * 
-	 * @param subscriber
+	 * @param listener
+	 *            the listener to be subscribed
 	 */
 	public void addListener(TemplateLibraryListener listener)
 	{
@@ -256,10 +346,11 @@ public class TemplateLibrary
 	}
 
 	/**
-	 * Removes the given subscriber to this publisher. The given subscriber will
-	 * no longer receive notifications of changes from this publisher.
+	 * Cancel the subscription the given listener to receive notifications from
+	 * this template library.
 	 * 
-	 * @param subscriber
+	 * @param listener
+	 *            the listener whose subscription is to be cancelled
 	 */
 	public void removeListener(TemplateLibraryListener listener)
 	{
@@ -267,9 +358,9 @@ public class TemplateLibrary
 	}
 
 	/**
-	 * Returns all current subscribers to this publisher.
+	 * Returns all current subscribers to this template library.
 	 * 
-	 * @return all current subscribers to this publisher
+	 * @return all current subscribers to this template library
 	 */
 	public TemplateLibraryListener[] getTemplateLibraryListeners()
 	{

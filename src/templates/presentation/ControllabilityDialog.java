@@ -60,7 +60,8 @@ import templates.diagram.Entity;
 import templates.diagram.actions.DiagramUndoableEdits;
 
 /**
- * The UI dialog which lets the user change the controllability of the events of a channel.
+ * The UI dialog which lets the user change the controllability of the events of
+ * a channel.
  * 
  * @author Lenko Grigorov
  */
@@ -156,26 +157,18 @@ public class ControllabilityDialog extends EscapeDialog
 
 			public void mouseEntered(MouseEvent arg0)
 			{
-				// TODO Auto-generated method stub
-
 			}
 
 			public void mouseExited(MouseEvent arg0)
 			{
-				// TODO Auto-generated method stub
-
 			}
 
 			public void mousePressed(MouseEvent arg0)
 			{
-				// TODO Auto-generated method stub
-
 			}
 
 			public void mouseReleased(MouseEvent arg0)
 			{
-				// TODO Auto-generated method stub
-
 			}
 		});
 

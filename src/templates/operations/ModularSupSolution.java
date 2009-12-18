@@ -39,24 +39,56 @@ import templates.model.Validator.ValidatorResult;
 
 /**
  * Computes the modular supervisory solution for a {@link TemplateModel}.
+ * <p>
+ * Inputs:
+ * <ul>
+ * <li>template design [{@link TemplateModel}]
+ * </ul>
+ * <p>
+ * Outputs:<br>
+ * For each channel in the template design:
+ * <ul>
+ * <li>composition of the modules linked to the channel [{@link FSAModel}]
+ * <li>the synchronized channel [{@link FSAModel}]
+ * <li>supervisor for the channel [{@link FSAModel}]
+ * </ul>
+ * and
+ * <ul>
+ * <li>are all the supervisors locally modular [{@link Boolean}]
+ * </ul>
  * 
  * @author Lenko Grigorov
  */
 public class ModularSupSolution implements Operation
 {
+	/**
+	 * Standard description of the output.
+	 */
+	private static final String[] STD_DESC = new String[] { Hub
+			.string("TD_checklmDesc") };
 
-	private static final String[] STD_DESC=new String[]{
-			Hub.string("TD_checklmDesc")
-	};
-	private static final String[] ERROR_DESC=new String[]{
-		Hub.string("TD_cantComputeSups")
-};
-	private static final String[] NO_OUTPUT_DESC=new String[]{
-		Hub.string("TD_noOutputSups")
-};
-	
-	private String[] description=STD_DESC;
-	
+	/**
+	 * Description of the output when there was an error computing the
+	 * supervisory solution (e.g., due to model inconsistencies).
+	 */
+	private static final String[] ERROR_DESC = new String[] { Hub
+			.string("TD_cantComputeSups") };
+
+	/**
+	 * Description of the output when no supervisors were produced (e.g., when
+	 * there are no channels in a template design).
+	 */
+	private static final String[] NO_OUTPUT_DESC = new String[] { Hub
+			.string("TD_noOutputSups") };
+
+	/**
+	 * The description of the outputs.
+	 */
+	private String[] description = STD_DESC;
+
+	/**
+	 * Collection of warnings accumulated while performing the operation.
+	 */
 	protected List<String> warnings = new LinkedList<String>();
 
 	public String getDescription()
@@ -66,7 +98,7 @@ public class ModularSupSolution implements Operation
 
 	public String[] getDescriptionOfInputs()
 	{
-		return new String[]{Hub.string("TD_modelDesc")};
+		return new String[] { Hub.string("TD_modelDesc") };
 	}
 
 	public String[] getDescriptionOfOutputs()
@@ -91,12 +123,12 @@ public class ModularSupSolution implements Operation
 
 	public Class<?>[] getTypeOfInputs()
 	{
-		return new Class<?>[]{TemplateModel.class};
+		return new Class<?>[] { TemplateModel.class };
 	}
 
 	public Class<?>[] getTypeOfOutputs()
 	{
-		return new Class<?>[]{Boolean.class};
+		return new Class<?>[0];
 	}
 
 	public List<String> getWarnings()
@@ -107,7 +139,7 @@ public class ModularSupSolution implements Operation
 	public Object[] perform(Object[] arg0)
 	{
 		warnings.clear();
-		description=STD_DESC;
+		description = STD_DESC;
 		if (arg0.length != 1)
 		{
 			throw new IllegalArgumentException();
@@ -117,9 +149,9 @@ public class ModularSupSolution implements Operation
 			throw new IllegalArgumentException();
 		}
 		TemplateModel model = (TemplateModel)arg0[0];
-		for(ValidatorResult r:Validator.validate(model))
+		for (ValidatorResult r : Validator.validate(model))
 		{
-			if(r.type==ValidatorResult.ERROR)
+			if (r.type == ValidatorResult.ERROR)
 			{
 				Hub.getNoticeManager().postErrorTemporary(Hub
 						.string("TD_errorsInModel"),
@@ -127,23 +159,24 @@ public class ModularSupSolution implements Operation
 								+ model.getName() + "\' "
 								+ Hub.string("TD_errorsInModel2"));
 				warnings.add(Hub.string("TD_errorsInModel"));
-				description=ERROR_DESC;
-				return new Object[] {new Boolean(true)};
+				description = ERROR_DESC;
+				return new Object[] { true };
 			}
 		}
-		Operation channelsup=OperationManager
-		.instance().getOperation("tdchannelsup");
-		List<FSAModel> models=new LinkedList<FSAModel>();
-		List<FSAModel> sups=new LinkedList<FSAModel>();
-		List<String> descriptions=new LinkedList<String>();
-		for(TemplateComponent channel:model.getChannels())
+		Operation channelsup = OperationManager
+				.instance().getOperation("tdchannelsup");
+		List<FSAModel> models = new LinkedList<FSAModel>();
+		List<FSAModel> sups = new LinkedList<FSAModel>();
+		List<String> descriptions = new LinkedList<String>();
+		for (TemplateComponent channel : model.getChannels())
 		{
-			Object[] result=channelsup.perform(new Object[]{model,channel.getId()});
+			Object[] result = channelsup.perform(new Object[] { model,
+					channel.getId() });
 			String channelName = channel.getModel().getName();
 			if (channelName.startsWith(TemplateModel.FSA_NAME_PREFIX))
 			{
-				channelName = channelName.substring(TemplateModel.FSA_NAME_PREFIX
-						.length());
+				channelName = channelName
+						.substring(TemplateModel.FSA_NAME_PREFIX.length());
 			}
 			((FSAModel)result[0]).setName("M_" + channelName);
 			((FSAModel)result[1]).setName("C_" + channelName);
@@ -152,32 +185,39 @@ public class ModularSupSolution implements Operation
 			models.add((FSAModel)result[1]);
 			models.add((FSAModel)result[2]);
 			sups.add((FSAModel)result[2]);
-			descriptions.add(Hub.string("TD_modulesDesc")+" \""+channelName+"\"");
-			descriptions.add(Hub.string("TD_adjChannel")+" \""+channelName+"\"");
-			descriptions.add(Hub.string("TD_supDesc")+" \""+channelName+"\"");
+			descriptions.add(Hub.string("TD_modulesDesc") + " \"" + channelName
+					+ "\"");
+			descriptions.add(Hub.string("TD_adjChannel") + " \"" + channelName
+					+ "\"");
+			descriptions.add(Hub.string("TD_supDesc") + " \"" + channelName
+					+ "\"");
 			warnings.addAll(channelsup.getWarnings());
 		}
-		if(sups.isEmpty())
+		if (sups.isEmpty())
 		{
 			warnings.add(NO_OUTPUT_DESC[0]);
-			description=NO_OUTPUT_DESC;
-			return new Object[]{true};
+			description = NO_OUTPUT_DESC;
+			return new Object[] { true };
 		}
-		Operation lm=OperationManager.instance().getOperation("localmodular");
-		Boolean isLM=(Boolean)lm.perform(sups.toArray())[0];
-		description=new String[models.size()+1];
-		System.arraycopy(descriptions.toArray(),0,description,0,descriptions.size());
-		if(isLM)
+		Operation lm = OperationManager.instance().getOperation("localmodular");
+		Boolean isLM = (Boolean)lm.perform(sups.toArray())[0];
+		description = new String[models.size() + 1];
+		System.arraycopy(descriptions.toArray(),
+				0,
+				description,
+				0,
+				descriptions.size());
+		if (isLM)
 		{
-			description[description.length-1]=Hub.string("TD_checklmPos");
+			description[description.length - 1] = Hub.string("TD_checklmPos");
 		}
 		else
 		{
-			description[description.length-1]=Hub.string("TD_checklmNeg");
+			description[description.length - 1] = Hub.string("TD_checklmNeg");
 		}
-		Object[] ret=new Object[models.size()+1];
-		System.arraycopy(models.toArray(),0,ret,0,models.size());
-		ret[ret.length-1]=isLM;
+		Object[] ret = new Object[models.size() + 1];
+		System.arraycopy(models.toArray(), 0, ret, 0, models.size());
+		ret[ret.length - 1] = isLM;
 		return ret;
 	}
 

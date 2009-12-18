@@ -25,12 +25,20 @@
 package templates.library;
 
 /**
- * Callback interface for listeners to changes in {@link TemplateLibrary}s.
- * Such listeners need to register with the {@link TemplateLibrary}s they'd like to monitor.
+ * Callback interface for listeners to changes in {@link TemplateLibrary}s. Such
+ * listeners need to register with the {@link TemplateLibrary}s they'd like to
+ * monitor.
  * 
  * @author Lenko Grigorov
  */
 public interface TemplateLibraryListener
 {
+	/**
+	 * Called when there has been a change in the content of the
+	 * {@link TemplateLibrary} to which this listener subscribes.
+	 * 
+	 * @param source
+	 *            the template library whose content has changed
+	 */
 	public void templateCollectionChanged(TemplateLibrary source);
 }

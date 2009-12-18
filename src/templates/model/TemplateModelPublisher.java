@@ -37,14 +37,16 @@ public interface TemplateModelPublisher
 	 * will receive notifications of changes from this publisher.
 	 * 
 	 * @param subscriber
+	 *            the subscriber to be added
 	 */
 	public void addSubscriber(TemplateModelSubscriber subscriber);
 
 	/**
-	 * Removes the given subscriber to this publisher. The given subscriber will
-	 * no longer receive notifications of changes from this publisher.
+	 * Removes the given subscriber from this publisher. The given subscriber
+	 * will no longer receive notifications of changes from this publisher.
 	 * 
 	 * @param subscriber
+	 *            the subscriber to be removed
 	 */
 	public void removeSubscriber(TemplateModelSubscriber subscriber);
 

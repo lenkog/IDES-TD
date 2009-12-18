@@ -42,12 +42,29 @@ import templates.model.TemplateLink;
 import templates.model.TemplateModel;
 
 /**
- * Computes the supervisor for a channel with respect to the modules connected to it.
+ * Computes the supervisor for a channel with respect to the modules connected
+ * to it.
+ * <p>
+ * Inputs:
+ * <ul>
+ * <li>template design [{@link TemplateModel}]
+ * <li>channel ID [{@link Long}]
+ * </ul>
+ * <p>
+ * Outputs:
+ * <ul>
+ * <li>composition of the modules linked to the channel [{@link FSAModel}]
+ * <li>the synchronized channel [{@link FSAModel}]
+ * <li>supervisor [{@link FSAModel}]
+ * </ul>
  * 
  * @author Lenko Grigorov
  */
 public class ChannelSup implements Operation
 {
+	/**
+	 * Collection of warnings accumulated while performing the operation.
+	 */
 	protected List<String> warnings = new LinkedList<String>();
 
 	public String getDescription()

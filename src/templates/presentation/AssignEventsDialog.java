@@ -57,9 +57,11 @@ import javax.swing.SwingUtilities;
 
 import templates.diagram.Connector;
 import templates.diagram.Entity;
+import templates.model.TemplateComponent;
 
 /**
- * The UI dialog which allows the linking of events between components in a template design.
+ * The UI dialog which allows the linking of events between components in a
+ * template design.
  * 
  * @author Lenko Grigorov
  */
@@ -67,12 +69,26 @@ public class AssignEventsDialog extends EscapeDialog
 {
 	private static final long serialVersionUID = 6519071057585162972L;
 
+	/**
+	 * Singleton instance.
+	 */
 	private static AssignEventsDialog me = null;
 
+	/**
+	 * The {@link Connector} between the {@link TemplateComponent}s whose events
+	 * are linked.
+	 */
 	protected static Connector connector = null;
 
+	/**
+	 * The canvas from which the assign events dialog was opened.
+	 */
 	protected static TemplateEditableCanvas canvas = null;
 
+	/**
+	 * Handler of focus for the assign events dialog. When the user clicks
+	 * outside the dialog, commit the changes and close.
+	 */
 	protected static WindowListener commitOnFocusLost = new WindowListener()
 	{
 		public void windowActivated(WindowEvent arg0)
@@ -121,12 +137,27 @@ public class AssignEventsDialog extends EscapeDialog
 		}
 	};
 
+	/**
+	 * Class used to render the icons of the {@link Entity}s which contain the
+	 * {@link TemplateComponent}s whose events are linked.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class EntityRenderer extends JComponent
 	{
 		private static final long serialVersionUID = 2564457321980021865L;
 
+		/**
+		 * The {@link Entity} to be rendered.
+		 */
 		protected Entity entity;
 
+		/**
+		 * Construct an object to render the given {@link Entity}.
+		 * 
+		 * @param entity
+		 *            the {@link Entity} whose icon is to be rendered
+		 */
 		public EntityRenderer(Entity entity)
 		{
 			this.entity = entity;
@@ -146,6 +177,9 @@ public class AssignEventsDialog extends EscapeDialog
 		}
 	}
 
+	/**
+	 * Construct the assign events dialog and set up the generic layout.
+	 */
 	private AssignEventsDialog()
 	{
 		super(Hub.getMainWindow(), Hub.string("TD_assignEventsTitle"));
@@ -349,6 +383,11 @@ public class AssignEventsDialog extends EscapeDialog
 		cancelButton.invalidate();
 	}
 
+	/**
+	 * Retrieve the singleton instance of the assign events dialog.
+	 * 
+	 * @return the singleton instance of the assign events dialog
+	 */
 	protected static AssignEventsDialog instance()
 	{
 		if (me == null)
@@ -358,6 +397,9 @@ public class AssignEventsDialog extends EscapeDialog
 		return me;
 	}
 
+	/**
+	 * Prevent cloning.
+	 */
 	@Override
 	public Object clone()
 	{
@@ -378,30 +420,77 @@ public class AssignEventsDialog extends EscapeDialog
 		rightIcon.removeAll();
 	}
 
+	/**
+	 * Commit the changes to the event links made by the user and close the
+	 * dialog.
+	 */
 	public void commitAndClose()
 	{
 		linker.commitChanges();
 		onEscapeEvent();
 	}
 
+	/**
+	 * The UI element displaying the icon of the left {@link Entity} linked by
+	 * the {@link Connector}.
+	 */
 	protected static JPanel leftIcon = new JPanel();
 
+	/**
+	 * The UI element displaying the icon of the right {@link Entity} linked by
+	 * the {@link Connector}.
+	 */
 	protected static JPanel rightIcon = new JPanel();
 
+	/**
+	 * The UI element displaying the event links.
+	 */
 	protected static JPanel linkerPanel = new JPanel();
 
+	/**
+	 * The UI element which handles the event linking.
+	 */
 	protected static EventLinker linker;
 
+	/**
+	 * Field to type event names for the left {@link Entity}.
+	 */
 	protected static JTextField leftName = new JTextField(10);
 
+	/**
+	 * Button to add new events to the event list for the left {@link Entity}.
+	 */
 	protected static JButton leftAdd;
 
+	/**
+	 * Field to type event names for the right {@link Entity}.
+	 */
 	protected static JTextField rightName = new JTextField(10);
 
+	/**
+	 * Button to add new events to the event list for the right {@link Entity}.
+	 */
 	protected static JButton rightAdd;
 
+	/**
+	 * Set to <code>true</code> if the "left" {@link Entity} linked by the
+	 * {@link Connector} appears to the left of the "right" {@link Entity};
+	 * otherwise set to <code>false</code>.
+	 */
 	protected static boolean isLeftLeft;
 
+	/**
+	 * Show the assign events dialog to let the user link events between the
+	 * {@link TemplateComponent}s contained by the {@link Entity}s connected by
+	 * the given {@link Connector}.
+	 * 
+	 * @param canvas
+	 *            the canvas from which the dialog is invoked
+	 * @param connector
+	 *            the {@link Connector} connecting the {@link Entity}s which
+	 *            contain the {@link TemplateComponent}s whose events the user
+	 *            will be linking
+	 */
 	public static void showAndAssign(TemplateEditableCanvas canvas,
 			Connector connector)
 	{

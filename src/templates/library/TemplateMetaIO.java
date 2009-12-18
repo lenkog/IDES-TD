@@ -50,27 +50,55 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Stores and loads the descriptions of {@link Template}s
- * when the models of the templates are stored and loaded.
+ * Stores and loads the descriptions of {@link Template}s when the models of the
+ * templates are stored and loaded.
  * 
  * @author Lenko Grigorov
  */
 public class TemplateMetaIO implements FileIOPlugin
 {
+	/**
+	 * The "tag" for the meta-data associated with templates.
+	 */
 	protected static final String META_TAG = "template";
 
+	/**
+	 * The version of the meta-data format.
+	 */
 	protected static final String VERSION = "3";
 
+	/**
+	 * The "meta" XML element. It is used to encapsulate the meta-data.
+	 */
 	protected static final String ELEMENT_META = "meta";
 
+	/**
+	 * The "template" XML element. It is used to store the information
+	 * pertaining to a template.
+	 */
 	protected static final String ELEMENT_INFO = "template";
 
+	/**
+	 * The "description" XML element. It is used to store the description of a
+	 * template.
+	 */
 	protected static final String ELEMENT_DESC = "description";
 
+	/**
+	 * The "color" XML attribute. It is used to store the color of the icon of a
+	 * template.
+	 */
 	protected static final String ATTRIBUTE_COLOR = "color";
 
+	/**
+	 * The "tag" XML attribute. It is used to store the "ID" of a template.
+	 */
 	protected static final String ATTRIBUTE_TAG = "tag";
 
+	/**
+	 * @throws UnsupportedOperationException
+	 *             this method is not supported
+	 */
 	public String getIOTypeDescriptor()
 	{
 		throw new UnsupportedOperationException();
@@ -83,6 +111,10 @@ public class TemplateMetaIO implements FileIOPlugin
 		return tags;
 	}
 
+	/**
+	 * @throws UnsupportedOperationException
+	 *             this method is not supported
+	 */
 	public String getSaveDataVersion()
 	{
 		throw new UnsupportedOperationException();
@@ -93,6 +125,10 @@ public class TemplateMetaIO implements FileIOPlugin
 		return VERSION;
 	}
 
+	/**
+	 * @throws UnsupportedOperationException
+	 *             this method is not supported
+	 */
 	public DESModel loadData(String arg0, InputStream arg1, String arg2)
 			throws FileLoadException
 	{
@@ -113,12 +149,12 @@ public class TemplateMetaIO implements FileIOPlugin
 					.string("TD_unsupportedVersion"));
 		}
 		byte[] FILE_HEADER = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-				+ System.getProperty("line.separator") + "<meta>" + System
-				.getProperty("line.separator")).getBytes();
+				+ System.getProperty("line.separator") + "<" + ELEMENT_META
+				+ ">" + System.getProperty("line.separator")).getBytes();
 		HeadTailInputStream metaField = new HeadTailInputStream(
 				stream,
 				FILE_HEADER,
-				"</meta>".getBytes());
+				("</" + ELEMENT_META + ">").getBytes());
 		Document doc = null;
 		try
 		{
@@ -204,6 +240,10 @@ public class TemplateMetaIO implements FileIOPlugin
 		}
 	}
 
+	/**
+	 * @throws UnsupportedOperationException
+	 *             this method is not supported
+	 */
 	public void saveData(PrintStream arg0, DESModel arg1, String arg2)
 			throws FileSaveException
 	{

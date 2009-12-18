@@ -59,6 +59,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import templates.diagram.Connector;
 import templates.diagram.EmptyConnector;
 import templates.diagram.EmptyConnectorSet;
 import templates.diagram.Entity;
@@ -69,61 +70,192 @@ import templates.model.TemplateLink;
 import templates.model.TemplateModel;
 
 /**
- * Provides IO for {@link TemplateModel}s. Also stores and loads the graphical layout
- * information needed for the associated {@link TemplateDiagram}s.
+ * Provides IO for {@link TemplateModel}s. Also stores and loads the graphical
+ * layout information needed for the associated {@link TemplateDiagram}s, as
+ * well as manages the storing and loading of the separate files with the models
+ * of the {@link TemplateComponent}s in {@link TemplateModel}s.
  * 
  * @author Lenko Grigorov
  */
 public class TemplateFileIO implements FileIOPlugin
 {
+	/**
+	 * The string description of {@link TemplateModel}s.
+	 */
 	protected static final String TYPE = "TemplateDesign";
 
+	/**
+	 * The meta tag for the layout information of {@link TemplateDiagram}s.
+	 */
 	protected static final String META = "layout";
 
+	/**
+	 * The version of the file format supported by this class.
+	 */
 	protected static final String VERSION = "3";
 
+	/**
+	 * Key for the annotation of a {@link FSAModel} component of a
+	 * {@link TemplateModel} with information about the location of the file
+	 * where the component is saved.
+	 */
 	protected static final String FILE = "templateComponentFile";
 
+	/**
+	 * Key for the annotation of a {@link TemplateModel} with information about
+	 * the location of the last file to which the model was saved.
+	 */
 	protected static final String LAST_SAVE_FILE = "templateLastSaveFile";
 
+	/**
+	 * "DATA" element of the XML structure used to save a {@link TemplateModel}
+	 * and the associated {@link TemplateDiagram}. Denotes the element which
+	 * contains the description of the {@link TemplateModel}.
+	 */
 	protected static final String ELEMENT_DATA = "data";
 
+	/**
+	 * "COMPONENT" element of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}. Denotes
+	 * the element which describes a {@link TemplateComponent} (<i>module</i> or
+	 * <i>channel</i>) of a {@link TemplateModel}.
+	 */
 	protected static final String ELEMENT_COMPONENT = "component";
 
+	/**
+	 * "LINK" element of the XML structure used to save a {@link TemplateModel}
+	 * and the associated {@link TemplateDiagram}. Denotes the element which
+	 * describes a {@link TemplateLink} between components of a
+	 * {@link TemplateModel}.
+	 */
 	protected static final String ELEMENT_LINK = "link";
 
+	/**
+	 * "ENTITY" element of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}. Denotes
+	 * the element which describes an {@link Entity} in a
+	 * {@link TemplateDiagram}.
+	 */
 	protected static final String ELEMENT_ENTITY = "entity";
 
+	/**
+	 * "CONNECTOR" element of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}. Denotes
+	 * the element which describes a {@link Connector} in a
+	 * {@link TemplateDiagram}.
+	 */
 	protected static final String ELEMENT_CONNECTOR = "connector";
 
+	/**
+	 * "ID" attribute of the XML structure used to save a {@link TemplateModel}
+	 * and the associated {@link TemplateDiagram}. Contains the ID of an element
+	 * in a {@link TemplateModel}.
+	 */
 	protected static final String ATTRIBUTE_ID = "id";
 
+	/**
+	 * "TYPE" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the type (<i>module</i> or <i>channel</i>) of a
+	 * {@link TemplateComponent}.
+	 */
 	protected static final String ATTRIBUTE_TYPE = "type";
 
+	/**
+	 * "MODEL" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the name of the file where the {@link FSAModel} of
+	 * {@link TemplateComponent} is saved.
+	 */
 	protected static final String ATTRIBUTE_FSA = "model";
 
+	/**
+	 * "COMPONENT1" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the ID of the "left" {@link TemplateComponent} in a
+	 * {@link TemplateLink}.
+	 */
 	protected static final String ATTRIBUTE_LEFT = "component1";
 
+	/**
+	 * "COMPONENT2" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the ID of the "right" {@link TemplateComponent} in a
+	 * {@link TemplateLink}.
+	 */
 	protected static final String ATTRIBUTE_RIGHT = "component2";
 
+	/**
+	 * "EVENT1" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the name of the event from the "left" {@link TemplateComponent}
+	 * linked by a {@link TemplateLink}.
+	 */
 	protected static final String ATTRIBUTE_LEFTEVENT = "event1";
 
+	/**
+	 * "EVENT2" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the name of the event from the "right" {@link TemplateComponent}
+	 * linked by a {@link TemplateLink}.
+	 */
 	protected static final String ATTRIBUTE_RIGHTEVENT = "event2";
 
+	/**
+	 * "COMPONENT" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the ID of the {@link TemplateComponent} whose layout information
+	 * is maintained by the {@link Entity}.
+	 */
 	protected static final String ATTRIBUTE_COMPONENT = "component";
 
+	/**
+	 * "X" attribute of the XML structure used to save a {@link TemplateModel}
+	 * and the associated {@link TemplateDiagram}. Contains the x-axis location
+	 * of an {@link Entity}.
+	 */
 	protected static final String ATTRIBUTE_X = "x";
 
+	/**
+	 * "Y" attribute of the XML structure used to save a {@link TemplateModel}
+	 * and the associated {@link TemplateDiagram}. Contains the y-axis location
+	 * of an {@link Entity}.
+	 */
 	protected static final String ATTRIBUTE_Y = "y";
 
+	/**
+	 * "LABEL" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the label of an {@link Entity}.
+	 */
 	protected static final String ATTRIBUTE_LABEL = "label";
 
+	/**
+	 * "COLOR" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains the color of the icon representing an {@link Entity}.
+	 */
 	protected static final String ATTRIBUTE_COLOR = "color";
 
+	/**
+	 * "TAG" attribute of the XML structure used to save a {@link TemplateModel}
+	 * and the associated {@link TemplateDiagram}. Contains the text inside the
+	 * icon representing an {@link Entity}.
+	 */
 	protected static final String ATTRIBUTE_TAG = "tag";
 
+	/**
+	 * "FLAG" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Contains information if the icon of an {@link Entity} is "flagged"
+	 */
 	protected static final String ATTRIBUTE_FLAG = "flag";
 
+	/**
+	 * "ICON" attribute of the XML structure used to save a
+	 * {@link TemplateModel} and the associated {@link TemplateDiagram}.
+	 * Reserved attribute.
+	 */
 	protected static final String ATTRIBUTE_ICON = "icon";
 
 	public String getIOTypeDescriptor()
@@ -138,6 +270,18 @@ public class TemplateFileIO implements FileIOPlugin
 		return tags;
 	}
 
+	/**
+	 * Derive a name for the file where the model of a {@link TemplateComponent}
+	 * will be saved, from the name of the model of the
+	 * {@link TemplateComponent}.
+	 * 
+	 * @param parentFile
+	 *            name of the file where the {@link TemplateModel} is saved
+	 * @param component
+	 *            the {@link TemplateComponent} for which to derive a file name
+	 * @return the file name to be used for saving the model of the
+	 *         {@link TemplateComponent}
+	 */
 	protected String component2File(File parentFile, TemplateComponent component)
 	{
 		StringBuffer name = new StringBuffer();
@@ -168,6 +312,18 @@ public class TemplateFileIO implements FileIOPlugin
 				+ IOSubsytem.MODEL_FILE_EXT;
 	}
 
+	/**
+	 * Derive a name for the model of a {@link TemplateComponent}, from the name
+	 * of the file where the model of the {@link TemplateComponent} is saved.
+	 * 
+	 * @param parentFile
+	 *            name of the file where the {@link TemplateModel} is saved
+	 * @param file
+	 *            the file where the model of the {@link TemplateComponent} is
+	 *            saved
+	 * @return the name to be used for the model of the
+	 *         {@link TemplateComponent}
+	 */
 	protected String file2Component(File parentFile, File file)
 	{
 		String name = file.getName();
@@ -319,7 +475,8 @@ public class TemplateFileIO implements FileIOPlugin
 			{
 				EntityLayout layout = (EntityLayout)c
 						.getAnnotation(Annotable.LAYOUT);
-				boolean flag=c.hasModel()&&c.getModel().hasAnnotation(Entity.FLAG_MARK);
+				boolean flag = c.hasModel()
+						&& c.getModel().hasAnnotation(Entity.FLAG_MARK);
 				stream.print("\t<" + ELEMENT_ENTITY + " " + ATTRIBUTE_COMPONENT
 						+ "=\"" + c.getId() + "\" " + ATTRIBUTE_LABEL + "=\""
 						+ layout.label + "\" " + ATTRIBUTE_X + "=\""
@@ -329,9 +486,12 @@ public class TemplateFileIO implements FileIOPlugin
 				if (layout.color != null)
 				{
 					stream.print(" " + ATTRIBUTE_COLOR + "=\"#"
-							+ (layout.color.getRed()<16?"0":"")+Integer.toHexString(layout.color.getRed())
-							+ (layout.color.getGreen()<16?"0":"")+Integer.toHexString(layout.color.getGreen())
-							+ (layout.color.getBlue()<16?"0":"")+Integer.toHexString(layout.color.getBlue())
+							+ (layout.color.getRed() < 16 ? "0" : "")
+							+ Integer.toHexString(layout.color.getRed())
+							+ (layout.color.getGreen() < 16 ? "0" : "")
+							+ Integer.toHexString(layout.color.getGreen())
+							+ (layout.color.getBlue() < 16 ? "0" : "")
+							+ Integer.toHexString(layout.color.getBlue())
 							+ "\"");
 				}
 				if (!"".equals(layout.tag))
@@ -549,7 +709,6 @@ public class TemplateFileIO implements FileIOPlugin
 		Node dataNode = null;
 		for (int i = 0; i < doc.getChildNodes().getLength(); ++i)
 		{
-			// System.out.println(doc.getChildNodes().item(i).getNodeName());
 			if (doc.getChildNodes().item(i).getNodeName().equals(ELEMENT_DATA))
 			{
 				dataNode = doc.getChildNodes().item(i);
@@ -582,10 +741,8 @@ public class TemplateFileIO implements FileIOPlugin
 							.getNamedItem(ATTRIBUTE_X).getNodeValue()), Integer
 							.parseInt(attributes
 									.getNamedItem(ATTRIBUTE_Y).getNodeValue()));
-					boolean flag=Boolean.parseBoolean(attributes
+					boolean flag = Boolean.parseBoolean(attributes
 							.getNamedItem(ATTRIBUTE_FLAG).getNodeValue());
-//					layout.flag = Boolean.parseBoolean(attributes
-//							.getNamedItem(ATTRIBUTE_FLAG).getNodeValue());
 					if (attributes.getNamedItem(ATTRIBUTE_COLOR) != null)
 					{
 						try
@@ -622,9 +779,11 @@ public class TemplateFileIO implements FileIOPlugin
 					else
 					{
 						component.setAnnotation(Annotable.LAYOUT, layout);
-						if(flag&&component.hasModel())
+						if (flag && component.hasModel())
 						{
-							component.getModel().setAnnotation(Entity.FLAG_MARK,new Object());
+							component
+									.getModel().setAnnotation(Entity.FLAG_MARK,
+											new Object());
 						}
 					}
 				}
@@ -659,7 +818,7 @@ public class TemplateFileIO implements FileIOPlugin
 		}
 		catch (Exception e)
 		{
-//			e.printStackTrace();
+			// e.printStackTrace();
 			throw new FileLoadException(e.getMessage(), model);
 		}
 	}

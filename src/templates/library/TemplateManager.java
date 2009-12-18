@@ -27,27 +27,52 @@ package templates.library;
 import java.io.File;
 
 /**
- * Singleton manager of the {@link TemplateLibrary}s available at runtime.
+ * Singleton manager of the {@link TemplateLibrary}s available at runtime. As of
+ * Template Design plugin version 3, a single template library is maintained, in
+ * the "templates" sub-directory of the IDES installation.
  * 
  * @author Lenko Grigorov
  */
 public class TemplateManager
 {
+	/**
+	 * Singleton instance.
+	 */
 	private static TemplateManager me = null;
-	
+
+	/**
+	 * The library of the local user.
+	 */
 	protected TemplateLibrary localLib;
+
+	/**
+	 * The library shared by all users.
+	 * <p>
+	 * Note: As of Template Design plugin version 3, shared libraries are not
+	 * supported. This functionality is reserved for future releases of the
+	 * Template Design plugin.
+	 */
 	protected TemplateLibrary sharedLib;
 
+	/**
+	 * Initialize the template manager. If the "templates" sub-directory does
+	 * not exist, it is created.
+	 */
 	private TemplateManager()
 	{
-		File local=new File("templates");
-		if(!local.exists())
+		File local = new File("templates");
+		if (!local.exists())
 		{
 			local.mkdir();
 		}
-		localLib=new TemplateLibrary(local);
+		localLib = new TemplateLibrary(local);
 	}
 
+	/**
+	 * Access the singleton instance of the template manager.
+	 * 
+	 * @return the template manager
+	 */
 	public static TemplateManager instance()
 	{
 		if (me == null)
@@ -57,6 +82,10 @@ public class TemplateManager
 		return me;
 	}
 
+	/**
+	 * @throws RuntimeException
+	 *             cloning is not allowed
+	 */
 	@Override
 	public Object clone()
 	{
@@ -64,6 +93,15 @@ public class TemplateManager
 				+ " not supported.");
 	}
 
+	/**
+	 * Retrieve the main template library.
+	 * <p>
+	 * Note: As of Template Design plugin version 3, only one library is
+	 * supported by the {@link TemplateManager}. This method returns this
+	 * library.
+	 * 
+	 * @return the main template library
+	 */
 	public TemplateLibrary getMainLibrary()
 	{
 		return localLib;

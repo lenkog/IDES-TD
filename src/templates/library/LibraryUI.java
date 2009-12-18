@@ -60,9 +60,13 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+
+import templates.model.TemplateModel;
 
 /**
- * The UI for the template library.
+ * The UI for the template library. Displays a list of the templates in the
+ * library, as well as buttons to edit the content of the library.
  * 
  * @author Lenko Grigorov
  */
@@ -71,12 +75,20 @@ public class LibraryUI extends Box implements Presentation,
 {
 	private static final long serialVersionUID = -666343525812865685L;
 
+	/**
+	 * The UI action to add a new template to the template library.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class AddTemplateAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 1033418973771323762L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * Initialize the action.
+		 */
 		public AddTemplateAction()
 		{
 			super(Hub.string("TD_comAddTemplate"));
@@ -85,6 +97,11 @@ public class LibraryUI extends Box implements Presentation,
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintAddTemplate"));
 		}
 
+		/**
+		 * Display the dialog for adding a new template.
+		 * 
+		 * @see AddTemplateDialog
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			AddTemplateDialog.addTemplate(TemplateManager
@@ -92,12 +109,20 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * The UI action to remove a template from the template library.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public class DeleteTemplateAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -4293547969708851728L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * Initialize the action.
+		 */
 		public DeleteTemplateAction()
 		{
 			super(Hub.string("TD_comDeleteTemplate"));
@@ -106,6 +131,9 @@ public class LibraryUI extends Box implements Presentation,
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintDeleteTemplate"));
 		}
 
+		/**
+		 * Remove the selected template. Asks for confirmation before removing.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			Object[] templates = list.getSelectedValues();
@@ -140,12 +168,21 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * The UI action to edit the properties of a template in the template
+	 * library.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public class EditTemplateAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -3546061467454314196L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * Initialize the action.
+		 */
 		public EditTemplateAction()
 		{
 			super(Hub.string("TD_comEditTemplate"));
@@ -154,6 +191,12 @@ public class LibraryUI extends Box implements Presentation,
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintEditTemlate"));
 		}
 
+		/**
+		 * Display the dialog for the editing of the properties of the selected
+		 * template.
+		 * 
+		 * @see AddTemplateDialog
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			Template template = (Template)list.getSelectedValue();
@@ -165,12 +208,21 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * The UI action to load the underlying model of a template into the
+	 * workspace.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public class ViewTemplateAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -7055962471632256236L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * Initialize the action.
+		 */
 		public ViewTemplateAction()
 		{
 			super(Hub.string("TD_comViewTemplate"));
@@ -179,6 +231,10 @@ public class LibraryUI extends Box implements Presentation,
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintViewTemplate"));
 		}
 
+		/**
+		 * Load the underlying model of the selected model into the workspace.
+		 * If the model is already loaded, simply activate the model.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			Template template = (Template)list.getSelectedValue();
@@ -201,15 +257,42 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * Listener to respond to events while the underlying model of a template is
+	 * loaded in the workspace. If the user saves the template model in a
+	 * different file, the model loaded in the library has to be reloaded from
+	 * the original file.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	private class TemplateUpdater implements DESModelSubscriber,
 			WorkspaceSubscriber
 	{
+		/**
+		 * The "ID" of the template.
+		 */
 		protected String template;
 
+		/**
+		 * The underlying model of the template.
+		 */
 		protected DESModel model;
 
+		/**
+		 * The original file where the template is stored.
+		 */
 		protected File file;
 
+		/**
+		 * Create a new listener for the given template.
+		 * 
+		 * @param template
+		 *            the "ID" of the template
+		 * @param model
+		 *            the underlying model of the template
+		 * @param file
+		 *            the original file where the template is stored
+		 */
 		public TemplateUpdater(String template, DESModel model, File file)
 		{
 			this.model = model;
@@ -217,29 +300,37 @@ public class LibraryUI extends Box implements Presentation,
 			this.file = file;
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void modelNameChanged(DESModelMessage arg0)
 		{
 		}
 
+		/**
+		 * If the underlying model was saved in a different file, stop listening
+		 * to the events from the model and reload the template from the
+		 * original file.
+		 */
 		public void saveStatusChanged(DESModelMessage arg0)
 		{
-			// try
-			// {
-			// throw new RuntimeException();
-			// } catch(Exception e)
-			// {
-			// e.printStackTrace();
-			// }
 			if (!file.equals(arg0.getSource().getAnnotation(Annotable.FILE)))
 			{
 				unsubscribeAndReload();
 			}
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void aboutToRearrangeWorkspace()
 		{
 		}
 
+		/**
+		 * If the underlying model was removed from the workspace, stop
+		 * listening to the events from the model.
+		 */
 		public void modelCollectionChanged(WorkspaceMessage arg0)
 		{
 			boolean found = false;
@@ -258,14 +349,26 @@ public class LibraryUI extends Box implements Presentation,
 			}
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void modelSwitched(WorkspaceMessage arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void repaintRequired()
 		{
 		}
 
+		/**
+		 * Stop listening to events from the underlying model and the workspace
+		 * and reload the template from the original file. If changes to the
+		 * underlying model were saved, the reloaded template will contain these
+		 * changes.
+		 */
 		protected void unsubscribeAndReload()
 		{
 			model.removeSubscriber(this);
@@ -284,17 +387,31 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * Renderer of templates when shown as items in a list. Displays the icons
+	 * and descriptions of templates. Used to render the templates in the
+	 * template library.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	private static class TemplateListRenderer extends JLabel implements
 			ListCellRenderer
 	{
 		private static final long serialVersionUID = -4843903577071299167L;
 
+		/**
+		 * Initialize the renderer.
+		 */
 		public TemplateListRenderer()
 		{
 			setOpaque(true);
 			setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 		}
 
+		/**
+		 * Retrieve the icon and description of the given template and set up
+		 * the rendering component.
+		 */
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus)
 		{
@@ -328,12 +445,24 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * The list of templates in the template library.
+	 */
 	protected JList list;
 
+	/**
+	 * The {@link ListModel} used to display the list of templates.
+	 */
 	protected DefaultListModel model;
 
+	/**
+	 * The action to load the underlying model of a template into the workspace
+	 */
 	protected ViewTemplateAction viewAction;
 
+	/**
+	 * Set up the UI for the template library.
+	 */
 	public LibraryUI()
 	{
 		super(BoxLayout.Y_AXIS);
@@ -378,6 +507,10 @@ public class LibraryUI extends Box implements Presentation,
 		add(buttonBox);
 	}
 
+	/**
+	 * Update the list of templates to be displayed according to the current
+	 * content of the template library.
+	 */
 	protected void updateList()
 	{
 		Set<Template> templates = new TreeSet<Template>(
@@ -402,6 +535,9 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void forceRepaint()
 	{
 	}
@@ -411,6 +547,11 @@ public class LibraryUI extends Box implements Presentation,
 		return this;
 	}
 
+	/**
+	 * The {@link LibraryUI} is a presentation shared by all
+	 * {@link TemplateModel}s; it is not model-dependent. This method simply
+	 * returns the model currently active in the workspace.
+	 */
 	public DESModel getModel()
 	{
 		return Hub.getWorkspace().getActiveModel();
@@ -429,15 +570,25 @@ public class LibraryUI extends Box implements Presentation,
 	{
 	}
 
+	/**
+	 * Update the list of templates.
+	 */
 	public void templateCollectionChanged(TemplateLibrary source)
 	{
 		updateList();
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseDragged(MouseEvent arg0)
 	{
 	}
 
+	/**
+	 * Set the tooltip to contain the description of a template when mouse moves
+	 * over this template in the list of template.
+	 */
 	public void mouseMoved(MouseEvent arg0)
 	{
 		int idx = list.locationToIndex(arg0.getPoint());
@@ -452,6 +603,10 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * Load the underlying model of a template when the user double-clicks this
+	 * template in the list of templates.
+	 */
 	public void mouseClicked(MouseEvent arg0)
 	{
 		if (arg0.getClickCount() == 2)
@@ -466,18 +621,30 @@ public class LibraryUI extends Box implements Presentation,
 		}
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseEntered(MouseEvent arg0)
 	{
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseExited(MouseEvent arg0)
 	{
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mousePressed(MouseEvent arg0)
 	{
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseReleased(MouseEvent arg0)
 	{
 	}

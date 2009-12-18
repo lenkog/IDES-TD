@@ -40,16 +40,29 @@ import templates.model.Validator;
 import templates.model.Validator.ValidatorResult;
 
 /**
- * Computes the centralized (monolithic) supervisory solution for a {@link TemplateModel}.
+ * Computes the centralized (monolithic) supervisory solution for a
+ * {@link TemplateModel}.
+ * <p>
+ * Inputs:
+ * <ul>
+ * <li>template design [{@link TemplateModel}]
+ * </ul>
+ * <p>
+ * Outputs:
+ * <ul>
+ * <li>composition of all modules in the template design [{@link FSAModel}]
+ * <li>composition of all synchronized channels in the template design
+ * [{@link FSAModel}]
+ * <li>supervisor [{@link FSAModel}]
+ * </ul>
  * 
  * @author Lenko Grigorov
  */
 public class CentralizedSupSolution implements Operation
 {
-
-	private static final String[] description = { Hub.string("TD_sysDesc"),
-			Hub.string("TD_specDesc"), Hub.string("TD_supDesc") };
-
+	/**
+	 * Collection of warnings accumulated while performing the operation.
+	 */
 	protected List<String> warnings = new LinkedList<String>();
 
 	public String getDescription()
@@ -64,7 +77,8 @@ public class CentralizedSupSolution implements Operation
 
 	public String[] getDescriptionOfOutputs()
 	{
-		return description;
+		return new String[] { Hub.string("TD_sysDesc"),
+				Hub.string("TD_specDesc"), Hub.string("TD_supDesc") };
 	}
 
 	public String getName()
