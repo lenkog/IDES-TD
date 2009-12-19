@@ -67,7 +67,8 @@ import templates.model.TemplateComponent;
 import templates.utils.EntityIcon;
 
 /**
- * The UI dialog which allows the user to assign an FSA model to a component in a template design.
+ * The UI dialog which allows the user to assign an FSA model to a component in
+ * a template design.
  * 
  * @author Lenko Grigorov
  */
@@ -75,17 +76,34 @@ public class AssignFSADialog extends EscapeDialog
 {
 	private static final long serialVersionUID = 2530576123753377680L;
 
+	/**
+	 * Singleton instance.
+	 */
 	private static AssignFSADialog me = null;
 
+	/**
+	 * The {@link Entity} to whose {@link TemplateComponent} a new FSA model
+	 * will be assigned.
+	 */
 	protected static Entity entity = null;
 
+	/**
+	 * The canvas which contains the entity to whose {@link TemplateComponent} a new FSA model
+	 * will be assigned.
+	 */
 	protected static TemplateEditableCanvas canvas = null;
 
-	// the main job will be handled by commitListener on focusLost
+	/**
+	 * Listener for the <code>Enter</code> key. This event will be interpreted
+	 * as the closing of the FSA model assignment dialog by the user.
+	 */
 	protected Action enterListener = new AbstractAction()
 	{
 		private static final long serialVersionUID = 4258152153714537489L;
 
+		/**
+		 * Close the FSA model assignment dialog.
+		 */
 		public void actionPerformed(ActionEvent actionEvent)
 		{
 			canvas.setUIInteraction(false);
@@ -93,8 +111,18 @@ public class AssignFSADialog extends EscapeDialog
 		}
 	};
 
-	protected static WindowListener commitOnFocusLost = new WindowListener()
+	/**
+	 * Handler of focus for the main window of IDES. When the user clicks
+	 * outside the FSA model assignment dialog (i.e., the main window gets
+	 * activated), cancel the model assignment and close.
+	 */
+	protected static WindowListener cancelOnFocusLost = new WindowListener()
 	{
+		/**
+		 * When the main window of IDES is activated because the user clicked on
+		 * it, cancel the FSA model assignment and close the FSA model
+		 * assignment dialog.
+		 */
 		public void windowActivated(WindowEvent arg0)
 		{
 			if (arg0.getOppositeWindow() != null
@@ -116,33 +144,60 @@ public class AssignFSADialog extends EscapeDialog
 			}
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowClosed(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowClosing(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowDeactivated(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowDeiconified(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowIconified(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowOpened(WindowEvent arg0)
 		{
 		}
 	};
 
+	/**
+	 * Listener for the selection of an FSA model from the combo box with FSA
+	 * models.
+	 */
 	protected static ActionListener onSelectModel = new ActionListener()
 	{
+		/**
+		 * Assign a copy of the selected FSA model to the
+		 * {@link TemplateComponent} of the {@link Entity} for which this dialog
+		 * was opened.
+		 */
 		public void actionPerformed(ActionEvent e)
 		{
 			if (!(openModelsCombo.getSelectedItem() instanceof FSACell))
@@ -169,8 +224,17 @@ public class AssignFSADialog extends EscapeDialog
 		}
 	};
 
+	/**
+	 * Listener for the selection of a template from the combo box with
+	 * templates.
+	 */
 	protected static ActionListener onSelectTemplate = new ActionListener()
 	{
+		/**
+		 * Assign a new instance of the selected template to the
+		 * {@link TemplateComponent} of the {@link Entity} for which this dialog
+		 * was opened.
+		 */
 		public void actionPerformed(ActionEvent e)
 		{
 			if (!(templatesCombo.getSelectedItem() instanceof TemplateCell))
@@ -188,12 +252,24 @@ public class AssignFSADialog extends EscapeDialog
 		}
 	};
 
+	/**
+	 * Action to assign an empty FSA model to the {@link TemplateComponent} of
+	 * the {@link Entity} for which this dialog was opened.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class NewFSAAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 8824881153311968903L;
 
+		/**
+		 * The icon associated with the action.
+		 */
 		private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * Set up the action.
+		 */
 		public NewFSAAction()
 		{
 			super(Hub.string("TD_comAssignNewFSA"), icon);
@@ -203,6 +279,10 @@ public class AssignFSADialog extends EscapeDialog
 			putValue(SHORT_DESCRIPTION, Hub.string("TD_comHintAssignNewFSA"));
 		}
 
+		/**
+		 * Assign an empty FSA model to the {@link TemplateComponent} of the
+		 * {@link Entity} for which this dialog was opened.
+		 */
 		public void actionPerformed(ActionEvent arg0)
 		{
 			me.onEscapeEvent();
@@ -214,14 +294,33 @@ public class AssignFSADialog extends EscapeDialog
 		}
 	}
 
+	/**
+	 * Component to display an {@link FSAModel} as an item in the combo box with
+	 * FSA models.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class FSACell extends JLabel
 	{
 		private static final long serialVersionUID = -3672946556518152880L;
 
+		/**
+		 * The {@link FSAModel} which is displayed.
+		 */
 		public FSAModel fsa;
 
+		/**
+		 * The icon for the FSA model.
+		 */
 		public Icon icon = null;
 
+		/**
+		 * Construct a component to display an empty icon and the name of the
+		 * given FSA model.
+		 * 
+		 * @param fsa
+		 *            the {@link FSAModel} to be displayed as an item
+		 */
 		public FSACell(FSAModel fsa)
 		{
 			super(fsa.getName());
@@ -229,6 +328,15 @@ public class AssignFSADialog extends EscapeDialog
 			setBorder(BorderFactory.createEmptyBorder(2, 1, 2, 1));
 		}
 
+		/**
+		 * Construct a component to display the given icon and the name of the
+		 * given FSA model.
+		 * 
+		 * @param fsa
+		 *            the {@link FSAModel} to be displayed as an item
+		 * @param icon
+		 *            the icon to be displayed
+		 */
 		public FSACell(FSAModel fsa, Icon icon)
 		{
 			super(icon);
@@ -239,12 +347,28 @@ public class AssignFSADialog extends EscapeDialog
 		}
 	}
 
+	/**
+	 * Component to display a {@link Template} as an item in the combo box with
+	 * templates.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class TemplateCell extends JLabel
 	{
 		private static final long serialVersionUID = -8477312997483571474L;
 
+		/**
+		 * The {@link Template} which is displayed.
+		 */
 		public Template template;
 
+		/**
+		 * Construct a component to display the icon and name of the given
+		 * template.
+		 * 
+		 * @param template
+		 *            the {@link Template} to be displayed as an item
+		 */
 		public TemplateCell(Template template)
 		{
 			super(template.getIcon());
@@ -255,17 +379,35 @@ public class AssignFSADialog extends EscapeDialog
 		}
 	}
 
+	/**
+	 * Renderer of {@link JLabel}s when shown as items in a list. Used to render
+	 * the items in the combo boxes with FSA models and templates.
+	 * 
+	 * @see FSACell
+	 * @see TemplateCell
+	 * @author Lenko Grigorov
+	 */
 	protected class JLabelListRenderer extends Box implements ListCellRenderer
 	{
 		private static final long serialVersionUID = -4858000916109104619L;
 
+		/**
+		 * A default {@link JLabel} used to contain the string description of a
+		 * rendered item in case the item is not a {@link JLabel}.
+		 */
 		protected JLabel defaultLabel = new JLabel();
 
+		/**
+		 * Initialize the renderer.
+		 */
 		public JLabelListRenderer()
 		{
 			super(BoxLayout.X_AXIS);
 		}
 
+		/**
+		 * Retrieve the {@link JLabel} for the list item.
+		 */
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus)
 		{
@@ -296,6 +438,9 @@ public class AssignFSADialog extends EscapeDialog
 		}
 	}
 
+	/**
+	 * Construct and set up the FSA model assignment dialog.
+	 */
 	private AssignFSADialog()
 	{
 		super(Hub.getMainWindow(), Hub.string("TD_assignFSATitle"));
@@ -345,6 +490,12 @@ public class AssignFSADialog extends EscapeDialog
 
 	}
 
+	/**
+	 * Access the singleton instance of the dialog for the assignment of an FSA
+	 * model.
+	 * 
+	 * @return the singleton instance of the dialog
+	 */
 	public static AssignFSADialog instance()
 	{
 		if (me == null)
@@ -354,6 +505,10 @@ public class AssignFSADialog extends EscapeDialog
 		return me;
 	}
 
+	/**
+	 * @throws RuntimeException
+	 *             cloning is not allowed
+	 */
 	@Override
 	public Object clone()
 	{
@@ -361,10 +516,26 @@ public class AssignFSADialog extends EscapeDialog
 				+ " not supported.");
 	}
 
+	/**
+	 * The combo box with FSA models.
+	 */
 	protected static JComboBox openModelsCombo;
 
+	/**
+	 * The combo box with templates.
+	 */
 	protected static JComboBox templatesCombo;
 
+	/**
+	 * Refresh the content of the combo boxes with FSA models and templates,
+	 * display the FSA model assignment dialog, and wait for user input.
+	 * 
+	 * @param canvas
+	 *            the canvas which contains the given entity
+	 * @param entity
+	 *            the {@link Entity} to whose {@link TemplateComponent} a new
+	 *            FSA model will be assigned
+	 */
 	public static void showAndAssign(TemplateEditableCanvas canvas,
 			Entity entity)
 	{
@@ -439,14 +610,14 @@ public class AssignFSADialog extends EscapeDialog
 		boolean hasOurListener = false;
 		for (int i = 0; i < Hub.getMainWindow().getWindowListeners().length; ++i)
 		{
-			if (Hub.getMainWindow().getWindowListeners()[i] == commitOnFocusLost)
+			if (Hub.getMainWindow().getWindowListeners()[i] == cancelOnFocusLost)
 			{
 				hasOurListener = true;
 			}
 		}
 		if (!hasOurListener)
 		{
-			Hub.getMainWindow().addWindowListener(commitOnFocusLost);
+			Hub.getMainWindow().addWindowListener(cancelOnFocusLost);
 		}
 		Point p = new Point(entity.getLocation().x, entity.getLocation().y);
 		p = canvas.localToScreen(p);
@@ -464,10 +635,14 @@ public class AssignFSADialog extends EscapeDialog
 		me.setVisible(true);
 	}
 
+	/**
+	 * Called to cancel the assignment of an FSA model (e.g., when the user
+	 * presses the <code>Esc</code> key).
+	 */
 	@Override
 	public void onEscapeEvent()
 	{
-		Hub.getMainWindow().removeWindowListener(commitOnFocusLost);
+		Hub.getMainWindow().removeWindowListener(cancelOnFocusLost);
 		openModelsCombo.removeActionListener(onSelectModel);
 		openModelsCombo.removeAllItems();
 		templatesCombo.removeActionListener(onSelectTemplate);

@@ -201,7 +201,7 @@ public class UIActions
 
 		public void actionPerformed(ActionEvent evt)
 		{
-			AssignEventsDialog.showAndAssign(canvas, connector);
+			EventLinksDialog.showAndAssign(canvas, connector);
 		}
 	}
 
@@ -549,6 +549,12 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * @deprecated This class is not maintained. It might be used in future releases of the Template Design plugin.
+	 * @author Lenko Grigorov
+	 *
+	 */
+	@Deprecated
 	public static class SetControllabilityAction extends AbstractAction
 	{
 

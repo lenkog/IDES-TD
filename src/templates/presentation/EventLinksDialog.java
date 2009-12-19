@@ -65,14 +65,14 @@ import templates.model.TemplateComponent;
  * 
  * @author Lenko Grigorov
  */
-public class AssignEventsDialog extends EscapeDialog
+public class EventLinksDialog extends EscapeDialog
 {
 	private static final long serialVersionUID = 6519071057585162972L;
 
 	/**
 	 * Singleton instance.
 	 */
-	private static AssignEventsDialog me = null;
+	private static EventLinksDialog me = null;
 
 	/**
 	 * The {@link Connector} between the {@link TemplateComponent}s whose events
@@ -81,16 +81,23 @@ public class AssignEventsDialog extends EscapeDialog
 	protected static Connector connector = null;
 
 	/**
-	 * The canvas from which the assign events dialog was opened.
+	 * The canvas which contains the connector between the {@link TemplateComponent}s whose events
+	 * are linked.
 	 */
 	protected static TemplateEditableCanvas canvas = null;
 
 	/**
-	 * Handler of focus for the assign events dialog. When the user clicks
-	 * outside the dialog, commit the changes and close.
+	 * Handler of focus for the main window of IDES. When the user clicks
+	 * outside the event linking dialog (i.e., the main window gets activated),
+	 * commit the changes and close.
 	 */
 	protected static WindowListener commitOnFocusLost = new WindowListener()
 	{
+		/**
+		 * When the main window of IDES is activated because the user clicked on
+		 * it, commit the changes to the linking of events and close the event
+		 * linking dialog.
+		 */
 		public void windowActivated(WindowEvent arg0)
 		{
 			if (arg0.getOppositeWindow() != null
@@ -112,26 +119,44 @@ public class AssignEventsDialog extends EscapeDialog
 			}
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowClosed(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowClosing(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowDeactivated(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowDeiconified(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowIconified(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowOpened(WindowEvent arg0)
 		{
 		}
@@ -180,7 +205,7 @@ public class AssignEventsDialog extends EscapeDialog
 	/**
 	 * Construct the assign events dialog and set up the generic layout.
 	 */
-	private AssignEventsDialog()
+	private EventLinksDialog()
 	{
 		super(Hub.getMainWindow(), Hub.string("TD_assignEventsTitle"));
 		addWindowListener(new WindowAdapter()
@@ -326,7 +351,7 @@ public class AssignEventsDialog extends EscapeDialog
 		try
 		{
 			iconLabel.setIcon(new ImageIcon(ImageIO.read(Hub
-					.getLocalResource(AssignEventsDialog.class,
+					.getLocalResource(EventLinksDialog.class,
 							"images/icons/exclamation.gif"))));
 		}
 		catch (IOException e)
@@ -384,21 +409,22 @@ public class AssignEventsDialog extends EscapeDialog
 	}
 
 	/**
-	 * Retrieve the singleton instance of the assign events dialog.
+	 * Access the singleton instance of the assign events dialog.
 	 * 
 	 * @return the singleton instance of the assign events dialog
 	 */
-	protected static AssignEventsDialog instance()
+	protected static EventLinksDialog instance()
 	{
 		if (me == null)
 		{
-			me = new AssignEventsDialog();
+			me = new EventLinksDialog();
 		}
 		return me;
 	}
 
 	/**
-	 * Prevent cloning.
+	 * @throws RuntimeException
+	 *             cloning is not allowed
 	 */
 	@Override
 	public Object clone()
@@ -407,6 +433,10 @@ public class AssignEventsDialog extends EscapeDialog
 				+ " not supported.");
 	}
 
+	/**
+	 * Called to cancel the changes made to the linking of events (e.g., when
+	 * the user presses the <code>Esc</code> key).
+	 */
 	@Override
 	public void onEscapeEvent()
 	{
@@ -485,7 +515,7 @@ public class AssignEventsDialog extends EscapeDialog
 	 * the given {@link Connector}.
 	 * 
 	 * @param canvas
-	 *            the canvas from which the dialog is invoked
+	 *            the canvas which contains the given connector
 	 * @param connector
 	 *            the {@link Connector} connecting the {@link Entity}s which
 	 *            contain the {@link TemplateComponent}s whose events the user
@@ -495,8 +525,8 @@ public class AssignEventsDialog extends EscapeDialog
 			Connector connector)
 	{
 		instance();
-		AssignEventsDialog.canvas = canvas;
-		AssignEventsDialog.connector = connector;
+		EventLinksDialog.canvas = canvas;
+		EventLinksDialog.connector = connector;
 		if (connector.getLeftEntity().getLocation().x > connector
 				.getRightEntity().getLocation().x)
 		{

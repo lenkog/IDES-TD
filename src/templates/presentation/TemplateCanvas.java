@@ -24,6 +24,7 @@
 
 package templates.presentation;
 
+import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.presentation.Presentation;
@@ -46,7 +47,8 @@ import templates.diagram.TemplateDiagramSubscriber;
 import templates.model.TemplateModel;
 
 /**
- * The UI element which renders the graphical representation of a {@link TemplateModel}.
+ * The UI element which renders the graphical representation of a
+ * {@link TemplateModel}.
  * 
  * @author Lenko Grigorov
  */
@@ -55,18 +57,48 @@ public class TemplateCanvas extends JComponent implements Presentation,
 {
 	private static final long serialVersionUID = 8536845910460021585L;
 
+	/**
+	 * The key to be used to annotate a {@link TemplateModel} with the
+	 * {@link TemplateDiagram} for the model.
+	 * 
+	 * @see Annotable
+	 */
 	protected static final String DIAGRAM = "templates.diagram.TemplateDiagram";
 
+	/**
+	 * The graphics context for rendering the template diagram.
+	 */
 	protected static Graphics graphics = null;
 
+	/**
+	 * The template design to be rendered.
+	 */
 	protected TemplateModel model;
 
+	/**
+	 * The template diagram for the {@link TemplateModel} rendered by this
+	 * canvas.
+	 */
 	protected TemplateDiagram diagram;
 
+	/**
+	 * The scaling factor when rendering the diagram.
+	 */
 	protected float scaleFactor = 1;
 
+	/**
+	 * Information about whether to scale the diagram to fit the size of the
+	 * component containing the canvas. Set to <code>true</code> if the diagram
+	 * should be scaled, set to <code>false</code> otherwise.
+	 */
 	protected boolean scaleToFit = true;
 
+	/**
+	 * Construct and set up a new canvas to render the given template design.
+	 * 
+	 * @param model
+	 *            the template design to be rendered
+	 */
 	public TemplateCanvas(TemplateModel model)
 	{
 		super();
@@ -79,9 +111,18 @@ public class TemplateCanvas extends JComponent implements Presentation,
 		DiagramElement.setGlobalFontRenderer(graphics);
 		diagram = retrieveDiagram(model);
 		diagram.addSubscriber(this);
-		// refresh();
 	}
 
+	/**
+	 * Retrieve the {@link TemplateDiagram} for the given {@link TemplateModel}.
+	 * If the diagram cannot be found as an annotation of the model, create a
+	 * new template diagram for the model and set it as an annotation.
+	 * 
+	 * @param model
+	 *            the template design whose diagram should be retrieved
+	 * @return the template diagram for the given model (potentially newly
+	 *         created)
+	 */
 	private static TemplateDiagram retrieveDiagram(TemplateModel model)
 	{
 		TemplateDiagram diagram = null;
@@ -97,11 +138,19 @@ public class TemplateCanvas extends JComponent implements Presentation,
 		return diagram;
 	}
 
+	/**
+	 * Set up the graphics context for the rendering of the template diagram.
+	 */
 	private static void setupGraphics()
 	{
 		graphics = Hub.getMainWindow().getGraphics().create();
 	}
 
+	/**
+	 * Retrieve the template diagram rendered by this canvas.
+	 * 
+	 * @return the template diagram rendered by this canvas
+	 */
 	public TemplateDiagram getDiagram()
 	{
 		return diagram;
@@ -134,8 +183,6 @@ public class TemplateCanvas extends JComponent implements Presentation,
 
 	public void setTrackModel(boolean arg0)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	public Dimension getPreferredSize()
@@ -157,21 +204,40 @@ public class TemplateCanvas extends JComponent implements Presentation,
 		paintCore(g2d);
 	}
 
+	/**
+	 * Paint only the template diagram itself. This method can be used by
+	 * subclasses to augment the graphics context before the painting of the
+	 * diagram.
+	 * 
+	 * @param g2d
+	 *            the graphics context where the template diagram should be
+	 *            painted
+	 */
 	protected void paintCore(Graphics2D g2d)
 	{
 		diagram.draw(g2d);
 	}
 
+	/**
+	 * Refresh the rendering of the diagram.
+	 */
 	public void templateDiagramChanged(TemplateDiagramMessage message)
 	{
 		refresh();
 	}
 
+	/**
+	 * Refresh the rendering of the diagram.
+	 */
 	public void templateDiagramSelectionChanged(TemplateDiagramMessage message)
 	{
 		repaint();
 	}
 
+	/**
+	 * Refresh the rendering of the diagram. Compute the new scaling factor and
+	 * repaint.
+	 */
 	public void refresh()
 	{
 		if (scaleToFit && getParent() != null)

@@ -49,7 +49,7 @@ import templates.diagram.Entity;
 import templates.diagram.actions.DiagramActions;
 
 /**
- * The UI dialog to label components in the template design.
+ * The UI dialog to label components ({@link Entity}s) in the template design.
  * 
  * @author Lenko Grigorov
  */
@@ -57,24 +57,50 @@ public class EntityLabellingDialog extends EscapeDialog
 {
 	private static final long serialVersionUID = -9128357609584017316L;
 
+	/**
+	 * Singleton instance.
+	 */
 	private static EntityLabellingDialog me = null;
 
+	/**
+	 * The {@link Entity} which will be relabelled.
+	 */
 	protected static Entity entity = null;
 
+	/**
+	 * The canvas which contains the entity which will be relabelled.
+	 */
 	protected static TemplateEditableCanvas canvas = null;
 
+	/**
+	 * Listener for the <code>Enter</code> key.
+	 */
 	protected Action enterListener = new AbstractAction()
 	{
 		private static final long serialVersionUID = 4258152153714537489L;
 
+		/**
+		 * Commit the new label of the entity and close the component labelling
+		 * dialog.
+		 */
 		public void actionPerformed(ActionEvent actionEvent)
 		{
 			commitAndClose();
 		}
 	};
 
+	/**
+	 * Handler of focus for the main window of IDES. When the user clicks
+	 * outside the component labelling dialog (i.e., the main window gets
+	 * activated), commit the changes and close.
+	 */
 	protected static WindowListener commitOnFocusLost = new WindowListener()
 	{
+		/**
+		 * When the main window of IDES is activated because the user clicked on
+		 * it, commit the new label of the entity and close the component
+		 * labelling dialog.
+		 */
 		public void windowActivated(WindowEvent arg0)
 		{
 			if (arg0.getOppositeWindow() != null
@@ -96,31 +122,52 @@ public class EntityLabellingDialog extends EscapeDialog
 			}
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowClosed(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowClosing(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowDeactivated(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowDeiconified(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowIconified(WindowEvent arg0)
 		{
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void windowOpened(WindowEvent arg0)
 		{
 		}
 	};
 
+	/**
+	 * Construct and set up the component labelling dialog.
+	 */
 	private EntityLabellingDialog()
 	{
 		super(Hub.getMainWindow(), Hub.string("TD_entityLabellingTitle"));
@@ -147,6 +194,11 @@ public class EntityLabellingDialog extends EscapeDialog
 		pack();
 	}
 
+	/**
+	 * Access the singleton instance of the component labelling dialog.
+	 * 
+	 * @return the singleton instance of the component labelling dialog
+	 */
 	public static EntityLabellingDialog instance()
 	{
 		if (me == null)
@@ -156,6 +208,10 @@ public class EntityLabellingDialog extends EscapeDialog
 		return me;
 	}
 
+	/**
+	 * @throws RuntimeException
+	 *             cloning is not allowed
+	 */
 	@Override
 	public Object clone()
 	{
@@ -163,8 +219,20 @@ public class EntityLabellingDialog extends EscapeDialog
 				+ " not supported.");
 	}
 
+	/**
+	 * The input field where the user can enter the new label for the entity.
+	 */
 	protected static JTextField area;
 
+	/**
+	 * Display the component labelling dialog to let the user enter a new label
+	 * for the given entity.
+	 * 
+	 * @param canvas
+	 *            the canvas which contains the given entity
+	 * @param entity
+	 *            the entity which will be relabelled
+	 */
 	public static void showAndLabel(TemplateEditableCanvas canvas, Entity entity)
 	{
 		canvas.setUIInteraction(true);
@@ -204,6 +272,10 @@ public class EntityLabellingDialog extends EscapeDialog
 		area.requestFocus();
 	}
 
+	/**
+	 * Called to close the component labelling dialog (e.g., when the user
+	 * presses the <code>Esc</code> key or the relabelling is complete).
+	 */
 	@Override
 	public void onEscapeEvent()
 	{
@@ -212,6 +284,9 @@ public class EntityLabellingDialog extends EscapeDialog
 		setVisible(false);
 	}
 
+	/**
+	 * Relabel the entity and close the component labelling dialog.
+	 */
 	protected void commitAndClose()
 	{
 		if (canvas != null && !area.getText().equals(entity.getLabel()))

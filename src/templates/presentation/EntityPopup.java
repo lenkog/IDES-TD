@@ -30,7 +30,8 @@ import templates.diagram.Entity;
 import templates.model.TemplateComponent;
 
 /**
- * The context (right-click) pop-up menu for components in a {@link TemplateEditableCanvas}.
+ * The context (right-click) pop-up menu for components in a
+ * {@link TemplateEditableCanvas}.
  * 
  * @author Lenko Grigorov
  */
@@ -38,6 +39,14 @@ public class EntityPopup extends JPopupMenu
 {
 	private static final long serialVersionUID = -2569273570320479180L;
 
+	/**
+	 * Construct the context pop-up menu for the given entity.
+	 * 
+	 * @param canvas
+	 *            the canvas which contains the given entity
+	 * @param entity
+	 *            the entity for which the context menu is constructed
+	 */
 	public EntityPopup(TemplateEditableCanvas canvas, Entity entity)
 	{
 		super();

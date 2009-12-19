@@ -40,28 +40,83 @@ import templates.diagram.TemplateDiagram;
 import templates.diagram.actions.DiagramActions;
 
 /**
- * Processes the mouse actions of the user when manipulating a {@link TemplateEditableCanvas}. 
+ * Processes the mouse actions of the user when manipulating a
+ * {@link TemplateEditableCanvas}. This is a non-exhaustive list of supported
+ * mouse actions:
+ * <ul>
+ * <li>double-click on empty space to create entities
+ * <li>create connectors between entities by either clicking and dragging or by
+ * clicking on each entity
+ * <li>double-click on entity labels to relabel them
+ * <li>double-click on connectors to open the event links dialog
+ * <li>double-click on entities to open the underlying models
+ * <li>double-click on "S" icons to compute channel supervisors
+ * <li>right-click to open the context pop-up menu
+ * <li>drag entities to relocate them
+ * <li>click to select diagram elements
+ * <li>drag around entities to select them
+ * <li>hover over diagram elements to highlight them
+ * </ul>
  * 
+ * @see TemplateEditableCanvas
  * @author Lenko Grigorov
  */
 public class MouseInterpreter implements MouseListener, MouseMotionListener
 {
+	/**
+	 * The canvas with which the user interacts.
+	 */
 	protected TemplateEditableCanvas canvas;
 
+	/**
+	 * The template diagram in displayed in the canvas.
+	 */
 	protected TemplateDiagram diagram;
 
+	/**
+	 * The location of the mouse cursor when the mouse button was depressed
+	 * last.
+	 */
 	protected Point mouseDownAt = null;
 
+	/**
+	 * The diagram element under the mouse cursor when the mouse button was
+	 * depressed last. Set to <code>null</code> in case there is no such
+	 * element.
+	 */
 	protected DiagramElement mouseDownOn = null;
 
+	/**
+	 * The last recorded location of the mouse cursor while the user was
+	 * dragging.
+	 */
 	protected Point lastDragLocation = null;
 
+	/**
+	 * Information about whether the dragging operation was performed to drag
+	 * the current selection. Set to <code>true</code> if the user dragged the
+	 * current selection, set to <code>false</code> otherwise.
+	 */
 	protected boolean draggedSelection = false;
 
+	/**
+	 * Counter of how many times the user clicked the mouse button while drawing
+	 * a new connector.
+	 */
 	private int connectorClickCount = 0;
 
+	/**
+	 * The entity where the new connector originates when the user starts
+	 * drawing a new connector.
+	 */
 	protected Entity connectorOrigin = null;
 
+	/**
+	 * Construct a new mouse interpreter for the given canvas.
+	 * 
+	 * @param canvas
+	 *            the canvas for with which the user will interact
+	 */
 	public MouseInterpreter(TemplateEditableCanvas canvas)
 	{
 		this.canvas = canvas;
@@ -128,7 +183,7 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 					}
 					else if (mouseDownOn instanceof Connector)
 					{
-						AssignEventsDialog.showAndAssign(canvas,
+						EventLinksDialog.showAndAssign(canvas,
 								(Connector)mouseDownOn);
 					}
 				}
@@ -136,6 +191,13 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		}
 	}
 
+	/**
+	 * Show the context (right-click) pop-up menu for the diagram element under
+	 * the mouse cursor.
+	 * 
+	 * @param arg0
+	 *            the description of the mouse event
+	 */
 	public void mousePopupTrigger(MouseEvent arg0)
 	{
 		if (arg0.getClickCount() == 1)
@@ -165,16 +227,18 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		}
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseEntered(MouseEvent arg0)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseExited(MouseEvent arg0)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	public void mousePressed(MouseEvent arg0)
@@ -284,6 +348,10 @@ public class MouseInterpreter implements MouseListener, MouseMotionListener
 		lastDragLocation = null;
 	}
 
+	/**
+	 * Cancel the drawing of a new connector (e.g., when the user does not
+	 * finish drawing the connector before engaging in a different activity).
+	 */
 	protected void cancelConnector()
 	{
 		if (canvas.isDrawingConnector())

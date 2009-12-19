@@ -67,13 +67,17 @@ import templates.diagram.Entity;
 import templates.diagram.TemplateDiagram;
 import templates.diagram.actions.DiagramActions;
 import templates.diagram.actions.DiagramUndoableEdits;
+import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
 
 /**
- * The UI component which handles the user actions to establish links
- * between the events of two template design components.
- * Employed by {@link AssignEventsDialog}.
+ * The UI element which handles the user actions to establish links between the
+ * events of two template design components. This is an element which displays
+ * the events of the template components and the links between them, and lets
+ * the user modify the linking of events. Employed by {@link EventLinksDialog}
+ * .
  * 
+ * @see EventLinksDialog
  * @author Lenko Grigorov
  */
 public class EventLinker extends JComponent implements MouseMotionListener,
@@ -81,17 +85,44 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 {
 	private static final long serialVersionUID = -4822009760932585969L;
 
+	/**
+	 * The UI component used to render an event label in the event linker.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected class EventLabel extends Rectangle implements
 			Comparable<EventLabel>
 	{
 		private static final long serialVersionUID = 2717683995578252705L;
 
+		/**
+		 * The {@link Entity} for the {@link TemplateComponent} whose event is
+		 * rendered.
+		 */
 		public Entity mom;
 
+		/**
+		 * The name of the event.
+		 */
 		public String name;
 
+		/**
+		 * Information about whether the event is a part of the underlying model
+		 * of the corresponding template component. Set to <code>true</code> if
+		 * the event is a part of the model, set to <code>false</code>
+		 * otherwise.
+		 */
 		public boolean isInModel = false;
 
+		/**
+		 * Construct a new event label for the given event.
+		 * 
+		 * @param mom
+		 *            the {@link Entity} for the {@link TemplateComponent} whose
+		 *            event will be rendered
+		 * @param name
+		 *            the name of the event
+		 */
 		public EventLabel(Entity mom, String name)
 		{
 			this.mom = mom;
@@ -100,11 +131,22 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 			width = metrics.stringWidth(name);
 		}
 
+		/**
+		 * Render the event label in the given graphics context.
+		 * 
+		 * @param g2d
+		 *            the graphics context where the event label should be
+		 *            rendered
+		 */
 		public void paint(Graphics2D g2d)
 		{
 			g2d.drawString(name, x, y + metrics.getAscent());
 		}
 
+		/**
+		 * Compare first according to the hash code of the template component
+		 * whose event is rendered; then according to the name of the event.
+		 */
 		public int compareTo(EventLabel arg0)
 		{
 			if (mom != arg0.mom)
@@ -121,25 +163,61 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	}
 
+	/**
+	 * The UI component used to render a link between two events.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected class LabelLink extends Line2D.Float
 	{
 		private static final long serialVersionUID = 3684262819232368097L;
 
+		/**
+		 * The event label on the left side of the link.
+		 */
 		EventLabel leftSide;
 
+		/**
+		 * The event label on the right side of the link.
+		 */
 		EventLabel rightSide;
 
+		/**
+		 * Construct a new event link with the given event labels.
+		 * 
+		 * @param leftSide
+		 *            the event label on the left side of the link
+		 * @param rightSide
+		 *            the event label on the right side of the link
+		 */
 		public LabelLink(EventLabel leftSide, EventLabel rightSide)
 		{
 			this.leftSide = leftSide;
 			this.rightSide = rightSide;
 		}
 
+		/**
+		 * Determine if the line drawn to represent the link contains the given
+		 * point (within a degree of proximity).
+		 * 
+		 * @param p
+		 *            the point
+		 * @return <code>true</code> if the line drawn to represent the link
+		 *         contains the given point (within a degree of proximity);
+		 *         <code>false</code> otherwise
+		 */
 		public boolean contains(Point p)
 		{
 			return ptSegDist(p.x, p.y) <= LINK_SENSITIVITY;
 		}
 
+		/**
+		 * Render the event link in the given graphics context.
+		 * 
+		 * @param g2d
+		 *            the graphics context where the event link should be
+		 *            rendered
+		 */
 		public void paint(Graphics2D g2d)
 		{
 			x1 = leftSide.x + leftSide.width + LINK_SPACING + 1;
@@ -155,34 +233,98 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	}
 
+	/**
+	 * The top and bottom margins of event labels (in pixels).
+	 */
 	protected static final int EVENT_SPACING = 2;
 
+	/**
+	 * The left and right margins of event labels (in pixels).
+	 */
 	protected static final int LINK_SPACING = 4;
 
+	/**
+	 * The degree of proximity to be used when checking if a point lies on the
+	 * link between events (in pixels).
+	 */
 	protected static final int LINK_SENSITIVITY = 3;
 
+	/**
+	 * The minimal horizontal space which should be available to render event
+	 * links (in pixels).
+	 */
 	protected static final int MIN_LINK_WIDTH = 100;
 
+	/**
+	 * The minimal height of the event linker component (in pixels).
+	 */
 	protected static final int MIN_HEIGHT = 250;
 
+	/**
+	 * The space which should be available next to event labels to paint the
+	 * warning sign that an event is not a part of the alphabet of the
+	 * underlying model of the corresponding template component (in pixels).
+	 */
 	protected static final int NOTE_SPACE = 10;
 
+	/**
+	 * The color for event links selected by the user.
+	 */
 	protected static final Color SELECTED_COLOR = Color.RED;
 
+	/**
+	 * The warning sign for events which are not a part of the alphabets of the
+	 * underlying models of the corresponding template components.
+	 */
 	private static Image exclamation;
 
+	/**
+	 * Information about whether the left {@link Entity} of the
+	 * {@link Connector} is located to the left of the right {@link Entity} of
+	 * the {@link Connector}. Set to <code>true</code> if the left entity is
+	 * located to the left of the right entity, set to <code>false</code>
+	 * otherwise.
+	 */
 	protected boolean isLeftLeft;
 
+	/**
+	 * The diagram which contains the {@link Connector} connecting the template
+	 * components whose event links are displayed.
+	 */
 	protected TemplateDiagram diagram;
 
+	/**
+	 * The connector connecting the template components whose event links are
+	 * displayed.
+	 */
 	protected Connector connector;
 
+	/**
+	 * The {@link FontMetrics} to be used when computing the sizes of the event
+	 * labels on the screen.
+	 */
 	protected FontMetrics metrics;
 
+	/**
+	 * The event labels for the events of the template components.
+	 */
 	protected Set<EventLabel> labels = new HashSet<EventLabel>();
 
+	/**
+	 * The representations of the links between events.
+	 */
 	protected Set<LabelLink> links = new HashSet<LabelLink>();
 
+	/**
+	 * Construct and set up the event linker component.
+	 * 
+	 * @param diagram
+	 *            the diagram which contains the {@link Connector} connecting
+	 *            the template components whose event links are to be displayed
+	 * @param connector
+	 *            the connector connecting the template components whose event
+	 *            links are to be displayed
+	 */
 	public EventLinker(TemplateDiagram diagram, Connector connector)
 	{
 		this.diagram = diagram;
@@ -191,7 +333,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		try
 		{
 			exclamation = ImageIO.read(Hub
-					.getLocalResource(AssignEventsDialog.class,
+					.getLocalResource(EventLinksDialog.class,
 							"images/icons/exclamation.gif"));
 		}
 		catch (IOException e)
@@ -222,29 +364,6 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		{
 			for (TemplateLink link : c.getLinks())
 			{
-				// System.out.println("con:" + c);
-				// System.out.println("left ent:" + c.getLeftEntity() + "("
-				// + c.getLeftEntity().getLabel() + ")");
-				// System.out.println("right ent:" + c.getRightEntity() + "("
-				// + c.getRightEntity().getLabel() + ")");
-				// System.out.println("link:" + link);
-				// System.out.println("boss com:"
-				// + connector.getLeftEntity().getComponent());
-				// System.out.println("link left com:" +
-				// link.getLeftComponent());
-				// System.out.println("con left com:"
-				// + c.getLeftEntity().getComponent());
-				// System.out
-				// .println("link right com:" + link.getRightComponent());
-				// System.out.println("con right com:"
-				// + c.getRightEntity().getComponent());
-				// System.out.println("link left e:" + link.getLeftEventName());
-				// System.out.println("link right e:" +
-				// link.getRightEventName());
-
-				// System.out.println(connector.getLeftEntity().getLabel()+":"+
-				// link.getLeftEventName()+":"+link.getLeftComponent()+","+c.
-				// getLeftEntity().getComponent());
 				if (link.getLeftComponent() == connector
 						.getLeftEntity().getComponent())
 				{
@@ -276,14 +395,6 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				}
 			}
 		}
-		// for (String s : leftSet)
-		// {
-		// System.out.println("L" + s);
-		// }
-		// for (String s : rightSet)
-		// {
-		// System.out.println("R" + s);
-		// }
 		if (connector.getLeftEntity().getComponent().hasModel())
 		{
 			for (Iterator<FSAEvent> i = connector
@@ -306,14 +417,6 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 				rightMissingEvents.remove(name);
 			}
 		}
-		// for (String s : leftSet)
-		// {
-		// System.out.println("\'L" + s);
-		// }
-		// for (String s : rightSet)
-		// {
-		// System.out.println("\'R" + s);
-		// }
 		for (String event : leftSet)
 		{
 			EventLabel label = new EventLabel(connector.getLeftEntity(), event);
@@ -341,6 +444,9 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		update();
 	}
 
+	/**
+	 * Update the positions of the event labels.
+	 */
 	public void update()
 	{
 		Vector<EventLabel> leftSideLabels = new Vector<EventLabel>();
@@ -378,6 +484,18 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		repaint();
 	}
 
+	/**
+	 * Retrieve the event label for the event with the given name, part of the
+	 * template component of the given {@link Entity}.
+	 * 
+	 * @param name
+	 *            the name of the event
+	 * @param mom
+	 *            the {@link Entity} to whose {@link TemplateComponent} the
+	 *            event belongs
+	 * @return the event label for this event if it exists; <code>null</code>
+	 *         otherwise
+	 */
 	protected EventLabel getLabel(String name, Entity mom)
 	{
 		for (EventLabel label : labels)
@@ -390,6 +508,16 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		return null;
 	}
 
+	/**
+	 * Add an event to the left template component of the {@link Connector}.
+	 * <p>
+	 * The event will appear in the list of events available for linking,
+	 * however, it will not be added to the underlying model of the template
+	 * component.
+	 * 
+	 * @param name
+	 *            the name for the new event
+	 */
 	public void addExtraLeftEvent(String name)
 	{
 		if (getLabel(name, connector.getLeftEntity()) == null)
@@ -402,6 +530,16 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	}
 
+	/**
+	 * Add an event to the right template component of the {@link Connector}.
+	 * <p>
+	 * The event will appear in the list of events available for linking,
+	 * however, it will not be added to the underlying model of the template
+	 * component.
+	 * 
+	 * @param name
+	 *            the name for the new event
+	 */
 	public void addExtraRightEvent(String name)
 	{
 		if (getLabel(name, connector.getRightEntity()) == null)
@@ -414,6 +552,12 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	}
 
+	/**
+	 * Retrieve the maximum of the widths of all event labels.
+	 * 
+	 * @return the maximum of the widths of all event labels; or <code>0</code>
+	 *         if there are no event labels
+	 */
 	protected int getMaxLabelWidth()
 	{
 		int maxWidth = 0;
@@ -427,6 +571,14 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		return maxWidth;
 	}
 
+	/**
+	 * Retrieve the maximum of the vertical positions of all event labels
+	 * (including the label heights).
+	 * 
+	 * @return the maximum of the vertical positions of all event labels
+	 *         (including the label heights); or <code>0</code> if there are no
+	 *         event labels
+	 */
 	protected int getLabelMaxY()
 	{
 		int maxY = 0;
@@ -440,6 +592,14 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		return maxY;
 	}
 
+	/**
+	 * Retrieve the event label which contains the given point.
+	 * 
+	 * @param p
+	 *            the point
+	 * @return the event label which contains the given point, if such a label
+	 *         exists; <code>null</code> otherwise
+	 */
 	protected EventLabel getLabelAt(Point p)
 	{
 		for (EventLabel label : labels)
@@ -519,12 +679,31 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	}
 
+	/**
+	 * The event label on which the user pressed the mouse button, if any.
+	 */
 	protected EventLabel mouseDownOn = null;
 
+	/**
+	 * Information about whether the user was dragging the mouse cursor before
+	 * releasing the mouse button.
+	 */
 	protected boolean wasDragging = false;
 
+	/**
+	 * The event link selected by the user.
+	 */
 	protected LabelLink selectedLink = null;
 
+	/**
+	 * Establish a link between the event from the given event labels. Remove
+	 * any links that already link each of these events, if necessary.
+	 * 
+	 * @param first
+	 *            the event label with the first event to be linked
+	 * @param second
+	 *            the event label with the second event to be linked
+	 */
 	protected void linkLabels(EventLabel first, EventLabel second)
 	{
 		EventLabel leftSide;
@@ -546,6 +725,12 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		repaint();
 	}
 
+	/**
+	 * Remove all links which link the event from the given event label.
+	 * 
+	 * @param label
+	 *            the event label with the event whose links should be removed
+	 */
 	public void unlinkLabel(EventLabel label)
 	{
 		LabelLink linkToRemove = null;
@@ -564,6 +749,10 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		repaint();
 	}
 
+	/**
+	 * Remove all links between the events of the template components connected
+	 * by the {@link Connector} given during initialization.
+	 */
 	public void unlinkAll()
 	{
 		links.clear();
@@ -571,6 +760,16 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		repaint();
 	}
 
+	/**
+	 *Retrieve the event label for an event from the right template component
+	 * of the {@link Connector}.
+	 * 
+	 * @param name
+	 *            the name of the event
+	 * @return the event label for the event from the right template component
+	 *         of the {@link Connector}, if the right template component has an
+	 *         event with the given name; <code>null</code> otherwise
+	 */
 	protected EventLabel findMatchingRightLabel(String name)
 	{
 		for (EventLabel label : labels)
@@ -586,6 +785,10 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		return null;
 	}
 
+	/**
+	 * Remove all existing links between events and only establish links between
+	 * events with the same name.
+	 */
 	public void matchEvents()
 	{
 		Set<String> leftEvents = new HashSet<String>();
@@ -615,6 +818,9 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		repaint();
 	}
 
+	/**
+	 * Action to remove the link selected by the user.
+	 */
 	Action deleteSelectedLink = new AbstractAction(Hub.string("TD_delete"))
 	{
 		private static final long serialVersionUID = -1716730133755582880L;
@@ -630,18 +836,37 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	};
 
+	/**
+	 * Action to mark an event for addition to the underlying model of the
+	 * corresponding template component when the user commits all changes.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected class AddEventToModel extends AbstractAction
 	{
 		private static final long serialVersionUID = 4282137800712913380L;
 
+		/**
+		 * The event label for the event to be marked.
+		 */
 		protected EventLabel label;
 
+		/**
+		 * Construct an action to mark the event from the given event label.
+		 * 
+		 * @param label
+		 *            the event label for the event to be marked
+		 */
 		public AddEventToModel(EventLabel label)
 		{
 			super(Hub.string("TD_addToModel"));
 			this.label = label;
 		}
 
+		/**
+		 * Mark the event for addition to the underlying model of the
+		 * corresponding template component when the user commits all changes.
+		 */
 		public void actionPerformed(ActionEvent arg0)
 		{
 			label.isInModel = true;
@@ -649,29 +874,50 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	};
 
+	/**
+	 * Record the fact that the mouse was dragged.
+	 */
 	public void mouseDragged(MouseEvent arg0)
 	{
 		wasDragging = true;
 		repaint();
 	}
 
+	/**
+	 * Repaint the UI element to reflect the updated position of the mouse
+	 * cursor.
+	 */
 	public void mouseMoved(MouseEvent arg0)
 	{
 		repaint();
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseClicked(MouseEvent arg0)
 	{
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseEntered(MouseEvent arg0)
 	{
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseExited(MouseEvent arg0)
 	{
 	}
 
+	/**
+	 * Process the depression of the mouse button to perform any relevant action
+	 * such as starting the drawing of a new link, completing an already started
+	 * link, etc.
+	 */
 	public void mousePressed(MouseEvent arg0)
 	{
 		requestFocus();
@@ -705,6 +951,10 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		repaint();
 	}
 
+	/**
+	 * Process the release of the mouse button to perform any relevant action
+	 * such as selecting a link, completing an already started link, etc.
+	 */
 	public void mouseReleased(MouseEvent arg0)
 	{
 		if (selectedLink != null && !selectedLink.contains(arg0.getPoint()))
@@ -740,6 +990,13 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	}
 
+	/**
+	 * Show the context (right-click) pop-up menu for the item under the mouse
+	 * cursor.
+	 * 
+	 * @param arg0
+	 *            the description of the mouse event
+	 */
 	public void mousePopupTrigger(MouseEvent arg0)
 	{
 		if (selectedLink != null)
@@ -766,6 +1023,11 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 	}
 
+	/**
+	 * Commit all changes to the linking of events, as well as the addition of
+	 * events to the underlying models of the template components linked by the
+	 * {@link Connector}.
+	 */
 	public void commitChanges()
 	{
 		Set<String> leftEvents = new HashSet<String>();

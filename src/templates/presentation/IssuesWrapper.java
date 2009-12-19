@@ -47,23 +47,53 @@ import templates.model.Validator;
 import templates.model.Validator.ValidatorResult;
 
 /**
- * Processes the consistency issues produced by a {@link Validator} and
- * wraps them into {@link IssueDescriptor}s.
+ * Processes the consistency issues produced by a {@link Validator} and wraps
+ * them into {@link IssueDescriptor}s.
  * 
  * @author Lenko Grigorov
  */
 public class IssuesWrapper
 {
+	/**
+	 * Action to change the type ({@link TemplateComponent#TYPE_MODULE} or
+	 * {@link TemplateComponent#TYPE_CHANNEL}) of a template component.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class ConvertAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 1042009036397461571L;
 
+		/**
+		 * The template diagram which contains the template component.
+		 */
 		protected TemplateDiagram diagram;
 
+		/**
+		 * The {@link Entity} for the template component.
+		 */
 		protected Entity entity;
 
+		/**
+		 * The new type ({@link TemplateComponent#TYPE_MODULE} or
+		 * {@link TemplateComponent#TYPE_CHANNEL}) of the component.
+		 */
 		protected int type;
 
+		/**
+		 * Construct a new action to change the type of a given template
+		 * component.
+		 * 
+		 * @param label
+		 *            the label for the action
+		 * @param diagram
+		 *            the template diagram which contains the template component
+		 * @param entity
+		 *            the entity for the template component
+		 * @param type
+		 *            the new type ({@link TemplateComponent#TYPE_MODULE} or
+		 *            {@link TemplateComponent#TYPE_CHANNEL}) of the component
+		 */
 		public ConvertAction(String label, TemplateDiagram diagram,
 				Entity entity, int type)
 		{
@@ -73,24 +103,46 @@ public class IssuesWrapper
 			this.type = type;
 		}
 
+		/**
+		 * Perform the change of type.
+		 */
 		public void actionPerformed(ActionEvent e)
 		{
 			new DiagramActions.SetTypeAction(diagram, entity, type).execute();
 		}
 	}
 
+	/**
+	 * Action to relabel an entity.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class RenameAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -8501367478990804882L;
 
+		/**
+		 * The entity to be relabelled.
+		 */
 		protected Entity entity;
 
+		/**
+		 * Construct a new action to relabel the given entity.
+		 * 
+		 * @param entity
+		 *            the entity to be relabelled
+		 */
 		public RenameAction(Entity entity)
 		{
 			super(Hub.string("TD_comLabelEntity"));
 			this.entity = entity;
 		}
 
+		/**
+		 * Ask the user for the new label and then relabel the entity.
+		 * 
+		 * @see EntityLabellingDialog
+		 */
 		public void actionPerformed(ActionEvent e)
 		{
 			TemplateConsistencyCanvas canvas = Hub
@@ -101,18 +153,43 @@ public class IssuesWrapper
 		}
 	}
 
+	/**
+	 * Action to update the linking of events between the template components
+	 * connected by a {@link Connector}.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class SetEventsAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -6787216038250603204L;
 
+		/**
+		 * The {@link Connector} connecting the template components between
+		 * which the event links will be updated.
+		 */
 		protected Connector connector;
 
+		/**
+		 * Construct a new action to update the event links between the template
+		 * components connected by the given connector.
+		 * 
+		 * @param connector
+		 *            the connector connecting the template components between
+		 *            which the event links should be updated
+		 */
 		public SetEventsAction(Connector connector)
 		{
 			super(Hub.string("TD_comAssignEvents"));
 			this.connector = connector;
 		}
 
+		/**
+		 * Display the UI dialog for event linking to enable the modification of
+		 * the linking of events between the template components connected by
+		 * the connector given at initialization.
+		 * 
+		 * @see EventLinksDialog
+		 */
 		public void actionPerformed(ActionEvent e)
 		{
 			TemplateConsistencyCanvas canvas = Hub
@@ -124,18 +201,41 @@ public class IssuesWrapper
 		}
 	}
 
+	/**
+	 * Action to assign an FSA model to a template component.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class AssignFSAAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -7713091978419119233L;
 
+		/**
+		 * The entity for the template component to which an FSA model will be
+		 * assigned.
+		 */
 		protected Entity entity;
 
+		/**
+		 * Construct a new action to assign an FSA model to the given template
+		 * component.
+		 * 
+		 * @param entity
+		 *            the entity for the template component to which an FSA
+		 *            model should be assigned
+		 */
 		public AssignFSAAction(Entity entity)
 		{
 			super(Hub.string("TD_comAssignFSA"));
 			this.entity = entity;
 		}
 
+		/**
+		 * Display the FSA model assignment dialog to let the user assign a new
+		 * model to the template component.
+		 * 
+		 * @see AssignFSADialog
+		 */
 		public void actionPerformed(ActionEvent e)
 		{
 			TemplateConsistencyCanvas canvas = Hub
@@ -146,6 +246,17 @@ public class IssuesWrapper
 		}
 	}
 
+	/**
+	 * Assemble a list of {@link IssueDescriptor}s for the consistency issues in
+	 * a {@link TemplateDiagram}.
+	 * 
+	 * @param diagram
+	 *            the template diagram whose consistency issues should be
+	 *            assembled
+	 * @return a list of {@link IssueDescriptor}s for the consistency issues in
+	 *         the template diagram
+	 * @see Validator
+	 */
 	public static List<IssueDescriptor> getIssues(TemplateDiagram diagram)
 	{
 		LinkedList<IssueDescriptor> issues = new LinkedList<IssueDescriptor>();
@@ -296,7 +407,7 @@ public class IssuesWrapper
 				}
 				else if (result.message.equals(Validator.WARNING_NO_CHANNEL))
 				{
-					message += Hub.string("TD_issueWNoChannel");					
+					message += Hub.string("TD_issueWNoChannel");
 				}
 				else if (result.message.equals(Validator.ERROR_FORKED_EVENT))
 				{
@@ -330,7 +441,7 @@ public class IssuesWrapper
 				}
 				else if (result.message.equals(Validator.ERROR_NO_MODULE))
 				{
-					message += Hub.string("TD_issueWNoModule");					
+					message += Hub.string("TD_issueWNoModule");
 				}
 				else if (result.message.equals(Validator.ERROR_NO_MODEL))
 				{

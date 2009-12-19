@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import templates.diagram.Connector;
+import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
 
 /**
@@ -40,6 +41,18 @@ import templates.model.TemplateLink;
  */
 public class Helpers
 {
+	/**
+	 * Compute the set of event names which appear in both
+	 * {@link TemplateComponent}s connected by the given connector. If a
+	 * template component has an underlying model, the names of events from the
+	 * model alphabet are compared, otherwise the events specified by the
+	 * {@link TemplateLink}s in the connector are compared.
+	 * 
+	 * @param c
+	 *            the connector
+	 * @return the set of event names which appear in both
+	 *         {@link TemplateComponent}s connected by the given connector
+	 */
 	public static Set<String> matchEvents(Connector c)
 	{
 		Set<String> leftEvents = new HashSet<String>();
@@ -94,6 +107,16 @@ public class Helpers
 		return matchEvents(leftEvents, rightEvents);
 	}
 
+	/**
+	 * Compute the set of event names which appear in both event name sets
+	 * given.
+	 * 
+	 * @param leftEvents
+	 *            the first event name set
+	 * @param rightEvents
+	 *            the second event name set
+	 * @return the set of event names which appear in both event name sets given
+	 */
 	public static Set<String> matchEvents(Set<String> leftEvents,
 			Set<String> rightEvents)
 	{

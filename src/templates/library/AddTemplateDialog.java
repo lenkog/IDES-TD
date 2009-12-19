@@ -85,7 +85,7 @@ public class AddTemplateDialog extends EscapeDialog
 	private static AddTemplateDialog me = null;
 
 	/**
-	 * Setup the dialog for adding/editing templates.
+	 * Set up the dialog for adding/editing templates.
 	 */
 	private AddTemplateDialog()
 	{
@@ -397,7 +397,7 @@ public class AddTemplateDialog extends EscapeDialog
 
 	/**
 	 * Called to cancel the addition/editing of the template (e.g., when the
-	 * user presses the Esc key)
+	 * user presses the <code>Esc</code> key).
 	 */
 	@Override
 	public void onEscapeEvent()

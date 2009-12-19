@@ -29,8 +29,8 @@ import java.awt.Point;
 import javax.swing.JPopupMenu;
 
 /**
- * The context (right-click) pop-up menu for the {@link TemplateEditableCanvas} when
- * the menu is invoked from an empty region (when no element is selected).
+ * The context (right-click) pop-up menu for the {@link TemplateEditableCanvas}
+ * when the menu is invoked from an empty region (when no element is selected).
  * 
  * @author Lenko Grigorov
  */
@@ -38,6 +38,14 @@ public class DiagramPopup extends JPopupMenu
 {
 	private static final long serialVersionUID = 2751221686777325805L;
 
+	/**
+	 * Construct the context pop-up menu for the given convas.
+	 * 
+	 * @param canvas
+	 *            the canvas for which the context menu is constructed
+	 * @param location
+	 *            the location within the canvas where the menu should appear
+	 */
 	public DiagramPopup(TemplateEditableCanvas canvas, Point location)
 	{
 		super();

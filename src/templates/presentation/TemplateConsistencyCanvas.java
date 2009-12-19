@@ -24,6 +24,7 @@
 
 package templates.presentation;
 
+import ides.api.core.Annotable;
 import ides.api.core.Hub;
 
 import java.awt.Graphics2D;
@@ -35,8 +36,8 @@ import templates.diagram.DiagramElement;
 import templates.model.TemplateModel;
 
 /**
- * A {@link TemplateEditableCanvas} which highlights the elements
- * where there are consistency issues.
+ * A {@link TemplateEditableCanvas} which highlights the elements which
+ * contribute to consistency issues in the template design.
  * 
  * @author Lenko Grigorov
  */
@@ -44,13 +45,44 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 {
 	private static final long serialVersionUID = -5397805276469365742L;
 
+	/**
+	 * The key to be used to annotate a {@link TemplateModel} with the
+	 * appearance settings of the consistency canvas (zoom level and viewport
+	 * position). This annotation is used to restore the last appearance of the
+	 * template diagram when the user re-activates the diagram in the workspace.
+	 * <p>
+	 * There has to be an annotation separate from the annotation of the
+	 * {@link TemplateEditableCanvas} associated with the model to prevent the
+	 * settings overwriting.
+	 * 
+	 * @see Annotable
+	 * @see TemplateEditableCanvas#CANVAS_SETTINGS
+	 * @see CanvasSettings
+	 */
 	protected static final String CONSISTENCY_CANVAS_SETTINGS = "templateConsistencyCanvasSettings";
 
+	/**
+	 * Construct a new consistency canvas to enable the editing of the given
+	 * template design and the visualization of consistency issues in the
+	 * design.
+	 * 
+	 * @param model
+	 *            the template design which the user will manipulate and whose
+	 *            consistency issues will be visualized
+	 */
 	public TemplateConsistencyCanvas(TemplateModel model)
 	{
 		super(model);
 	}
 
+	/**
+	 * Set the scaling factor according to the zoom level setting stored as an
+	 * annotation in the template design. If this annotation cannot be found,
+	 * set the scaling factor to <code>1</code>.
+	 * 
+	 * @see CanvasSettings
+	 * @see Annotable
+	 */
 	protected void autoZoom()
 	{
 		if (model.hasAnnotation(CONSISTENCY_CANVAS_SETTINGS))
@@ -66,6 +98,14 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 		}
 	}
 
+	/**
+	 * Scroll the viewport of the canvas to the rectangle stored as an
+	 * annotation in the template design. After the scrolling, the annotation is
+	 * removed. If the annotation cannot be found, do nothing.
+	 * 
+	 * @see CanvasSettings
+	 * @see Annotable
+	 */
 	protected void autoScroll()
 	{
 		if (model.hasAnnotation(CONSISTENCY_CANVAS_SETTINGS))
@@ -76,6 +116,13 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 		}
 	}
 
+	/**
+	 * Create a descriptor of the appearance settings of the consistency canvas
+	 * and create an annotation with it in the template design.
+	 * 
+	 * @see CanvasSettings
+	 * @see Annotable
+	 */
 	protected void storeCanvasInfo()
 	{
 		CanvasSettings canvasSettings = new CanvasSettings();
@@ -84,6 +131,10 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 		model.setAnnotation(CONSISTENCY_CANVAS_SETTINGS, canvasSettings);
 	}
 
+	/**
+	 * Paint the template diagram so that diagram elements contributing to
+	 * consistency issues are color-highlighted.
+	 */
 	protected void paintCore(Graphics2D g2d)
 	{
 		diagram.draw(g2d, true);
@@ -93,6 +144,15 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 		}
 	}
 
+	/**
+	 * Scroll the viewport of the consistency canvas so that the specified
+	 * diagram elements come to view. If all elements do not fit in the
+	 * viewport, scroll to the top-left corner of the area containing the
+	 * element. If the list of elements is empty, do nothing.
+	 * 
+	 * @param elements
+	 *            the list of diagram elements which should come into view
+	 */
 	public void scrollTo(Collection<DiagramElement> elements)
 	{
 		if (elements.isEmpty())

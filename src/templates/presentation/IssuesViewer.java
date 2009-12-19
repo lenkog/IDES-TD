@@ -53,6 +53,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 
 import templates.diagram.Connector;
@@ -63,7 +64,7 @@ import templates.diagram.TemplateDiagramMessage;
 import templates.diagram.TemplateDiagramSubscriber;
 
 /**
- * The UI element displaying the consistency issues in template designs.
+ * The UI element displaying the list of consistency issues in template designs.
  * 
  * @author Lenko Grigorov
  */
@@ -71,20 +72,39 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 		MouseListener
 {
 
+	/**
+	 * The UI element which displays an individual consistency issue.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected class IssueUI extends JPanel
 	{
 		private static final long serialVersionUID = -5757502501077317407L;
 
+		/**
+		 * Buttons for the actions which can fix the consistency issue.
+		 */
 		protected Collection<JButton> buttons = new HashSet<JButton>();
 
+		/**
+		 * Box to contain the buttons for the fix actions.
+		 */
 		protected Box fixBox;
 
+		/**
+		 * The consistency issue descriptor.
+		 */
 		public IssueDescriptor descriptor;
 
+		/**
+		 * Construct a new UI element to display the given consistency issue.
+		 * 
+		 * @param id
+		 *            the description of the consistency issue
+		 */
 		public IssueUI(IssueDescriptor id)
 		{
-//			super(BoxLayout.Y_AXIS);
-			setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			descriptor = id;
 			setOpaque(true);
 			setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -133,6 +153,14 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 			add(fixBox);
 		}
 
+		/**
+		 * Called when the user clicks in the area of this UI element. If the
+		 * user has clicks on a button, the corresponding fix action gets
+		 * executed.
+		 * 
+		 * @param p
+		 *            the point where the user clicked
+		 */
 		public void clickOn(Point p)
 		{
 			for (JButton b : buttons)
@@ -148,8 +176,17 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 		}
 	}
 
+	/**
+	 * Renderer of UI elements for consistency issues when shown as items in a
+	 * list.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected class IssueRenderer implements ListCellRenderer
 	{
+		/**
+		 * Retrieve the UI element for the list item.
+		 */
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus)
 		{
@@ -170,14 +207,35 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 		}
 	}
 
+	/**
+	 * The template diagram with the design whose consistency issues are
+	 * displayed.
+	 */
 	protected TemplateDiagram diagram;
 
+	/**
+	 * The scroll pane which contains the list of consistency issues.
+	 */
 	private JScrollPane sp;
 
+	/**
+	 * The list of consistency issues.
+	 */
 	protected JList issues = new JList();
 
+	/**
+	 * The {@link ListModel} used to display the list of consistency issues.
+	 */
 	protected DefaultListModel data = new DefaultListModel();
 
+	/**
+	 * Construct and set up a UI element to display the list of consistency
+	 * issues in the template design from the given template diagram.
+	 * 
+	 * @param diagram
+	 *            the template diagram with the design whose consistency issues
+	 *            will be displayed
+	 */
 	public IssuesViewer(TemplateDiagram diagram)
 	{
 		this.diagram = diagram;
@@ -190,17 +248,35 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 		refreshIssueList();
 		diagram.addSubscriber(this);
 	}
-	
+
+	/**
+	 * Subscribe a listener for changes to the list of consistency issues.
+	 * 
+	 * @param ldl
+	 *            the listener to be subscribed
+	 */
 	public void addIssuesListener(ListDataListener ldl)
 	{
 		data.addListDataListener(ldl);
 	}
-	
+
+	/**
+	 * Cancel the subscription of a listener for changes to the list of
+	 * consistency issues.
+	 * 
+	 * @param ldl
+	 *            the listener whose subscription is to be cancelled
+	 */
 	public void removeIssuesListener(ListDataListener ldl)
 	{
 		data.removeListDataListener(ldl);
 	}
-	
+
+	/**
+	 * Retrieve the number of consistency issues in the list.
+	 * 
+	 * @return
+	 */
 	public int getIssueCount()
 	{
 		return data.getSize();
@@ -235,6 +311,11 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 	{
 	}
 
+	/**
+	 * Update the list of consistency issues to reflect the current state of the
+	 * template design. As well, update the consistency status of the template
+	 * diagram elements.
+	 */
 	protected void refreshIssueList()
 	{
 		List<IssueDescriptor> ids = IssuesWrapper.getIssues(diagram);
@@ -257,11 +338,21 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 		}
 	}
 
+	/**
+	 * Update the list of consistency issues after a change to the template
+	 * diagram.
+	 */
 	public void templateDiagramChanged(TemplateDiagramMessage message)
 	{
 		refreshIssueList();
 	}
 
+	/**
+	 * After a change to the selection of diagram elements, in the list of
+	 * consistency issues select those consistency issues which stem from the
+	 * diagram elements selected by the user. This lets the user easily
+	 * determine which consistency issues depend on a given diagram element.
+	 */
 	public void templateDiagramSelectionChanged(TemplateDiagramMessage message)
 	{
 		Collection<Integer> selectedIdx = new HashSet<Integer>();
@@ -285,6 +376,15 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 		issues.setSelectedIndices(indices);
 	}
 
+	/**
+	 * When the user clicks inside the list of consistency issues, select in the
+	 * template diagram those diagram elements which contribute to the
+	 * occurrence of the consistency issue under the mouse cursor. As well,
+	 * handle the clicking of the mouse over a button with a fix action.
+	 * <p>
+	 * In case there is no consistency issue item under the mouse cursor, do
+	 * nothing.
+	 */
 	public void mouseClicked(MouseEvent e)
 	{
 		TemplateConsistencyCanvas canvas = Hub
@@ -304,28 +404,32 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 				- issues.indexToLocation(idx).y));
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseEntered(MouseEvent e)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseExited(MouseEvent e)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mousePressed(MouseEvent e)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
+	/**
+	 * Do nothing.
+	 */
 	public void mouseReleased(MouseEvent e)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 }

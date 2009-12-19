@@ -63,8 +63,11 @@ import templates.diagram.actions.DiagramUndoableEdits;
  * The UI dialog which lets the user change the controllability of the events of
  * a channel.
  * 
+ * @deprecated This class is not maintained. It might be used in future releases
+ *             of the Template Design plugin.
  * @author Lenko Grigorov
  */
+@Deprecated
 public class ControllabilityDialog extends EscapeDialog
 {
 	private static final long serialVersionUID = -2875089939362805966L;
