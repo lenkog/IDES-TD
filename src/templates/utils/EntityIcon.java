@@ -25,7 +25,6 @@
 package templates.utils;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics;
 
 import javax.swing.Icon;
@@ -37,13 +36,79 @@ import javax.swing.Icon;
  */
 public interface EntityIcon extends Icon
 {
+	/**
+	 * The minimal width and height of the icon in pixels.
+	 */
 	public int BOX_DISTANCE = 20;
+
+	/**
+	 * Create a clone of this icon.
+	 * 
+	 * @return the clone of this icon
+	 */
 	public EntityIcon clone();
+
+	/**
+	 * Specify the type of icon to be painted.
+	 * 
+	 * @param b
+	 *            specify <code>true</code> for an icon for template components
+	 *            of type module, specify <code>false</code> for an icon for
+	 *            template components of type channel
+	 */
 	public void setIsModule(boolean b);
-	public void paintIcon(Component arg0, Graphics g, int x, int y, Color color);
+
+	/**
+	 * Render the icon in the given graphics context according to the given
+	 * parameters.
+	 * 
+	 * @param g
+	 *            the graphics context where the icon has to be rendered
+	 * @param x
+	 *            the location of the icon on the horizontal axis
+	 * @param y
+	 *            the location of the icon on the vertical axis
+	 * @param color
+	 *            the color to be used for the border of the icon
+	 */
+	public void paintIcon(Graphics g, int x, int y, Color color);
+
+	/**
+	 * Set the background color of the icon.
+	 * 
+	 * @param color
+	 *            the new background color of the icon
+	 */
 	public void setColor(Color color);
+
+	/**
+	 * Retrieve the background color of the icon.
+	 * 
+	 * @return the background color of the icon
+	 */
 	public Color getColor();
+
+	/**
+	 * Specify if the icon has to be "flagged".
+	 * 
+	 * @param b
+	 *            specify <code>true</code> if the icon has to be "flagged",
+	 *            specify <code>false</code> otherwise
+	 */
 	public void setFlagged(boolean b);
+
+	/**
+	 * Check if the icon is "flagged".
+	 * 
+	 * @return <code>true</code> if the icon is "flagged"; <code>false</code>
+	 *         otherwise
+	 */
 	public boolean isFlagged();
+
+	/**
+	 * Retrieve the text rendered inside the icon.
+	 * 
+	 * @return the text rendered inside the icon
+	 */
 	public String getTag();
 }

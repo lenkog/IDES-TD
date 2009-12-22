@@ -1072,7 +1072,7 @@ public class DiagramActions
 
 	/**
 	 * Action which replaces the {@link TemplateLink}s in a {@link Connector}
-	 * with {@link TemplateLink}s only between matching events.
+	 * with {@link TemplateLink}s only between events with matching names.
 	 * 
 	 * @author Lenko Grigorov
 	 */

@@ -38,8 +38,8 @@ import templates.diagram.actions.DiagramActions;
 import templates.library.Template;
 
 /**
- * Supports the drop of a template from the template library onto the canvas during a
- * drag-and-drop.
+ * Supports the drop of a template from the template library onto the canvas
+ * during a drag-and-drop.
  * 
  * @author Lenko Grigorov
  */

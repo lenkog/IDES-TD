@@ -174,10 +174,10 @@ public class SimpleIcon implements EntityIcon
 
 	public void paintIcon(Component arg0, Graphics g, int x, int y)
 	{
-		paintIcon(arg0, g, x, y, Color.BLACK);
+		paintIcon(g, x, y, Color.BLACK);
 	}
 
-	public void paintIcon(Component arg0, Graphics g, int x, int y, Color color)
+	public void paintIcon(Graphics g, int x, int y, Color color)
 	{
 		Graphics2D g2d = (Graphics2D)g;
 		Stroke oldStroke = g2d.getStroke();

@@ -46,29 +46,69 @@ import templates.model.TemplateModel;
 import templates.model.TemplateModelSubscriber;
 
 /**
- * The toolset which describes the UI elements to be displayed when a {@link TemplateModel}
- * is activated in IDES.
+ * The toolset which describes the UI elements to be displayed when a
+ * {@link TemplateModel} is activated in IDES.
  * 
  * @author Lenko Grigorov
  */
 public class TemplateToolset implements Toolset
 {
+	/**
+	 * The template library UI element. The same element is used for all
+	 * template designs opened in IDES.
+	 */
 	protected static LibraryUI library = null;
 
+	/**
+	 * Supports the drop of a template from the template library onto the canvas
+	 * during a drag-and-drop.
+	 */
 	protected static TransferHandler transferHandler = new CanvasTransferHandler();
 
+	/**
+	 * The {@link UIDescriptor} which specifies the UI elements to be displayed
+	 * when a {@link TemplateModel} is activated in IDES.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected class TemplateUID implements UIDescriptor
 	{
+		/**
+		 * The template design which is displayed by the {@link Presentation}s
+		 * specified in this descriptor.
+		 */
 		protected TemplateModel model;
 
+		/**
+		 * The main canvas which lets the user edit the template design.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The canvas which highlights the consistency issues in the template
+		 * design.
+		 */
 		protected TemplateConsistencyCanvas consistency;
 
+		/**
+		 * The {@link Presentation} which lists the consistency issues in the
+		 * template design.
+		 */
 		protected IssuesViewer issues;
 
+		/**
+		 * The status bar to be displayed when the {@link TemplateModel} is
+		 * activated in IDES.
+		 */
 		protected Presentation statusBar;
 
+		/**
+		 * Construct the {@link UIDescriptor} for the given
+		 * {@link TemplateModel}.
+		 * 
+		 * @param model
+		 *            the template design for which to construct a descriptor
+		 */
 		public TemplateUID(TemplateModel model)
 		{
 			if (library == null)
@@ -88,7 +128,6 @@ public class TemplateToolset implements Toolset
 
 		public Presentation[] getLeftPanePresentations()
 		{
-			// TODO Auto-generated method stub
 			return new Presentation[] {};
 		}
 
@@ -99,7 +138,6 @@ public class TemplateToolset implements Toolset
 
 		public JMenu[] getMenus()
 		{
-			// TODO Auto-generated method stub
 			return new JMenu[] {};
 		}
 
@@ -145,17 +183,47 @@ public class TemplateToolset implements Toolset
 		return new TemplateUID((TemplateModel)model);
 	}
 
+	/**
+	 * Status bar for {@link TemplateModel}s. Displays information the number of
+	 * template components and the number of consistency issues in the template
+	 * design.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	protected static class TemplateStatusBar extends JLabel implements
 			Presentation, DESModelSubscriber, ListDataListener
 	{
 		private static final long serialVersionUID = 341918799019344384L;
 
+		/**
+		 * Information about whether to keep track of updates to the template
+		 * design. Set to <code>true</code> to track updates, set to
+		 * <code>false</code> otherwise.
+		 */
 		private boolean trackModel = true;
 
+		/**
+		 * The template design whose status information is displayed.
+		 */
 		protected TemplateModel model;
 
+		/**
+		 * The UI element listing the consistency issues in the template design.
+		 * The consistency issues count is retrieved from this element.
+		 */
 		protected IssuesViewer issueList;
 
+		/**
+		 * Construct and set up a status bar for the given template design.
+		 * 
+		 * @param model
+		 *            the template design whose status information will be
+		 *            displayed
+		 * @param issueList
+		 *            the consistency issues viewer which provide intomation
+		 *            about the count of consistency issues in the template
+		 *            design
+		 */
 		public TemplateStatusBar(TemplateModel model, IssuesViewer issueList)
 		{
 			this.model = model;
@@ -165,6 +233,9 @@ public class TemplateToolset implements Toolset
 			refresh();
 		}
 
+		/**
+		 * Update the information displayed in the status bar.
+		 */
 		public void refresh()
 		{
 			String issues = "";
@@ -227,25 +298,40 @@ public class TemplateToolset implements Toolset
 			}
 		}
 
+		/**
+		 * Update the information displayed in the status bar.
+		 */
 		public void modelNameChanged(DESModelMessage arg0)
 		{
 			refresh();
 		}
 
+		/**
+		 * Do nothing.
+		 */
 		public void saveStatusChanged(DESModelMessage arg0)
 		{
 		}
 
+		/**
+		 * Update the information displayed in the status bar.
+		 */
 		public void contentsChanged(ListDataEvent arg0)
 		{
 			refresh();
 		}
 
+		/**
+		 * Update the information displayed in the status bar.
+		 */
 		public void intervalAdded(ListDataEvent arg0)
 		{
 			refresh();
 		}
 
+		/**
+		 * Update the information displayed in the status bar.
+		 */
 		public void intervalRemoved(ListDataEvent arg0)
 		{
 			refresh();

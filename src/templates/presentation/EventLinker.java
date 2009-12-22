@@ -74,8 +74,7 @@ import templates.model.TemplateLink;
  * The UI element which handles the user actions to establish links between the
  * events of two template design components. This is an element which displays
  * the events of the template components and the links between them, and lets
- * the user modify the linking of events. Employed by {@link EventLinksDialog}
- * .
+ * the user modify the linking of events. Employed by {@link EventLinksDialog} .
  * 
  * @see EventLinksDialog
  * @author Lenko Grigorov

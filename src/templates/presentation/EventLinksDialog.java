@@ -81,8 +81,8 @@ public class EventLinksDialog extends EscapeDialog
 	protected static Connector connector = null;
 
 	/**
-	 * The canvas which contains the connector between the {@link TemplateComponent}s whose events
-	 * are linked.
+	 * The canvas which contains the connector between the
+	 * {@link TemplateComponent}s whose events are linked.
 	 */
 	protected static TemplateEditableCanvas canvas = null;
 

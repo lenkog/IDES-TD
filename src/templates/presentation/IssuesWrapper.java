@@ -196,7 +196,7 @@ public class IssuesWrapper
 					.getWorkspace()
 					.getPresentationsOfType(TemplateConsistencyCanvas.class)
 					.iterator().next();
-			new UIActions.AssignEventsAction(canvas, connector)
+			new UIActions.EventLinksAction(canvas, connector)
 					.actionPerformed(e);
 		}
 	}

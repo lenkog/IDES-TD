@@ -395,8 +395,7 @@ public class Entity extends DiagramElement
 	 */
 	private void drawCore(Graphics2D g2d)
 	{
-		icon.paintIcon(null,
-				g2d,
+		icon.paintIcon(g2d,
 				layout.location.x - icon.getIconWidth() / 2,
 				layout.location.y - icon.getIconHeight() / 2,
 				g2d.getColor());

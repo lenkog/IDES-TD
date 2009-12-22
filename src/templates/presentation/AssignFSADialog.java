@@ -88,8 +88,8 @@ public class AssignFSADialog extends EscapeDialog
 	protected static Entity entity = null;
 
 	/**
-	 * The canvas which contains the entity to whose {@link TemplateComponent} a new FSA model
-	 * will be assigned.
+	 * The canvas which contains the entity to whose {@link TemplateComponent} a
+	 * new FSA model will be assigned.
 	 */
 	protected static TemplateEditableCanvas canvas = null;
 

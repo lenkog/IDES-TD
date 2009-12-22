@@ -53,22 +53,43 @@ import templates.model.TemplateModel;
 import templates.model.Validator;
 
 /**
- * Collection of the actions available in the UI while working on a {@link TemplateModel}.
+ * Collection of the actions available in the UI while working on a
+ * {@link TemplateModel}.
  * 
  * @author Lenko Grigorov
  */
 public class UIActions
 {
+	/**
+	 * Action to create a new {@link Entity} in a template design.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class CreateEntityAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 6528162027263301199L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which will contain the entity.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The location for the new entity.
+		 */
 		private Point location;
 
+		/**
+		 * Construct an action to add a new {@link Entity} at the given
+		 * location.
+		 * 
+		 * @param canvas
+		 *            the canvas which will contain the entity
+		 * @param location
+		 *            the location for the new entity
+		 */
 		public CreateEntityAction(TemplateEditableCanvas canvas, Point location)
 		{
 			super(Hub.string("TD_comCreateEntity"));
@@ -79,6 +100,9 @@ public class UIActions
 			this.location = location;
 		}
 
+		/**
+		 * Create a new {@link Entity} at the given location.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			new DiagramActions.CreateEntityAction(canvas.getDiagram(), location)
@@ -86,16 +110,42 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * Action to load and activate in IDES the underlying model of a template
+	 * component.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class OpenModelAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -1754004325055513445L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the entity for the template component whose
+		 * underlying model has to be loaded and activated.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The entity for the template component whose underlying model has to
+		 * be loaded and activated.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to load and activate in IDES the underlying model
+		 * of the specified template component.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the entity for the template
+		 *            component whose underlying model has to be loaded and
+		 *            activated
+		 * @param entity
+		 *            the entity for the template component whose underlying
+		 *            model has to be loaded and activated
+		 */
 		public OpenModelAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comOpenModel"));
@@ -107,6 +157,12 @@ public class UIActions
 			setEnabled(entity.getComponent().hasModel());
 		}
 
+		/**
+		 * Load and activate in IDES the underlying model of the specified
+		 * template component. If the model is already loaded, only activate it.
+		 * Do nothing if the template component does not have an underlying
+		 * model.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			FSAModel fsa = entity.getComponent().getModel();
@@ -122,16 +178,39 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * Action to display the entity labelling dialog and let the user relabel an
+	 * {@link Entity}.
+	 * 
+	 * @see EntityLabellingDialog
+	 * @author Lenko Grigorov
+	 */
 	public static class LabelAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 5645153856255010227L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the entity which will be relabelled.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The entity which will be relabelled.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to display the entity labelling dialog and let
+		 * the user relabel the given {@link Entity}.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the entity which will be
+		 *            relabelled
+		 * @param entity
+		 *            the entity which will be relabelled
+		 */
 		public LabelAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comLabelEntity"));
@@ -142,6 +221,12 @@ public class UIActions
 			this.entity = entity;
 		}
 
+		/**
+		 * Display the entity labelling dialog to let the user relabel the given
+		 * {@link Entity}.
+		 * 
+		 * @see EntityLabellingDialog
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			EntityLabellingDialog.showAndLabel(canvas, entity);
@@ -149,16 +234,37 @@ public class UIActions
 
 	}
 
+	/**
+	 * An action to delete a diagram element from a template diagram.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class DeleteAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 5645153856255010227L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the diagram element to be deleted.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The diagram element to be deleted.
+		 */
 		private DiagramElement element;
 
+		/**
+		 * Construct an action to delete a given diagram element from a given
+		 * template diagram.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the diagram element to be
+		 *            deleted
+		 * @param element
+		 *            the diagram element to be deleted
+		 */
 		public DeleteAction(TemplateEditableCanvas canvas,
 				DiagramElement element)
 		{
@@ -170,6 +276,9 @@ public class UIActions
 			this.element = element;
 		}
 
+		/**
+		 * Deletes the given template element from the template diagram.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			new DiagramActions.DeleteElementsAction(canvas.getDiagram(), Arrays
@@ -178,17 +287,42 @@ public class UIActions
 
 	}
 
-	public static class AssignEventsAction extends AbstractAction
+	/**
+	 * An action to display the dialog for specifying the linking of events
+	 * between the template components connected by a connector.
+	 * 
+	 * @see EventLinksDialog
+	 * @author Lenko Grigorov
+	 */
+	public static class EventLinksAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 3909208160590384130L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the connector whose events links will be
+		 * specified.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The connector whose events links will be specified.
+		 */
 		private Connector connector;
 
-		public AssignEventsAction(TemplateEditableCanvas canvas,
+		/**
+		 * Construct an action to display the dialog for specifying the linking
+		 * of events between the template components connected by the given
+		 * connector.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the connector whose events links
+		 *            will be specified
+		 * @param connector
+		 *            the connector whose events links will be specified
+		 */
+		public EventLinksAction(TemplateEditableCanvas canvas,
 				Connector connector)
 		{
 			super(Hub.string("TD_comAssignEvents"));
@@ -199,22 +333,53 @@ public class UIActions
 			this.connector = connector;
 		}
 
+		/**
+		 * Display the dialog for specifying the linking of events between the
+		 * template components connected by the connector.
+		 * 
+		 * @see EventLinksDialog
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			EventLinksDialog.showAndAssign(canvas, connector);
 		}
 	}
 
+	/**
+	 * An action to display the dialog for assigning an FSA model to a template
+	 * component.
+	 * 
+	 * @see AssignFSADialog
+	 * @author Lenko Grigorov
+	 */
 	public static class AssignFSAAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 5869946508125826812L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the entity to whose template component an
+		 * FSA model will be assigned.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The entity to whose template component an FSA model will be assigned.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to display the dialog for assigning an FSA model
+		 * to the given template component.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the entity to whose template
+		 *            component an FSA model will be assigned
+		 * @param entity
+		 *            the entity to whose template component an FSA model will
+		 *            be assigned
+		 */
 		public AssignFSAAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comAssignFSA"));
@@ -225,22 +390,49 @@ public class UIActions
 			this.entity = entity;
 		}
 
+		/**
+		 * Display the dialog for assigning an FSA model to the template
+		 * component.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			AssignFSADialog.showAndAssign(canvas, entity);
 		}
 	}
 
+	/**
+	 * An action to remove all links between the events of the template
+	 * components connected by a connector.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class DeleteAllLinksAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 909787927503152877L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the connector whose event links will be
+		 * removed.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The connector whose event links will be removed.
+		 */
 		private Connector connector;
 
+		/**
+		 * Construct an action to remove all links between the events of the
+		 * template components connected by the given connector.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the connector whose event links
+		 *            will be removed
+		 * @param connector
+		 *            the connector whose event links will be removed
+		 */
 		public DeleteAllLinksAction(TemplateEditableCanvas canvas,
 				Connector connector)
 		{
@@ -252,6 +444,10 @@ public class UIActions
 			this.connector = connector;
 		}
 
+		/**
+		 * Remove all links between the events of the template components
+		 * connected by the connector.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			CompoundEdit allEdits = new CompoundEdit();
@@ -267,16 +463,40 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * An action to replace all links between the template components connected
+	 * by a connector with links only between the events with matching names.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class MatchEventsAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 621843884453574726L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the connector whose event links will be
+		 * replaced.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The connector whose event links will be replaced.
+		 */
 		private Connector connector;
 
+		/**
+		 * Construct an action to replace all links between the template
+		 * components connected by the given connector with links only between
+		 * the events with matching names.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the connector whose event links
+		 *            will be replaced
+		 * @param connector
+		 *            the connector whose event links will be replaced
+		 */
 		public MatchEventsAction(TemplateEditableCanvas canvas,
 				Connector connector)
 		{
@@ -288,6 +508,12 @@ public class UIActions
 			this.connector = connector;
 		}
 
+		/**
+		 * Replace all links between the template components connected by the
+		 * connector with links only between the events with matching names. If
+		 * there are no matching events, this action will result in the removal
+		 * of all event links between the template components.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			new DiagramActions.MatchEventsAction(canvas.getDiagram(), connector)
@@ -295,16 +521,40 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * An action to set the type of a template component to
+	 * {@link TemplateComponent#TYPE_MODULE} (module).
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class SetModuleAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -5184006756790356068L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the template component whose type will be
+		 * set.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The {@link Entity} for the template component whose type will be set.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to set the type of the given template component
+		 * to {@link TemplateComponent#TYPE_MODULE} (module).
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the template component whose
+		 *            type will be set
+		 * @param entity
+		 *            the {@link Entity} for the template component whose type
+		 *            will be set
+		 */
 		public SetModuleAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comSetModule"));
@@ -315,6 +565,10 @@ public class UIActions
 			this.entity = entity;
 		}
 
+		/**
+		 * Set the type of the template component to
+		 * {@link TemplateComponent#TYPE_MODULE} (module).
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			new DiagramActions.SetTypeAction(
@@ -324,16 +578,40 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * An action to set the type of a template component to
+	 * {@link TemplateComponent#TYPE_CHANNEL} (channel).
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class SetChannelAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 9154827758752183093L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the template component whose type will be
+		 * set.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The {@link Entity} for the template component whose type will be set.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to set the type of the given template component
+		 * to {@link TemplateComponent#TYPE_CHANNEL} (channel).
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the template component whose
+		 *            type will be set
+		 * @param entity
+		 *            the {@link Entity} for the template component whose type
+		 *            will be set
+		 */
 		public SetChannelAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comSetChannel"));
@@ -344,6 +622,10 @@ public class UIActions
 			this.entity = entity;
 		}
 
+		/**
+		 * Set the type of the template component to
+		 * {@link TemplateComponent#TYPE_CHANNEL} (channel).
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			new DiagramActions.SetTypeAction(
@@ -353,16 +635,40 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * An action to display the color chooser dialog to let the user select the
+	 * background color of the icon of an entity.
+	 * 
+	 * @see JColorChooser
+	 * @author Lenko Grigorov
+	 */
 	public static class SetColorAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 276229727963021742L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the entity whose background color will be
+		 * changed.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The entity whose background color will be changed.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to display the color chooser dialog to let the
+		 * user select the background color of the icon of the given entity.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the entity whose background
+		 *            color will be changed
+		 * @param entity
+		 *            the entity whose background color will be changed
+		 */
 		public SetColorAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comSetColor"));
@@ -373,6 +679,12 @@ public class UIActions
 			this.entity = entity;
 		}
 
+		/**
+		 * Display the color chooser dialog to let the user select the
+		 * background color of the icon of the entity.
+		 * 
+		 * @see JColorChooser
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			Color color = JColorChooser.showDialog(Hub.getMainWindow(), Hub
@@ -387,16 +699,37 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * An action to reset the icon of an entity to its default form.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class ResetIconAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 3216719161898588398L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the entity whose icon will be reset.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The entity whose icon will be reset.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to reset the icon of the given entity to its
+		 * default form.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the entity whose icon will be
+		 *            reset
+		 * @param entity
+		 *            the entity whose icon will be reset
+		 */
 		public ResetIconAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comDefaultIcon"));
@@ -407,6 +740,9 @@ public class UIActions
 			this.entity = entity;
 		}
 
+		/**
+		 * Reset the icon of the entity to its default form.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			new DiagramActions.DefaultIconAction(canvas.getDiagram(), Arrays
@@ -414,14 +750,30 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * An action to create a new template based on an entity in a template
+	 * design.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class MakeTemplateAction extends AbstractAction
 	{
 		private static final long serialVersionUID = 3531359340371698458L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The entity on which to base the new template.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to create a new template based on the given
+		 * entity.
+		 * 
+		 * @param entity
+		 *            the entity on which to base the new template
+		 */
 		public MakeTemplateAction(Entity entity)
 		{
 			super(Hub.string("TD_comMakeTemplate"));
@@ -431,6 +783,9 @@ public class UIActions
 			this.entity = entity;
 		}
 
+		/**
+		 * Create a new template based on the entity.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			if (entity.getComponent().hasModel())
@@ -442,16 +797,39 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * An action to compute and display the supervisor for a channel in a
+	 * template design.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class ShowSupAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -4796270429679682331L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the channel for which a supervisor will be
+		 * computed.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The channel for which a supervisor will be computed.
+		 */
 		private Entity channel;
 
+		/**
+		 * Construct an action to compute and display the supervisor for the
+		 * given channel.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the channel for which a
+		 *            supervisor will be computed
+		 * @param channel
+		 *            the channel for which a supervisor will be computed
+		 */
 		public ShowSupAction(TemplateEditableCanvas canvas, Entity channel)
 		{
 			super(Hub.string("TD_comShowSup"));
@@ -462,6 +840,11 @@ public class UIActions
 			this.channel = channel;
 		}
 
+		/**
+		 * Compute and display the supervisor for the channel. If there are
+		 * consistency issues in the template design involving the channel, warn
+		 * the user and do nothing.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			if (!Validator.canComputeSup(canvas.getDiagram().getModel(),
@@ -496,16 +879,39 @@ public class UIActions
 		}
 	}
 
+	/**
+	 * An action to start drawing a new connector from an entity in a template
+	 * design.
+	 * 
+	 * @author Lenko Grigorov
+	 */
 	public static class ConnectAction extends AbstractAction
 	{
 		private static final long serialVersionUID = -5487737966864595772L;
 
 		// private static ImageIcon icon = new ImageIcon();
 
+		/**
+		 * The canvas which contains the entity where the new connector will
+		 * originate.
+		 */
 		protected TemplateEditableCanvas canvas;
 
+		/**
+		 * The entity where the new connector will originate.
+		 */
 		private Entity entity;
 
+		/**
+		 * Construct an action to start drawing a new connector from the given
+		 * entity.
+		 * 
+		 * @param canvas
+		 *            the canvas which contains the entity where the new
+		 *            connector will originate
+		 * @param entity
+		 *            the entity where the new connector will originate
+		 */
 		public ConnectAction(TemplateEditableCanvas canvas, Entity entity)
 		{
 			super(Hub.string("TD_comConnect"));
@@ -516,6 +922,9 @@ public class UIActions
 			this.entity = entity;
 		}
 
+		/**
+		 * Start drawing a new connector from the entity.
+		 */
 		public void actionPerformed(ActionEvent evt)
 		{
 			if (canvas.isDrawingConnector())
@@ -550,9 +959,9 @@ public class UIActions
 	}
 
 	/**
-	 * @deprecated This class is not maintained. It might be used in future releases of the Template Design plugin.
+	 * @deprecated This class is not maintained. It might be used in future
+	 *             releases of the Template Design plugin.
 	 * @author Lenko Grigorov
-	 *
 	 */
 	@Deprecated
 	public static class SetControllabilityAction extends AbstractAction

@@ -27,8 +27,8 @@ package templates.presentation;
 import templates.model.Validator;
 
 /**
- * Used internally by {@link IssuesWrapper} to skip certain issues
- * reported by a {@link Validator}.
+ * Used internally by {@link IssuesWrapper} to skip certain issues reported by a
+ * {@link Validator}.
  * 
  * @author Lenko Grigorov
  */

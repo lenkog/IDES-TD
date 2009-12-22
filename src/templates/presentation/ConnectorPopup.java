@@ -49,7 +49,7 @@ public class ConnectorPopup extends JPopupMenu
 	public ConnectorPopup(TemplateEditableCanvas canvas, Connector connector)
 	{
 		super();
-		add(new UIActions.AssignEventsAction(canvas, connector));
+		add(new UIActions.EventLinksAction(canvas, connector));
 		add(new UIActions.MatchEventsAction(canvas, connector));
 		addSeparator();
 		add(new UIActions.DeleteAllLinksAction(canvas, connector));
