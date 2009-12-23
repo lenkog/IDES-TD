@@ -57,7 +57,7 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 	 * 
 	 * @see Annotable
 	 * @see TemplateEditableCanvas#CANVAS_SETTINGS
-	 * @see CanvasSettings
+	 * @see TemplateEditableCanvas.CanvasSettings
 	 */
 	protected static final String CONSISTENCY_CANVAS_SETTINGS = "templateConsistencyCanvasSettings";
 
@@ -80,7 +80,7 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 	 * annotation in the template design. If this annotation cannot be found,
 	 * set the scaling factor to <code>1</code>.
 	 * 
-	 * @see CanvasSettings
+	 * @see TemplateEditableCanvas.CanvasSettings
 	 * @see Annotable
 	 */
 	protected void autoZoom()
@@ -103,7 +103,7 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 	 * annotation in the template design. After the scrolling, the annotation is
 	 * removed. If the annotation cannot be found, do nothing.
 	 * 
-	 * @see CanvasSettings
+	 * @see TemplateEditableCanvas.CanvasSettings
 	 * @see Annotable
 	 */
 	protected void autoScroll()
@@ -120,7 +120,7 @@ public class TemplateConsistencyCanvas extends TemplateEditableCanvas
 	 * Create a descriptor of the appearance settings of the consistency canvas
 	 * and create an annotation with it in the template design.
 	 * 
-	 * @see CanvasSettings
+	 * @see TemplateEditableCanvas.CanvasSettings
 	 * @see Annotable
 	 */
 	protected void storeCanvasInfo()

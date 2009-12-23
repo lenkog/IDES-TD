@@ -275,7 +275,7 @@ public class IssuesViewer implements Presentation, TemplateDiagramSubscriber,
 	/**
 	 * Retrieve the number of consistency issues in the list.
 	 * 
-	 * @return
+	 * @return the number of consistency issues in the list
 	 */
 	public int getIssueCount()
 	{
