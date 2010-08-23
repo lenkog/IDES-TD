@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -149,13 +149,16 @@ public class ChannelSup implements Operation
 		FSAModel[] models = EventSynchronizer.synchronizeAndCompose(model,
 				modules,
 				Arrays.asList(new TemplateComponent[] { channel }));
+		warnings.addAll(EventSynchronizer.getWarnings());
 		FSAModel moduleFSA = models[0];
 		FSAModel channelFSA = models[1];
 		FSAStateLabeller.labelCompositeStates(moduleFSA);
 		FSAStateLabeller.labelCompositeStates(channelFSA);
-		FSAModel supFSA = (FSAModel)OperationManager
-				.instance().getOperation("supcon").perform(new Object[] {
-						moduleFSA, channelFSA })[0];
+		EventSynchronizer.copyControllability(moduleFSA, channelFSA);
+		Operation supcon = OperationManager.instance().getOperation("supcon");
+		FSAModel supFSA = (FSAModel)supcon.perform(new Object[] { moduleFSA,
+				channelFSA })[0];
+		warnings.addAll(supcon.getWarnings());
 		EventSynchronizer.label4Humans(model, Arrays.asList(new FSAModel[] {
 				moduleFSA, channelFSA, supFSA }));
 		FSAStateLabeller.labelCompositeStates(supFSA);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,6 @@
 
 package templates.io;
 
-import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.io.FileIOPlugin;
@@ -471,10 +470,10 @@ public class TemplateFileIO implements FileIOPlugin
 		TemplateModel td = (TemplateModel)arg1;
 		for (TemplateComponent c : td.getComponents())
 		{
-			if (c.hasAnnotation(Annotable.LAYOUT))
+			if (c.hasAnnotation(EntityLayout.KEY))
 			{
 				EntityLayout layout = (EntityLayout)c
-						.getAnnotation(Annotable.LAYOUT);
+						.getAnnotation(EntityLayout.KEY);
 				boolean flag = c.hasModel()
 						&& c.getModel().hasAnnotation(Entity.FLAG_MARK);
 				stream.print("\t<" + ELEMENT_ENTITY + " " + ATTRIBUTE_COMPONENT
@@ -502,10 +501,10 @@ public class TemplateFileIO implements FileIOPlugin
 				stream.println("/>");
 			}
 		}
-		if (td.hasAnnotation(Annotable.LAYOUT))
+		if (td.hasAnnotation(EmptyConnectorSet.KEY))
 		{
 			EmptyConnectorSet emptyConnectors = (EmptyConnectorSet)td
-					.getAnnotation(Annotable.LAYOUT);
+					.getAnnotation(EmptyConnectorSet.KEY);
 			for (EmptyConnector c : emptyConnectors)
 			{
 				stream.println("\t<" + ELEMENT_CONNECTOR + " " + ATTRIBUTE_LEFT
@@ -778,7 +777,7 @@ public class TemplateFileIO implements FileIOPlugin
 					}
 					else
 					{
-						component.setAnnotation(Annotable.LAYOUT, layout);
+						component.setAnnotation(EntityLayout.KEY, layout);
 						if (flag && component.hasModel())
 						{
 							component
@@ -790,7 +789,7 @@ public class TemplateFileIO implements FileIOPlugin
 				else if (node.getNodeName().equals(ELEMENT_CONNECTOR))
 				{
 					EmptyConnectorSet emptyConnectors = (EmptyConnectorSet)model
-							.getAnnotation(Annotable.LAYOUT);
+							.getAnnotation(EmptyConnectorSet.KEY);
 					if (emptyConnectors == null)
 					{
 						emptyConnectors = new EmptyConnectorSet();
@@ -800,7 +799,7 @@ public class TemplateFileIO implements FileIOPlugin
 									.getNamedItem(ATTRIBUTE_LEFT)
 									.getNodeValue()), Long.parseLong(attributes
 							.getNamedItem(ATTRIBUTE_RIGHT).getNodeValue())));
-					model.setAnnotation(Annotable.LAYOUT, emptyConnectors);
+					model.setAnnotation(EmptyConnectorSet.KEY, emptyConnectors);
 				}
 				else if (node.getNodeType() == Node.TEXT_NODE)
 				{

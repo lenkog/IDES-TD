@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,11 +24,11 @@
 
 package templates.presentation;
 
-import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.plugin.operation.Operation;
 import ides.api.plugin.operation.OperationManager;
+import ides.api.utilities.GeneralUtils;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -863,19 +863,28 @@ public class UIActions
 			sys.setName("M_" + channel.getLabel());
 			spec.setName("C_" + channel.getLabel());
 			sup.setName("S_" + channel.getLabel());
-			sys.setAnnotation(Annotable.TEXT_ANNOTATION, channelsup.getName()
-					+ "(" + channel.getLabel() + "): "
+			Hub.setUserTextAnnotation(sys, channelsup.getName() + "("
+					+ channel.getLabel() + "): "
 					+ channelsup.getDescriptionOfOutputs()[0]);
-			spec.setAnnotation(Annotable.TEXT_ANNOTATION, channelsup.getName()
-					+ "(" + channel.getLabel() + "): "
+			Hub.setUserTextAnnotation(spec, channelsup.getName() + "("
+					+ channel.getLabel() + "): "
 					+ channelsup.getDescriptionOfOutputs()[1]);
-			sup.setAnnotation(Annotable.TEXT_ANNOTATION, channelsup.getName()
-					+ "(" + channel.getLabel() + "): "
+			Hub.setUserTextAnnotation(sup, channelsup.getName() + "("
+					+ channel.getLabel() + "): "
 					+ channelsup.getDescriptionOfOutputs()[2]);
 			Hub.getWorkspace().addModel(sys);
 			Hub.getWorkspace().addModel(spec);
 			Hub.getWorkspace().addModel(sup);
 			Hub.getWorkspace().setActiveModel(sup.getName());
+			if (!channelsup.getWarnings().isEmpty())
+			{
+				String warning = "";
+				for (String w : channelsup.getWarnings())
+				{
+					warning += w + "\n";
+				}
+				Hub.displayAlert(GeneralUtils.truncateMessage(warning));
+			}
 		}
 	}
 

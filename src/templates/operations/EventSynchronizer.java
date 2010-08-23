@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@ package templates.operations;
 
 import ides.api.model.fsa.FSAModel;
 import ides.api.model.fsa.FSAState;
+import ides.api.model.supeventset.SupervisoryEvent;
 import ides.api.plugin.model.DESEvent;
 import ides.api.plugin.model.DESEventSet;
 import ides.api.plugin.model.ModelManager;
@@ -35,6 +36,9 @@ import ides.api.plugin.operation.OperationManager;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,6 +54,27 @@ import templates.model.TemplateModel;
  */
 public class EventSynchronizer
 {
+	/**
+	 * Collection of warnings accumulated while performing
+	 * {@link #synchronizeAndCompose(TemplateModel, Collection, Collection)}.
+	 * The collection is reset every time
+	 * {@link #synchronizeAndCompose(TemplateModel, Collection, Collection)} is
+	 * called.
+	 */
+	protected static List<String> warnings = new LinkedList<String>();
+
+	/**
+	 * Retrieve the warnings accumulated during the latest call to
+	 * {@link #synchronizeAndCompose(TemplateModel, Collection, Collection)}.
+	 * 
+	 * @return the warnings accumulated during the latest call to
+	 *         {@link #synchronizeAndCompose(TemplateModel, Collection, Collection)}
+	 */
+	public static List<String> getWarnings()
+	{
+		return warnings;
+	}
+
 	/**
 	 * Composes a list of modules and synchronizes and composes a list of
 	 * channels. Modules are composed using the "sync" operation. The events of
@@ -83,6 +108,7 @@ public class EventSynchronizer
 			Collection<TemplateComponent> modules,
 			Collection<TemplateComponent> channels)
 	{
+		warnings.clear();
 		if (modules.isEmpty())
 		{
 			throw new IllegalArgumentException();
@@ -104,6 +130,7 @@ public class EventSynchronizer
 		}
 		Operation sync = OperationManager.instance().getOperation("sync");
 		FSAModel moduleFSA = (FSAModel)sync.perform(modulesFSA.toArray())[0];
+		warnings.addAll(sync.getWarnings());
 		DESEventSet systemEvents = moduleFSA.getEventSet().copy();
 		Set<FSAModel> channelsFSA = new HashSet<FSAModel>();
 		for (TemplateComponent channel : channels)
@@ -146,9 +173,10 @@ public class EventSynchronizer
 				}
 			}
 			DESEventSet toSelfloop = systemEvents.subtract(fsa.getEventSet());
-			fsa = (FSAModel)OperationManager
-					.instance().getOperation("selfloop").perform(new Object[] {
-							fsa, toSelfloop })[0];
+			Operation selfloop = OperationManager
+					.instance().getOperation("selfloop");
+			fsa = (FSAModel)selfloop.perform(new Object[] { fsa, toSelfloop })[0];
+			warnings.addAll(selfloop.getWarnings());
 			channelsFSA.add(fsa);
 		}
 		FSAModel channelFSA;
@@ -157,6 +185,7 @@ public class EventSynchronizer
 			Operation product = OperationManager
 					.instance().getOperation("product");
 			channelFSA = (FSAModel)product.perform(channelsFSA.toArray())[0];
+			warnings.addAll(product.getWarnings());
 		}
 		else
 		{
@@ -165,9 +194,11 @@ public class EventSynchronizer
 			s.setInitial(true);
 			s.setMarked(true);
 			channelFSA.add(s);
-			channelFSA = (FSAModel)OperationManager
-					.instance().getOperation("selfloop").perform(new Object[] {
-							channelFSA, systemEvents })[0];
+			Operation selfloop = OperationManager
+					.instance().getOperation("selfloop");
+			channelFSA = (FSAModel)selfloop.perform(new Object[] { channelFSA,
+					systemEvents })[0];
+			warnings.addAll(selfloop.getWarnings());
 		}
 		return new FSAModel[] { moduleFSA, channelFSA };
 	}
@@ -244,4 +275,33 @@ public class EventSynchronizer
 		return new long[] { Long.parseLong(ids[0]), Long.parseLong(ids[1]) };
 	}
 
+	/**
+	 * Copies the controllability setting from the events of the given source
+	 * model to the events of the given destination model. The controllability
+	 * is copied only for events that are present in both models.
+	 * 
+	 * @param source
+	 *            the source model
+	 * @param dest
+	 *            the destination model
+	 */
+	public static void copyControllability(FSAModel source, FSAModel dest)
+	{
+		HashMap<String, Boolean> sourceMap = new HashMap<String, Boolean>();
+		for (Iterator<SupervisoryEvent> i = source.getEventIterator(); i
+				.hasNext();)
+		{
+			SupervisoryEvent event = i.next();
+			sourceMap.put(event.getSymbol(), event.isControllable());
+		}
+		for (Iterator<SupervisoryEvent> i = dest.getEventIterator(); i
+				.hasNext();)
+		{
+			SupervisoryEvent event = i.next();
+			if (sourceMap.containsKey(event.getSymbol()))
+			{
+				event.setControllable(sourceMap.get(event.getSymbol()));
+			}
+		}
+	}
 }

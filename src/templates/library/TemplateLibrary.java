@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,6 @@
 
 package templates.library;
 
-import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAModel;
 import ides.api.notice.NoticeManager;
@@ -178,7 +177,7 @@ public class TemplateLibrary
 			while (file.exists());
 		}
 		Hub.getIOSubsystem().save(model, file);
-		model.setAnnotation(Annotable.FILE, file);
+		Hub.getIOSubsystem().setFileOfModel(model, file);
 		model.setName(td.tag);
 		model.modelSaved();
 		Template template = new FSATemplate(td, model);

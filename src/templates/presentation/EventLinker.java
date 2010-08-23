@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@
 package templates.presentation;
 
 import ides.api.core.Hub;
-import ides.api.model.fsa.FSAEvent;
 import ides.api.model.fsa.FSAModel;
+import ides.api.model.supeventset.SupervisoryEvent;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -396,7 +396,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 		if (connector.getLeftEntity().getComponent().hasModel())
 		{
-			for (Iterator<FSAEvent> i = connector
+			for (Iterator<SupervisoryEvent> i = connector
 					.getLeftEntity().getComponent().getModel()
 					.getEventIterator(); i.hasNext();)
 			{
@@ -407,7 +407,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 		if (connector.getRightEntity().getComponent().hasModel())
 		{
-			for (Iterator<FSAEvent> i = connector
+			for (Iterator<SupervisoryEvent> i = connector
 					.getRightEntity().getComponent().getModel()
 					.getEventIterator(); i.hasNext();)
 			{
@@ -1033,7 +1033,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		Set<String> rightEvents = new HashSet<String>();
 		if (connector.getLeftEntity().getComponent().hasModel())
 		{
-			for (Iterator<FSAEvent> i = connector
+			for (Iterator<SupervisoryEvent> i = connector
 					.getLeftEntity().getComponent().getModel()
 					.getEventIterator(); i.hasNext();)
 			{
@@ -1042,7 +1042,7 @@ public class EventLinker extends JComponent implements MouseMotionListener,
 		}
 		if (connector.getRightEntity().getComponent().hasModel())
 		{
-			for (Iterator<FSAEvent> i = connector
+			for (Iterator<SupervisoryEvent> i = connector
 					.getRightEntity().getComponent().getModel()
 					.getEventIterator(); i.hasNext();)
 			{

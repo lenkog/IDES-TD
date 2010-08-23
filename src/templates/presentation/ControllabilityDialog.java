@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@
 package templates.presentation;
 
 import ides.api.core.Hub;
-import ides.api.model.fsa.FSAEvent;
 import ides.api.model.fsa.FSAModel;
+import ides.api.model.supeventset.SupervisoryEvent;
 import ides.api.utilities.EscapeDialog;
 
 import java.awt.Component;
@@ -191,15 +191,15 @@ public class ControllabilityDialog extends EscapeDialog
 		instance();
 		edits = new CompoundEdit();
 
-		List<FSAEvent> events = new LinkedList<FSAEvent>();
-		for (Iterator<FSAEvent> i = channel
+		List<SupervisoryEvent> events = new LinkedList<SupervisoryEvent>();
+		for (Iterator<SupervisoryEvent> i = channel
 				.getComponent().getModel().getEventIterator(); i.hasNext();)
 		{
 			events.add(i.next());
 		}
 		Collections.sort(events);
 		DefaultListModel listModel = new DefaultListModel();
-		for (FSAEvent event : events)
+		for (SupervisoryEvent event : events)
 		{
 			JCheckBox box = new JCheckBox();
 			box.setText(event.getSymbol());

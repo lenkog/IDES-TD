@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,4 +35,8 @@ public class EmptyConnectorSet extends HashSet<EmptyConnector>
 {
 	private static final long serialVersionUID = 5609364008399572815L;
 
+	/**
+	 * The annotation key for the empty connector set.
+	 */
+	public final static String KEY = "templates.diagram.EmptyConnectorSet";
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -237,10 +237,10 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 		for (TemplateComponent component : model.getComponents())
 		{
 			EntityLayout layout = null;
-			if (component.hasAnnotation(Annotable.LAYOUT))
+			if (component.hasAnnotation(EntityLayout.KEY))
 			{
 				layout = (EntityLayout)component
-						.getAnnotation(Annotable.LAYOUT);
+						.getAnnotation(EntityLayout.KEY);
 			}
 			if (layout == null)
 			{
@@ -276,10 +276,10 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 			c.addLink(link);
 			link2Connector.put(link, c);
 		}
-		if (model.hasAnnotation(Annotable.LAYOUT))
+		if (model.hasAnnotation(EmptyConnectorSet.KEY))
 		{
 			EmptyConnectorSet emptyConnectors = (EmptyConnectorSet)model
-					.getAnnotation(Annotable.LAYOUT);
+					.getAnnotation(EmptyConnectorSet.KEY);
 			for (EmptyConnector ec : emptyConnectors)
 			{
 				Entity left = component2Entity.get(model
@@ -1307,7 +1307,7 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 						.getRightEntity().getComponent().getId()));
 			}
 		}
-		model.setAnnotation(Annotable.LAYOUT, emptyConnectors);
+		model.setAnnotation(EmptyConnectorSet.KEY, emptyConnectors);
 	}
 
 	/**

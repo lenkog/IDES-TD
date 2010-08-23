@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@ import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.plugin.model.DESModel;
 import ides.api.plugin.presentation.Presentation;
+import ides.api.plugin.presentation.ZoomablePresentation;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -53,7 +54,7 @@ import templates.model.TemplateModel;
  * @author Lenko Grigorov
  */
 public class TemplateCanvas extends JComponent implements Presentation,
-		TemplateDiagramSubscriber
+		TemplateDiagramSubscriber, ZoomablePresentation
 {
 	private static final long serialVersionUID = 8536845910460021585L;
 
@@ -253,5 +254,10 @@ public class TemplateCanvas extends JComponent implements Presentation,
 		}
 		revalidate();
 		repaint();
+	}
+
+	public void setScaleFactor(float arg0)
+	{
+		scaleFactor = arg0;
 	}
 }

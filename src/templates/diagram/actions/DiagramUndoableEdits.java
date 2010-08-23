@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,9 +25,9 @@
 package templates.diagram.actions;
 
 import ides.api.core.Hub;
-import ides.api.model.fsa.FSAEvent;
 import ides.api.model.fsa.FSAMessage;
 import ides.api.model.fsa.FSAModel;
+import ides.api.model.supeventset.SupervisoryEvent;
 import ides.api.plugin.model.DESEvent;
 
 import java.awt.Point;
@@ -1382,7 +1382,7 @@ public class DiagramUndoableEdits
 		{
 			this.model = model;
 			this.eventID = eventID;
-			FSAEvent event = model.getEvent(eventID);
+			SupervisoryEvent event = model.getEvent(eventID);
 			if (event != null)
 			{
 				oldControllable = event.isControllable();
@@ -1401,7 +1401,7 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotRedoException();
 			}
-			FSAEvent event = model.getEvent(eventID);
+			SupervisoryEvent event = model.getEvent(eventID);
 			if (event == null)
 			{
 				throw new CannotRedoException();
@@ -1421,7 +1421,7 @@ public class DiagramUndoableEdits
 			{
 				throw new CannotUndoException();
 			}
-			FSAEvent event = model.getEvent(eventID);
+			SupervisoryEvent event = model.getEvent(eventID);
 			if (event == null)
 			{
 				throw new CannotUndoException();

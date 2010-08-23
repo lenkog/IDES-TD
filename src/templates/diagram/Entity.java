@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -237,13 +237,13 @@ public class Entity extends DiagramElement
 	 */
 	public Entity(TemplateComponent component) throws MissingLayoutException
 	{
-		if (!component.hasAnnotation(Annotable.LAYOUT)
-				|| !(component.getAnnotation(Annotable.LAYOUT) instanceof EntityLayout))
+		if (!component.hasAnnotation(EntityLayout.KEY)
+				|| !(component.getAnnotation(EntityLayout.KEY) instanceof EntityLayout))
 		{
 			throw new MissingLayoutException();
 		}
 		this.component = component;
-		layout = (EntityLayout)component.getAnnotation(Annotable.LAYOUT);
+		layout = (EntityLayout)component.getAnnotation(EntityLayout.KEY);
 		update();
 	}
 
@@ -260,7 +260,7 @@ public class Entity extends DiagramElement
 	{
 		this.component = component;
 		this.layout = layout;
-		component.setAnnotation(Annotable.LAYOUT, layout);
+		component.setAnnotation(EntityLayout.KEY, layout);
 		update();
 	}
 

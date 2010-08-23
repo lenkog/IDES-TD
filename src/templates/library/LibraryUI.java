@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,6 @@
 
 package templates.library;
 
-import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.core.WorkspaceMessage;
 import ides.api.core.WorkspaceSubscriber;
@@ -244,8 +243,9 @@ public class LibraryUI extends Box implements Presentation,
 						.getModel().getName()))
 				{
 					TemplateUpdater updater = new TemplateUpdater(template
-							.getName(), template.getModel(), (File)template
-							.getModel().getAnnotation(Annotable.FILE));
+							.getName(), template.getModel(), Hub
+							.getIOSubsystem().getFileOfModel(template
+									.getModel()));
 					template.getModel().addSubscriber(updater);
 					Hub.getWorkspace().addModel(template.getModel());
 					Hub.getWorkspace().addSubscriber(updater);
@@ -314,7 +314,8 @@ public class LibraryUI extends Box implements Presentation,
 		 */
 		public void saveStatusChanged(DESModelMessage arg0)
 		{
-			if (!file.equals(arg0.getSource().getAnnotation(Annotable.FILE)))
+			if (!file.equals(Hub.getIOSubsystem().getFileOfModel(arg0
+					.getSource())))
 			{
 				unsubscribeAndReload();
 			}

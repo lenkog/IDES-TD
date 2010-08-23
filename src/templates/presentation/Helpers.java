@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
 
 package templates.presentation;
 
-import ides.api.model.fsa.FSAEvent;
+import ides.api.model.supeventset.SupervisoryEvent;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -59,7 +59,7 @@ public class Helpers
 		Set<String> rightEvents = new HashSet<String>();
 		if (c.getLeftEntity().getComponent().hasModel())
 		{
-			for (Iterator<FSAEvent> i = c
+			for (Iterator<SupervisoryEvent> i = c
 					.getLeftEntity().getComponent().getModel()
 					.getEventIterator(); i.hasNext();)
 			{
@@ -82,7 +82,7 @@ public class Helpers
 		}
 		if (c.getRightEntity().getComponent().hasModel())
 		{
-			for (Iterator<FSAEvent> i = c
+			for (Iterator<SupervisoryEvent> i = c
 					.getRightEntity().getComponent().getModel()
 					.getEventIterator(); i.hasNext();)
 			{

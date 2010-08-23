@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -155,12 +155,6 @@ public class TemplateToolset implements Toolset
 		{
 			return new JToolBar();
 		}
-
-		public boolean supportsZoom()
-		{
-			return true;
-		}
-
 	}
 
 	public Presentation getModelThumbnail(DESModel model, int width, int height)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Lenko Grigorov
+ * Copyright (c) 2010, Lenko Grigorov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,11 @@ import templates.model.TemplateComponent;
  */
 public class EntityLayout
 {
+	/**
+	 * The annotation key for the layout information.
+	 */
+	public final static String KEY = "templates.diagram.EntityLayout";
+
 	/**
 	 * The center point of the icon.
 	 */
