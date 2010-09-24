@@ -24,7 +24,6 @@
 
 package templates.diagram;
 
-import ides.api.core.Annotable;
 import ides.api.core.Hub;
 import ides.api.model.fsa.FSAMessage;
 import ides.api.model.fsa.FSAModel;
@@ -207,7 +206,7 @@ public class TemplateDiagram implements TemplateModelSubscriber, FSASubscriber
 
 	/**
 	 * Retrieve the layout annotations from the underlying {@link TemplateModel}
-	 * elements (under the {@link Annotable#LAYOUT} key) and build the
+	 * elements (under the {@link EntityLayout#KEY} key) and build the
 	 * corresponding diagram elements. In essence, computes how to render the
 	 * underlying {@link TemplateModel}.
 	 */

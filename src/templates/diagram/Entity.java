@@ -24,8 +24,6 @@
 
 package templates.diagram;
 
-import ides.api.core.Annotable;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -233,7 +231,7 @@ public class Entity extends DiagramElement
 	 *            the {@link TemplateComponent} which the entity will represent
 	 * @throws MissingLayoutException
 	 *             if the {@link TemplateComponent} has no annotation with an
-	 *             {@link EntityLayout} (under the {@link Annotable#LAYOUT} key)
+	 *             {@link EntityLayout} (under the {@link EntityLayout#KEY} key)
 	 */
 	public Entity(TemplateComponent component) throws MissingLayoutException
 	{
