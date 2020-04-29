@@ -1,0 +1,92 @@
+plugins {
+    id 'java'
+    id 'com.github.monosoul.markdown.page.generator' version '2.1.0.1'
+}
+
+ext.releaseVersion = version.replace('SNAPSHOT', java.time.format.DateTimeFormatter.ofPattern('yyMMddHHmmss').format(LocalDateTime.now()))
+ext.releaseDate = java.time.format.DateTimeFormatter.ofPattern('MMMM, yyyy').withLocale(Locale.US).format(LocalDateTime.now()) 
+
+ext.releaseDir = file("${buildDir}/release")
+
+repositories {
+    mavenCentral()
+}
+
+ext.idesVer = '3.1-200426174252'
+
+ext.idesJARVer = idesVer ==~ /.*-[0-9]{12}$/ ? "${idesVer[0..-13]}SNAPSHOT" : idesVer
+ext.idesAPIJAR = "IDES-${idesJARVer}-api.jar"
+ext.idesReleaseURL = "https://github.com/krudie/IDES/releases/download/v${idesVer}/${idesAPIJAR}"
+ext.idesDependency = "${buildDir}/${idesAPIJAR}"
+
+dependencies {
+    compile files(idesDependency) {
+        builtBy 'getIDESAPI'
+    }
+}
+
+task getIDESAPI {
+    doLast() {
+        if (file(idesDependency).exists()) {
+            println('IDES API jar already available.')
+        } else {
+            mkdir buildDir
+            println('Downloading IDES API jar...')
+            new URL(idesReleaseURL).withInputStream{ i -> file(idesDependency).withOutputStream{ it << i }}
+        }
+    }
+}
+
+java {
+    sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+    targetCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+}
+
+jar {
+    archiveName = 'templates.plugin.TemplatesPlugin.jar'
+}
+
+processResources {
+    filesMatching('**/*.properties') {
+        filter(org.apache.tools.ant.filters.ReplaceTokens,
+                tokens: [version: releaseVersion, releaseDate: releaseDate])
+    }
+}
+
+jar.doLast {
+    copy {
+        from jar
+        into file("${releaseDir}/plugins")
+    }
+}
+
+task generateTutorial(type: com.github.monosoul.markdown.page.generator.gradle.plugin.GenerateHtmlTask) {
+    inputDirectory = file('docs/help/Template Design Plugin Tutorial')
+    outputDirectory = file("${releaseDir}/help/Template Design Plugin Tutorial")
+    pegdownExtensions = 'FENCED_CODE_BLOCKS'
+
+    doFirst {
+        copy {
+            from inputDirectory
+            into outputDirectory
+            include '*.png'
+        }
+    }
+}
+
+task generateHelp(dependsOn: [generateTutorial]){}
+
+task zipRelease(type: Zip, dependsOn: [jar, generateHelp]) {
+    from releaseDir
+    destinationDir buildDir
+
+    doFirst {
+        copy {
+            from projectDir
+            into releaseDir
+            include('LICENSE.txt', 'CHANGELOG.txt')
+        }
+    }
+}
+
+assemble.dependsOn([zipRelease])
