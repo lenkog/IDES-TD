@@ -31,15 +31,13 @@ package templates.model;
  * 
  * @author Lenko Grigorov
  */
-public interface TemplateModelSubscriber
-{
-	/**
-	 * Called when there has been a change to the structure of the
-	 * {@link TemplateModel} to whose {@link TemplateModelPublisher} this
-	 * listener subscribes.
-	 * 
-	 * @param message
-	 *            the description of the change
-	 */
-	public void templateModelStructureChanged(TemplateModelMessage message);
+public interface TemplateModelSubscriber {
+    /**
+     * Called when there has been a change to the structure of the
+     * {@link TemplateModel} to whose {@link TemplateModelPublisher} this listener
+     * subscribes.
+     * 
+     * @param message the description of the change
+     */
+    public void templateModelStructureChanged(TemplateModelMessage message);
 }

@@ -33,77 +33,67 @@ import java.io.File;
  * 
  * @author Lenko Grigorov
  */
-public class TemplateManager
-{
-	/**
-	 * Singleton instance.
-	 */
-	private static TemplateManager me = null;
+public class TemplateManager {
+    /**
+     * Singleton instance.
+     */
+    private static TemplateManager me = null;
 
-	/**
-	 * The library of the local user.
-	 */
-	protected TemplateLibrary localLib;
+    /**
+     * The library of the local user.
+     */
+    protected TemplateLibrary localLib;
 
-	/**
-	 * The library shared by all users.
-	 * <p>
-	 * Note: As of Template Design plugin version 3, shared libraries are not
-	 * supported. This functionality is reserved for future releases of the
-	 * Template Design plugin.
-	 */
-	protected TemplateLibrary sharedLib;
+    /**
+     * The library shared by all users.
+     * <p>
+     * Note: As of Template Design plugin version 3, shared libraries are not
+     * supported. This functionality is reserved for future releases of the Template
+     * Design plugin.
+     */
+    protected TemplateLibrary sharedLib;
 
-	/**
-	 * Initialize the template manager. If the "templates" sub-directory does
-	 * not exist, it is created.
-	 */
-	private TemplateManager()
-	{
-		File local = new File("templates");
-		if (!local.exists())
-		{
-			local.mkdir();
-		}
-		localLib = new TemplateLibrary(local);
-	}
+    /**
+     * Initialize the template manager. If the "templates" sub-directory does not
+     * exist, it is created.
+     */
+    private TemplateManager() {
+        File local = new File("templates");
+        if (!local.exists()) {
+            local.mkdir();
+        }
+        localLib = new TemplateLibrary(local);
+    }
 
-	/**
-	 * Access the singleton instance of the template manager.
-	 * 
-	 * @return the template manager
-	 */
-	public static TemplateManager instance()
-	{
-		if (me == null)
-		{
-			me = new TemplateManager();
-		}
-		return me;
-	}
+    /**
+     * Access the singleton instance of the template manager.
+     * 
+     * @return the template manager
+     */
+    public static TemplateManager instance() {
+        if (me == null) {
+            me = new TemplateManager();
+        }
+        return me;
+    }
 
-	/**
-	 * @throws RuntimeException
-	 *             cloning is not allowed
-	 */
-	@Override
-	public Object clone()
-	{
-		throw new RuntimeException("Cloning of " + this.getClass().toString()
-				+ " not supported.");
-	}
+    /**
+     * @throws RuntimeException cloning is not allowed
+     */
+    @Override
+    public Object clone() {
+        throw new RuntimeException("Cloning of " + this.getClass().toString() + " not supported.");
+    }
 
-	/**
-	 * Retrieve the main template library.
-	 * <p>
-	 * Note: As of Template Design plugin version 3, only one library is
-	 * supported by the {@link TemplateManager}. This method returns this
-	 * library.
-	 * 
-	 * @return the main template library
-	 */
-	public TemplateLibrary getMainLibrary()
-	{
-		return localLib;
-	}
+    /**
+     * Retrieve the main template library.
+     * <p>
+     * Note: As of Template Design plugin version 3, only one library is supported
+     * by the {@link TemplateManager}. This method returns this library.
+     * 
+     * @return the main template library
+     */
+    public TemplateLibrary getMainLibrary() {
+        return localLib;
+    }
 }

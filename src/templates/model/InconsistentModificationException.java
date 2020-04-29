@@ -30,45 +30,40 @@ package templates.model;
  * 
  * @author Lenko Grigorov
  */
-public class InconsistentModificationException extends RuntimeException
-{
-	private static final long serialVersionUID = -2749639510223654829L;
+public class InconsistentModificationException extends RuntimeException {
+    private static final long serialVersionUID = -2749639510223654829L;
 
-	/**
-	 * Calls <code>super</code>.
-	 */
-	public InconsistentModificationException()
-	{
-	}
+    /**
+     * Calls <code>super</code>.
+     */
+    public InconsistentModificationException() {
+    }
 
-	/**
-	 * Calls <code>super</code> with the given arguments.
-	 * 
-	 * @param arg0
-	 */
-	public InconsistentModificationException(String arg0)
-	{
-		super(arg0);
-	}
+    /**
+     * Calls <code>super</code> with the given arguments.
+     * 
+     * @param arg0
+     */
+    public InconsistentModificationException(String arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * Calls <code>super</code> with the given arguments.
-	 * 
-	 * @param arg0
-	 */
-	public InconsistentModificationException(Throwable arg0)
-	{
-		super(arg0);
-	}
+    /**
+     * Calls <code>super</code> with the given arguments.
+     * 
+     * @param arg0
+     */
+    public InconsistentModificationException(Throwable arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * Calls <code>super</code> with the given arguments.
-	 * 
-	 * @param arg0
-	 * @param arg1
-	 */
-	public InconsistentModificationException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-	}
+    /**
+     * Calls <code>super</code> with the given arguments.
+     * 
+     * @param arg0
+     * @param arg1
+     */
+    public InconsistentModificationException(String arg0, Throwable arg1) {
+        super(arg0, arg1);
+    }
 }

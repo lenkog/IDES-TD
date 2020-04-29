@@ -34,28 +34,25 @@ import templates.diagram.TemplateDiagram;
  * 
  * @author Lenko Grigorov
  */
-public abstract class AbstractDiagramUndoableEdit extends AbstractUndoableEdit
-{
-	private static final long serialVersionUID = -7752002813977055908L;
+public abstract class AbstractDiagramUndoableEdit extends AbstractUndoableEdit {
+    private static final long serialVersionUID = -7752002813977055908L;
 
-	/**
-	 * Specifies if the user-readable description of the undoable edit should
-	 * use the plural form.
-	 */
-	protected boolean usePluralDescription = false;
+    /**
+     * Specifies if the user-readable description of the undoable edit should use
+     * the plural form.
+     */
+    protected boolean usePluralDescription = false;
 
-	/**
-	 * Specify if the undoable edit is the last one of a multiple similar edits,
-	 * in effect specifying if the the plural form of the user-readable
-	 * description should be used.
-	 * 
-	 * @param b
-	 *            <code>true</code> if this is the last undoable edit of a
-	 *            multiple and the plural form of the user-readable description
-	 *            has to be used; otherwise <code>false</code>
-	 */
-	public void setLastOfMultiple(boolean b)
-	{
-		usePluralDescription = b;
-	}
+    /**
+     * Specify if the undoable edit is the last one of a multiple similar edits, in
+     * effect specifying if the the plural form of the user-readable description
+     * should be used.
+     * 
+     * @param b <code>true</code> if this is the last undoable edit of a multiple
+     *          and the plural form of the user-readable description has to be used;
+     *          otherwise <code>false</code>
+     */
+    public void setLastOfMultiple(boolean b) {
+        usePluralDescription = b;
+    }
 }

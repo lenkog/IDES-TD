@@ -31,49 +31,42 @@ import java.awt.Color;
  * 
  * @author Lenko Grigorov
  */
-public class TemplateDescriptor
-{
-	/**
-	 * The "ID" of the template. This is a short string which can be used to
-	 * identify the template, e.g., by displaying it inside the template icon.
-	 */
-	public String tag = "TAG";
+public class TemplateDescriptor {
+    /**
+     * The "ID" of the template. This is a short string which can be used to
+     * identify the template, e.g., by displaying it inside the template icon.
+     */
+    public String tag = "TAG";
 
-	/**
-	 * The color of the icon of the template.
-	 */
-	public Color color = Color.WHITE;
+    /**
+     * The color of the icon of the template.
+     */
+    public Color color = Color.WHITE;
 
-	/**
-	 * The description of the template. This can be a longer piece of text
-	 * including any notes about the template.
-	 */
-	public String description = "";
+    /**
+     * The description of the template. This can be a longer piece of text including
+     * any notes about the template.
+     */
+    public String description = "";
 
-	/**
-	 * Produce a shortened version of the description of a template. The
-	 * shortened version consists of the first 47 characters of the first line
-	 * of the description appended with "..." (in case the first line contains
-	 * more than 50 characters), or all characters of the first line of the
-	 * description (in case the first line contains not more than 50
-	 * characters).
-	 * 
-	 * @param d
-	 *            the original description of the template
-	 * @return the shortened version of the description of the template
-	 */
-	public static String shortDescription(String d)
-	{
-		if (d == null)
-		{
-			return null;
-		}
-		String[] lines = d.split("\n");
-		if (lines.length == 0)
-		{
-			return "";
-		}
-		return lines[0].length() > 50 ? lines[0].substring(0, 47) + "..."
-				: lines[0];
-	}
+    /**
+     * Produce a shortened version of the description of a template. The shortened
+     * version consists of the first 47 characters of the first line of the
+     * description appended with "..." (in case the first line contains more than 50
+     * characters), or all characters of the first line of the description (in case
+     * the first line contains not more than 50 characters).
+     * 
+     * @param d the original description of the template
+     * @return the shortened version of the description of the template
+     */
+    public static String shortDescription(String d) {
+        if (d == null) {
+            return null;
+        }
+        String[] lines = d.split("\n");
+        if (lines.length == 0) {
+            return "";
+        }
+        return lines[0].length() > 50 ? lines[0].substring(0, 47) + "..." : lines[0];
+    }
 }

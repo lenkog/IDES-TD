@@ -35,40 +35,37 @@ import templates.model.TemplateLink;
  * 
  * @author Lenko Grigorov
  */
-public class EmptyConnector
-{
-	/**
-	 * The id of the "left" {@link TemplateComponent} linked by the connector.
-	 * <p>
-	 * A connector is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two linked components separately.
-	 */
-	public long leftComponent;
+public class EmptyConnector {
+    /**
+     * The id of the "left" {@link TemplateComponent} linked by the connector.
+     * <p>
+     * A connector is symmetric. "Left" and "right" are used only to enable
+     * addressing the two linked components separately.
+     */
+    public long leftComponent;
 
-	/**
-	 * The id of the "right" {@link TemplateComponent} linked by the connector.
-	 * <p>
-	 * A connector is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two linked components separately.
-	 */
-	public long rightComponent;
+    /**
+     * The id of the "right" {@link TemplateComponent} linked by the connector.
+     * <p>
+     * A connector is symmetric. "Left" and "right" are used only to enable
+     * addressing the two linked components separately.
+     */
+    public long rightComponent;
 
-	/**
-	 * Construct an empty connector linking the given components.
-	 * 
-	 * @param leftComponent
-	 *            the id of the "left" {@link TemplateComponent} to be linked by
-	 *            the connector
-	 * @param rightComponent
-	 *            the id of the "right" {@link TemplateComponent} to be linked
-	 *            by the connector
-	 *            <p>
-	 *            A connector is symmetric. "Left" and "right" are used only to
-	 *            enable addressing the two linked components separately.
-	 */
-	public EmptyConnector(long leftComponent, long rightComponent)
-	{
-		this.leftComponent = leftComponent;
-		this.rightComponent = rightComponent;
-	}
+    /**
+     * Construct an empty connector linking the given components.
+     * 
+     * @param leftComponent  the id of the "left" {@link TemplateComponent} to be
+     *                       linked by the connector
+     * @param rightComponent the id of the "right" {@link TemplateComponent} to be
+     *                       linked by the connector
+     *                       <p>
+     *                       A connector is symmetric. "Left" and "right" are used
+     *                       only to enable addressing the two linked components
+     *                       separately.
+     */
+    public EmptyConnector(long leftComponent, long rightComponent) {
+        this.leftComponent = leftComponent;
+        this.rightComponent = rightComponent;
+    }
 }

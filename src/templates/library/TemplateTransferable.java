@@ -34,42 +34,34 @@ import java.io.IOException;
  * 
  * @author Lenko Grigorov
  */
-public class TemplateTransferable implements Transferable
-{
-	/**
-	 * The template which is wrapped.
-	 */
-	protected Template template;
+public class TemplateTransferable implements Transferable {
+    /**
+     * The template which is wrapped.
+     */
+    protected Template template;
 
-	/**
-	 * Create a {@link Transferable} wrapper for a template.
-	 * 
-	 * @param template
-	 *            the template to be wrapped
-	 */
-	public TemplateTransferable(Template template)
-	{
-		this.template = template;
-	}
+    /**
+     * Create a {@link Transferable} wrapper for a template.
+     * 
+     * @param template the template to be wrapped
+     */
+    public TemplateTransferable(Template template) {
+        this.template = template;
+    }
 
-	public Object getTransferData(DataFlavor flavor)
-			throws UnsupportedFlavorException, IOException
-	{
-		if (!Template.templateFlavor.equals(flavor))
-		{
-			throw new UnsupportedFlavorException(flavor);
-		}
-		return template;
-	}
+    public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+        if (!Template.templateFlavor.equals(flavor)) {
+            throw new UnsupportedFlavorException(flavor);
+        }
+        return template;
+    }
 
-	public DataFlavor[] getTransferDataFlavors()
-	{
-		return new DataFlavor[] { Template.templateFlavor };
-	}
+    public DataFlavor[] getTransferDataFlavors() {
+        return new DataFlavor[] { Template.templateFlavor };
+    }
 
-	public boolean isDataFlavorSupported(DataFlavor flavor)
-	{
-		return Template.templateFlavor.equals(flavor);
-	}
+    public boolean isDataFlavorSupported(DataFlavor flavor) {
+        return Template.templateFlavor.equals(flavor);
+    }
 
 }

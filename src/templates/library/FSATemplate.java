@@ -34,70 +34,60 @@ import templates.utils.EntityIcon;
  * 
  * @author Lenko Grigorov
  */
-public class FSATemplate implements Template
-{
-	/**
-	 * The "ID" of the template. This is a short string which will appear in the
-	 * icon of the template.
-	 */
-	protected String tag;
+public class FSATemplate implements Template {
+    /**
+     * The "ID" of the template. This is a short string which will appear in the
+     * icon of the template.
+     */
+    protected String tag;
 
-	/**
-	 * The description of the template.
-	 */
-	protected String description;
+    /**
+     * The description of the template.
+     */
+    protected String description;
 
-	/**
-	 * The {@link FSAModel} underlying the template.
-	 */
-	protected FSAModel model;
+    /**
+     * The {@link FSAModel} underlying the template.
+     */
+    protected FSAModel model;
 
-	/**
-	 * The icon of the template.
-	 */
-	protected EntityIcon icon;
+    /**
+     * The icon of the template.
+     */
+    protected EntityIcon icon;
 
-	/**
-	 * Create a template based on an {@link FSAModel}, with the properties
-	 * provided in the given {@link TemplateDescriptor}.
-	 * 
-	 * @param td
-	 *            the descriptor with the properties for the new template
-	 * @param model
-	 *            the FSA model on which the template should be based
-	 */
-	public FSATemplate(TemplateDescriptor td, FSAModel model)
-	{
-		tag = td.tag;
-		description = td.description;
-		this.model = model;
-		icon = new SimpleIcon(tag, td.color, Hub
-				.getMainWindow().getGraphics().create());
-	}
+    /**
+     * Create a template based on an {@link FSAModel}, with the properties provided
+     * in the given {@link TemplateDescriptor}.
+     * 
+     * @param td    the descriptor with the properties for the new template
+     * @param model the FSA model on which the template should be based
+     */
+    public FSATemplate(TemplateDescriptor td, FSAModel model) {
+        tag = td.tag;
+        description = td.description;
+        this.model = model;
+        icon = new SimpleIcon(tag, td.color, Hub.getMainWindow().getGraphics().create());
+    }
 
-	public EntityIcon getIcon()
-	{
-		return icon;
-	}
+    public EntityIcon getIcon() {
+        return icon;
+    }
 
-	public String getName()
-	{
-		return tag;
-	}
+    public String getName() {
+        return tag;
+    }
 
-	public FSAModel instantiate()
-	{
-		return model.clone();
-	}
+    public FSAModel instantiate() {
+        return model.clone();
+    }
 
-	public String getDescription()
-	{
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public FSAModel getModel()
-	{
-		return model;
-	}
+    public FSAModel getModel() {
+        return model;
+    }
 
 }

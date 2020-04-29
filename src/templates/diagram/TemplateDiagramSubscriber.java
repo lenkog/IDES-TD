@@ -31,25 +31,22 @@ package templates.diagram;
  * 
  * @author Lenko Grigorov
  */
-public interface TemplateDiagramSubscriber
-{
-	/**
-	 * Called when there has been a change to the structure of the
-	 * {@link TemplateDiagram} to which this listener subscribes.
-	 * 
-	 * @param message
-	 *            the description of the change
-	 */
-	public void templateDiagramChanged(TemplateDiagramMessage message);
+public interface TemplateDiagramSubscriber {
+    /**
+     * Called when there has been a change to the structure of the
+     * {@link TemplateDiagram} to which this listener subscribes.
+     * 
+     * @param message the description of the change
+     */
+    public void templateDiagramChanged(TemplateDiagramMessage message);
 
-	/**
-	 * Called when there has been a change to the collection of selected
-	 * {@link DiagramElement}s in the {@link TemplateDiagram} to which this
-	 * listener subscribes.
-	 * 
-	 * @param message
-	 *            the description of the new collection of selected
-	 *            {@link DiagramElement}s
-	 */
-	public void templateDiagramSelectionChanged(TemplateDiagramMessage message);
+    /**
+     * Called when there has been a change to the collection of selected
+     * {@link DiagramElement}s in the {@link TemplateDiagram} to which this listener
+     * subscribes.
+     * 
+     * @param message the description of the new collection of selected
+     *                {@link DiagramElement}s
+     */
+    public void templateDiagramSelectionChanged(TemplateDiagramMessage message);
 }

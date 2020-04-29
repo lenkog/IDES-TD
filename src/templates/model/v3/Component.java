@@ -24,10 +24,9 @@
 
 package templates.model.v3;
 
-import ides.api.model.fsa.FSAModel;
-
 import java.util.Hashtable;
 
+import ides.api.model.fsa.FSAModel;
 import templates.model.TemplateComponent;
 
 /**
@@ -35,101 +34,83 @@ import templates.model.TemplateComponent;
  * 
  * @author Lenko Grigorov
  */
-public class Component implements TemplateComponent
-{
-	/**
-	 * A map with the annotations of this element.
-	 */
-	protected Hashtable<String, Object> annotations = new Hashtable<String, Object>();
+public class Component implements TemplateComponent {
+    /**
+     * A map with the annotations of this element.
+     */
+    protected Hashtable<String, Object> annotations = new Hashtable<String, Object>();
 
-	public Object getAnnotation(String key)
-	{
-		return annotations.get(key);
-	}
+    public Object getAnnotation(String key) {
+        return annotations.get(key);
+    }
 
-	public boolean hasAnnotation(String key)
-	{
-		return annotations.containsKey(key);
-	}
+    public boolean hasAnnotation(String key) {
+        return annotations.containsKey(key);
+    }
 
-	public void removeAnnotation(String key)
-	{
-		annotations.remove(key);
-	}
+    public void removeAnnotation(String key) {
+        annotations.remove(key);
+    }
 
-	public void setAnnotation(String key, Object annotation)
-	{
-		if (annotation != null)
-		{
-			annotations.put(key, annotation);
-		}
-	}
+    public void setAnnotation(String key, Object annotation) {
+        if (annotation != null) {
+            annotations.put(key, annotation);
+        }
+    }
 
-	/**
-	 * The id of the component.
-	 */
-	protected long id;
+    /**
+     * The id of the component.
+     */
+    protected long id;
 
-	/**
-	 * The type of the component. By default is <i>module</i>.
-	 */
-	protected int type = TemplateComponent.TYPE_MODULE;
+    /**
+     * The type of the component. By default is <i>module</i>.
+     */
+    protected int type = TemplateComponent.TYPE_MODULE;
 
-	/**
-	 * The {@link FSAModel} associated with the component.
-	 */
-	protected FSAModel fsa = null;
+    /**
+     * The {@link FSAModel} associated with the component.
+     */
+    protected FSAModel fsa = null;
 
-	/**
-	 * Construct a new component with the given parameters.
-	 * 
-	 * @param id
-	 *            the id of the component
-	 */
-	public Component(long id)
-	{
-		this.id = id;
-	}
+    /**
+     * Construct a new component with the given parameters.
+     * 
+     * @param id the id of the component
+     */
+    public Component(long id) {
+        this.id = id;
+    }
 
-	public long getId()
-	{
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setId(long id)
-	{
-		this.id = id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public FSAModel getModel()
-	{
-		return fsa;
-	}
+    public FSAModel getModel() {
+        return fsa;
+    }
 
-	public boolean hasModel()
-	{
-		return fsa != null;
-	}
+    public boolean hasModel() {
+        return fsa != null;
+    }
 
-	public void setModel(FSAModel fsa)
-	{
-		this.fsa = fsa;
-	}
+    public void setModel(FSAModel fsa) {
+        this.fsa = fsa;
+    }
 
-	public int getType()
-	{
-		return type;
-	}
+    public int getType() {
+        return type;
+    }
 
-	public void setType(int type)
-	{
-		if (type == TYPE_CHANNEL)
-		{
-			this.type = type;
-		}
-		else
-		{
-			this.type = TYPE_MODULE;
-		}
-	}
+    public void setType(int type) {
+        if (type == TYPE_CHANNEL) {
+            this.type = type;
+        } else {
+            this.type = TYPE_MODULE;
+        }
+    }
 }

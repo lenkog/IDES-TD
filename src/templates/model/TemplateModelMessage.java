@@ -30,156 +30,138 @@ package templates.model;
  * 
  * @author Lenko Grigorov
  */
-public class TemplateModelMessage
-{
-	/**
-	 * Addition to the model.
-	 */
-	public static final int OP_ADD = 1;
+public class TemplateModelMessage {
+    /**
+     * Addition to the model.
+     */
+    public static final int OP_ADD = 1;
 
-	/**
-	 * Removal from the model.
-	 */
-	public static final int OP_REMOVE = 2;
+    /**
+     * Removal from the model.
+     */
+    public static final int OP_REMOVE = 2;
 
-	/**
-	 * Modification of the model which is not addition or removal.
-	 */
-	public static final int OP_MODIFY = 4;
+    /**
+     * Modification of the model which is not addition or removal.
+     */
+    public static final int OP_MODIFY = 4;
 
-	/**
-	 * Concerning a {@link TemplateComponent}.
-	 */
-	public static final int ELEMENT_COMPONENT = 1;
+    /**
+     * Concerning a {@link TemplateComponent}.
+     */
+    public static final int ELEMENT_COMPONENT = 1;
 
-	/**
-	 * Concerning a {@link TemplateLink}.
-	 */
-	public static final int ELEMENT_LINK = 2;
+    /**
+     * Concerning a {@link TemplateLink}.
+     */
+    public static final int ELEMENT_LINK = 2;
 
-	/**
-	 * The source of the message.
-	 */
-	protected TemplateModel source;
+    /**
+     * The source of the message.
+     */
+    protected TemplateModel source;
 
-	/**
-	 * The id of the element (component or link).
-	 */
-	protected long elementId;
+    /**
+     * The id of the element (component or link).
+     */
+    protected long elementId;
 
-	/**
-	 * The type of the element ({@link #ELEMENT_COMPONENT} or
-	 * {@link #ELEMENT_LINK}).
-	 */
-	protected int elementType;
+    /**
+     * The type of the element ({@link #ELEMENT_COMPONENT} or
+     * {@link #ELEMENT_LINK}).
+     */
+    protected int elementType;
 
-	/**
-	 * The type of the operation ({@link #OP_ADD}, {@link #OP_REMOVE} or
-	 * {@link #OP_MODIFY}).
-	 */
-	protected int operationType;
+    /**
+     * The type of the operation ({@link #OP_ADD}, {@link #OP_REMOVE} or
+     * {@link #OP_MODIFY}).
+     */
+    protected int operationType;
 
-	/**
-	 * Text message.
-	 */
-	protected String message;
+    /**
+     * Text message.
+     */
+    protected String message;
 
-	/**
-	 * Create a message with the given parameters.
-	 * 
-	 * @param source
-	 *            the source of the message
-	 * @param elementId
-	 *            the id of the element
-	 * @param elementType
-	 *            the type of the element ({@link #ELEMENT_COMPONENT} or
-	 *            {@link #ELEMENT_LINK})
-	 * @param operationType
-	 *            the type of the operation ({@link #OP_ADD}, {@link #OP_REMOVE}
-	 *            or {@link #OP_MODIFY})
-	 * @param message
-	 *            text message
-	 */
-	public TemplateModelMessage(TemplateModel source, long elementId,
-			int elementType, int operationType, String message)
-	{
-		this.source = source;
-		this.elementId = elementId;
-		this.elementType = elementType;
-		this.operationType = operationType;
-		this.message = message;
-	}
+    /**
+     * Create a message with the given parameters.
+     * 
+     * @param source        the source of the message
+     * @param elementId     the id of the element
+     * @param elementType   the type of the element ({@link #ELEMENT_COMPONENT} or
+     *                      {@link #ELEMENT_LINK})
+     * @param operationType the type of the operation ({@link #OP_ADD},
+     *                      {@link #OP_REMOVE} or {@link #OP_MODIFY})
+     * @param message       text message
+     */
+    public TemplateModelMessage(TemplateModel source, long elementId, int elementType, int operationType,
+            String message) {
+        this.source = source;
+        this.elementId = elementId;
+        this.elementType = elementType;
+        this.operationType = operationType;
+        this.message = message;
+    }
 
-	/**
-	 * Create a message with the given parameters and a <code>null</code> text
-	 * message.
-	 * 
-	 * @param source
-	 *            the source of the message
-	 * @param elementId
-	 *            the id of the element
-	 * @param elementType
-	 *            the type of the element ({@link #ELEMENT_COMPONENT} or
-	 *            {@link #ELEMENT_LINK})
-	 * @param operationType
-	 *            the type of the operation ({@link #OP_ADD}, {@link #OP_REMOVE}
-	 *            or {@link #OP_MODIFY})
-	 */
-	public TemplateModelMessage(TemplateModel source, long elementId,
-			int elementType, int operationType)
-	{
-		this(source, elementId, elementType, operationType, null);
-	}
+    /**
+     * Create a message with the given parameters and a <code>null</code> text
+     * message.
+     * 
+     * @param source        the source of the message
+     * @param elementId     the id of the element
+     * @param elementType   the type of the element ({@link #ELEMENT_COMPONENT} or
+     *                      {@link #ELEMENT_LINK})
+     * @param operationType the type of the operation ({@link #OP_ADD},
+     *                      {@link #OP_REMOVE} or {@link #OP_MODIFY})
+     */
+    public TemplateModelMessage(TemplateModel source, long elementId, int elementType, int operationType) {
+        this(source, elementId, elementType, operationType, null);
+    }
 
-	/**
-	 * Retrieve the source of the message.
-	 * 
-	 * @return the source of the message
-	 */
-	public TemplateModel getSource()
-	{
-		return source;
-	}
+    /**
+     * Retrieve the source of the message.
+     * 
+     * @return the source of the message
+     */
+    public TemplateModel getSource() {
+        return source;
+    }
 
-	/**
-	 * Retrieve the id of the element.
-	 * 
-	 * @return the id of the element
-	 */
-	public long getElementId()
-	{
-		return elementId;
-	}
+    /**
+     * Retrieve the id of the element.
+     * 
+     * @return the id of the element
+     */
+    public long getElementId() {
+        return elementId;
+    }
 
-	/**
-	 * Retrieve the type of the element.
-	 * 
-	 * @return the type of the element ({@link #ELEMENT_COMPONENT} or
-	 *         {@link #ELEMENT_LINK})
-	 */
-	public int getElementType()
-	{
-		return elementType;
-	}
+    /**
+     * Retrieve the type of the element.
+     * 
+     * @return the type of the element ({@link #ELEMENT_COMPONENT} or
+     *         {@link #ELEMENT_LINK})
+     */
+    public int getElementType() {
+        return elementType;
+    }
 
-	/**
-	 * Retrieve the type of the operation.
-	 * 
-	 * @return the type of the operation ({@link #OP_ADD}, {@link #OP_REMOVE} or
-	 *         {@link #OP_MODIFY})
-	 */
-	public int getOperationType()
-	{
-		return operationType;
-	}
+    /**
+     * Retrieve the type of the operation.
+     * 
+     * @return the type of the operation ({@link #OP_ADD}, {@link #OP_REMOVE} or
+     *         {@link #OP_MODIFY})
+     */
+    public int getOperationType() {
+        return operationType;
+    }
 
-	/**
-	 * Retrieve the text message. May be <code>null</code>.
-	 * 
-	 * @return the text message
-	 */
-	public String getMessage()
-	{
-		return message;
-	}
+    /**
+     * Retrieve the text message. May be <code>null</code>.
+     * 
+     * @return the text message
+     */
+    public String getMessage() {
+        return message;
+    }
 }

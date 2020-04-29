@@ -32,8 +32,7 @@ import templates.model.Validator;
  * 
  * @author Lenko Grigorov
  */
-public class SkipIssueException extends Exception
-{
-	private static final long serialVersionUID = -2407638150310042918L;
+public class SkipIssueException extends Exception {
+    private static final long serialVersionUID = -2407638150310042918L;
 
 }

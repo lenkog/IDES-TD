@@ -30,39 +30,35 @@ package templates.model;
  * 
  * @author Lenko Grigorov
  */
-public interface TemplateModelPublisher
-{
-	/**
-	 * Attaches the given subscriber to this publisher. The given subscriber
-	 * will receive notifications of changes from this publisher.
-	 * 
-	 * @param subscriber
-	 *            the subscriber to be added
-	 */
-	public void addSubscriber(TemplateModelSubscriber subscriber);
+public interface TemplateModelPublisher {
+    /**
+     * Attaches the given subscriber to this publisher. The given subscriber will
+     * receive notifications of changes from this publisher.
+     * 
+     * @param subscriber the subscriber to be added
+     */
+    public void addSubscriber(TemplateModelSubscriber subscriber);
 
-	/**
-	 * Removes the given subscriber from this publisher. The given subscriber
-	 * will no longer receive notifications of changes from this publisher.
-	 * 
-	 * @param subscriber
-	 *            the subscriber to be removed
-	 */
-	public void removeSubscriber(TemplateModelSubscriber subscriber);
+    /**
+     * Removes the given subscriber from this publisher. The given subscriber will
+     * no longer receive notifications of changes from this publisher.
+     * 
+     * @param subscriber the subscriber to be removed
+     */
+    public void removeSubscriber(TemplateModelSubscriber subscriber);
 
-	/**
-	 * Returns all current subscribers to this publisher.
-	 * 
-	 * @return all current subscribers to this publisher
-	 */
-	public TemplateModelSubscriber[] getTemplateModelSubscribers();
+    /**
+     * Returns all current subscribers to this publisher.
+     * 
+     * @return all current subscribers to this publisher
+     */
+    public TemplateModelSubscriber[] getTemplateModelSubscribers();
 
-	/**
-	 * Triggers a notification to all subscribers that the structure of the
-	 * {@link TemplateModel} has changed.
-	 * 
-	 * @param message
-	 *            message with additional info about the change
-	 */
-	public void fireTemplateModelStructureChanged(TemplateModelMessage message);
+    /**
+     * Triggers a notification to all subscribers that the structure of the
+     * {@link TemplateModel} has changed.
+     * 
+     * @param message message with additional info about the change
+     */
+    public void fireTemplateModelStructureChanged(TemplateModelMessage message);
 }

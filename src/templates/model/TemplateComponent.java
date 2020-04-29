@@ -33,55 +33,52 @@ import ides.api.plugin.model.DESElement;
  * 
  * @author Lenko Grigorov
  */
-public interface TemplateComponent extends DESElement
-{
-	/**
-	 * Specifies the type of components which are <i>modules</i>.
-	 */
-	public final int TYPE_MODULE = 1;
+public interface TemplateComponent extends DESElement {
+    /**
+     * Specifies the type of components which are <i>modules</i>.
+     */
+    public final int TYPE_MODULE = 1;
 
-	/**
-	 * Specifies the type of components which are <i>channels</i>.
-	 */
-	public final int TYPE_CHANNEL = 2;
+    /**
+     * Specifies the type of components which are <i>channels</i>.
+     */
+    public final int TYPE_CHANNEL = 2;
 
-	/**
-	 * Retrieve the type of the component.
-	 * 
-	 * @return {@link #TYPE_MODULE} or {@link #TYPE_CHANNEL}
-	 */
-	public int getType();
+    /**
+     * Retrieve the type of the component.
+     * 
+     * @return {@link #TYPE_MODULE} or {@link #TYPE_CHANNEL}
+     */
+    public int getType();
 
-	/**
-	 * Sets the type of the component.
-	 * 
-	 * @param type
-	 *            the type of the component ({@link #TYPE_MODULE} or
-	 *            {@link #TYPE_CHANNEL})
-	 */
-	public void setType(int type);
+    /**
+     * Sets the type of the component.
+     * 
+     * @param type the type of the component ({@link #TYPE_MODULE} or
+     *             {@link #TYPE_CHANNEL})
+     */
+    public void setType(int type);
 
-	/**
-	 * Retrieve the {@link FSAModel} associated with the component.
-	 * 
-	 * @return the {@link FSAModel} associated with the component;
-	 *         <code>null</code> if no {@link FSAModel} is associated
-	 */
-	public FSAModel getModel();
+    /**
+     * Retrieve the {@link FSAModel} associated with the component.
+     * 
+     * @return the {@link FSAModel} associated with the component; <code>null</code>
+     *         if no {@link FSAModel} is associated
+     */
+    public FSAModel getModel();
 
-	/**
-	 * Assign the {@link FSAModel} to be associated with the component.
-	 * 
-	 * @param fsa
-	 *            the {@link FSAModel} to be associated with the component
-	 */
-	public void setModel(FSAModel fsa);
+    /**
+     * Assign the {@link FSAModel} to be associated with the component.
+     * 
+     * @param fsa the {@link FSAModel} to be associated with the component
+     */
+    public void setModel(FSAModel fsa);
 
-	/**
-	 * Checks if there is an {@link FSAModel} associated with the component.
-	 * 
-	 * @return <code>true</code> if the associated {@link FSAModel} is not
-	 *         <code>null</code>; <code>false</code> otherwise
-	 */
-	public boolean hasModel();
+    /**
+     * Checks if there is an {@link FSAModel} associated with the component.
+     * 
+     * @return <code>true</code> if the associated {@link FSAModel} is not
+     *         <code>null</code>; <code>false</code> otherwise
+     */
+    public boolean hasModel();
 }

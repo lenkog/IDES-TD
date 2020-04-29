@@ -34,22 +34,18 @@ import javax.swing.JPopupMenu;
  * 
  * @author Lenko Grigorov
  */
-public class DiagramPopup extends JPopupMenu
-{
-	private static final long serialVersionUID = 2751221686777325805L;
+public class DiagramPopup extends JPopupMenu {
+    private static final long serialVersionUID = 2751221686777325805L;
 
-	/**
-	 * Construct the context pop-up menu for the given convas.
-	 * 
-	 * @param canvas
-	 *            the canvas for which the context menu is constructed
-	 * @param location
-	 *            the location within the canvas where the menu should appear
-	 */
-	public DiagramPopup(TemplateEditableCanvas canvas, Point location)
-	{
-		super();
-		add(new UIActions.CreateEntityAction(canvas, location));
-		pack();
-	}
+    /**
+     * Construct the context pop-up menu for the given convas.
+     * 
+     * @param canvas   the canvas for which the context menu is constructed
+     * @param location the location within the canvas where the menu should appear
+     */
+    public DiagramPopup(TemplateEditableCanvas canvas, Point location) {
+        super();
+        add(new UIActions.CreateEntityAction(canvas, location));
+        pack();
+    }
 }

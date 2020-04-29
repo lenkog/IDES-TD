@@ -32,46 +32,41 @@ import templates.model.TemplateComponent;
  * 
  * @author Lenko Grigorov
  */
-public class MissingLayoutException extends Exception
-{
-	private static final long serialVersionUID = 5508872973612435905L;
+public class MissingLayoutException extends Exception {
+    private static final long serialVersionUID = 5508872973612435905L;
 
-	/**
-	 * Calls <code>super</code>.
-	 */
-	public MissingLayoutException()
-	{
-	}
+    /**
+     * Calls <code>super</code>.
+     */
+    public MissingLayoutException() {
+    }
 
-	/**
-	 * Calls <code>super</code> with the given arguments.
-	 * 
-	 * @param arg0
-	 */
-	public MissingLayoutException(String arg0)
-	{
-		super(arg0);
-	}
+    /**
+     * Calls <code>super</code> with the given arguments.
+     * 
+     * @param arg0
+     */
+    public MissingLayoutException(String arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * Calls <code>super</code> with the given arguments.
-	 * 
-	 * @param arg0
-	 */
-	public MissingLayoutException(Throwable arg0)
-	{
-		super(arg0);
-	}
+    /**
+     * Calls <code>super</code> with the given arguments.
+     * 
+     * @param arg0
+     */
+    public MissingLayoutException(Throwable arg0) {
+        super(arg0);
+    }
 
-	/**
-	 * Calls <code>super</code> with the given arguments.
-	 * 
-	 * @param arg0
-	 * @param arg1
-	 */
-	public MissingLayoutException(String arg0, Throwable arg1)
-	{
-		super(arg0, arg1);
-	}
+    /**
+     * Calls <code>super</code> with the given arguments.
+     * 
+     * @param arg0
+     * @param arg1
+     */
+    public MissingLayoutException(String arg0, Throwable arg1) {
+        super(arg0, arg1);
+    }
 
 }

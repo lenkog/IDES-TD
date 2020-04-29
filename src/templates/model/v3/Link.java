@@ -24,11 +24,10 @@
 
 package templates.model.v3;
 
-import ides.api.core.Hub;
-import ides.api.plugin.model.DESEvent;
-
 import java.util.Hashtable;
 
+import ides.api.core.Hub;
+import ides.api.plugin.model.DESEvent;
 import templates.model.InconsistentModificationException;
 import templates.model.TemplateComponent;
 import templates.model.TemplateLink;
@@ -38,219 +37,178 @@ import templates.model.TemplateLink;
  * 
  * @author Lenko Grigorov
  */
-public class Link implements TemplateLink
-{
-	/**
-	 * A map with the annotations of this element.
-	 */
-	protected Hashtable<String, Object> annotations = new Hashtable<String, Object>();
+public class Link implements TemplateLink {
+    /**
+     * A map with the annotations of this element.
+     */
+    protected Hashtable<String, Object> annotations = new Hashtable<String, Object>();
 
-	public Object getAnnotation(String key)
-	{
-		return annotations.get(key);
-	}
+    public Object getAnnotation(String key) {
+        return annotations.get(key);
+    }
 
-	public boolean hasAnnotation(String key)
-	{
-		return annotations.containsKey(key);
-	}
+    public boolean hasAnnotation(String key) {
+        return annotations.containsKey(key);
+    }
 
-	public void removeAnnotation(String key)
-	{
-		annotations.remove(key);
-	}
+    public void removeAnnotation(String key) {
+        annotations.remove(key);
+    }
 
-	public void setAnnotation(String key, Object annotation)
-	{
-		if (annotation != null)
-		{
-			annotations.put(key, annotation);
-		}
-	}
+    public void setAnnotation(String key, Object annotation) {
+        if (annotation != null) {
+            annotations.put(key, annotation);
+        }
+    }
 
-	/**
-	 * The id of the link.
-	 */
-	protected long id;
+    /**
+     * The id of the link.
+     */
+    protected long id;
 
-	/**
-	 * The first {@link TemplateComponent} linked by the link.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 */
-	protected TemplateComponent left;
+    /**
+     * The first {@link TemplateComponent} linked by the link.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     */
+    protected TemplateComponent left;
 
-	/**
-	 * The second {@link TemplateComponent} linked by the link.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 */
-	protected TemplateComponent right;
+    /**
+     * The second {@link TemplateComponent} linked by the link.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     */
+    protected TemplateComponent right;
 
-	/**
-	 * The event (of the first {@link TemplateComponent}) which is linked by the
-	 * link.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two events separately.
-	 */
-	protected String leftEvent = "";
+    /**
+     * The event (of the first {@link TemplateComponent}) which is linked by the
+     * link.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two events separately.
+     */
+    protected String leftEvent = "";
 
-	/**
-	 * The event (of the second {@link TemplateComponent}) which is linked by
-	 * the link.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two events separately.
-	 */
-	protected String rightEvent = "";
+    /**
+     * The event (of the second {@link TemplateComponent}) which is linked by the
+     * link.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two events separately.
+     */
+    protected String rightEvent = "";
 
-	/**
-	 * Construct a new link with the given parameters.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @param id
-	 *            the id of the link
-	 * @param left
-	 *            the first {@link TemplateComponent} linked by the link
-	 * @param right
-	 *            the second {@link TemplateComponent} linked by the link
-	 */
-	public Link(long id, TemplateComponent left, TemplateComponent right)
-	{
-		if (right == null || left == null)
-		{
-			throw new InconsistentModificationException(Hub
-					.string("TD_inconsistencyLinkInit"));
-		}
-		this.id = id;
-		this.left = left;
-		this.right = right;
-	}
+    /**
+     * Construct a new link with the given parameters.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @param id    the id of the link
+     * @param left  the first {@link TemplateComponent} linked by the link
+     * @param right the second {@link TemplateComponent} linked by the link
+     */
+    public Link(long id, TemplateComponent left, TemplateComponent right) {
+        if (right == null || left == null) {
+            throw new InconsistentModificationException(Hub.string("TD_inconsistencyLinkInit"));
+        }
+        this.id = id;
+        this.left = left;
+        this.right = right;
+    }
 
-	public long getId()
-	{
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setId(long id)
-	{
-		this.id = id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public TemplateComponent getChannel()
-	{
-		if (left.getType() == TemplateComponent.TYPE_CHANNEL)
-		{
-			return left;
-		}
-		else if (right.getType() == TemplateComponent.TYPE_CHANNEL)
-		{
-			return right;
-		}
-		return null;
-	}
+    public TemplateComponent getChannel() {
+        if (left.getType() == TemplateComponent.TYPE_CHANNEL) {
+            return left;
+        } else if (right.getType() == TemplateComponent.TYPE_CHANNEL) {
+            return right;
+        }
+        return null;
+    }
 
-	public DESEvent getRightEvent()
-	{
-		if (!right.hasModel())
-		{
-			return null;
-		}
-		for (DESEvent event : right.getModel().getEventSet())
-		{
-			if (event.getSymbol().equals(rightEvent))
-			{
-				return event;
-			}
-		}
-		return null;
-	}
+    public DESEvent getRightEvent() {
+        if (!right.hasModel()) {
+            return null;
+        }
+        for (DESEvent event : right.getModel().getEventSet()) {
+            if (event.getSymbol().equals(rightEvent)) {
+                return event;
+            }
+        }
+        return null;
+    }
 
-	public String getRightEventName()
-	{
-		return rightEvent;
-	}
+    public String getRightEventName() {
+        return rightEvent;
+    }
 
-	public TemplateComponent getModule()
-	{
-		if (left.getType() == TemplateComponent.TYPE_MODULE)
-		{
-			return left;
-		}
-		else if (right.getType() == TemplateComponent.TYPE_MODULE)
-		{
-			return right;
-		}
-		return null;
-	}
+    public TemplateComponent getModule() {
+        if (left.getType() == TemplateComponent.TYPE_MODULE) {
+            return left;
+        } else if (right.getType() == TemplateComponent.TYPE_MODULE) {
+            return right;
+        }
+        return null;
+    }
 
-	public DESEvent getLeftEvent()
-	{
-		if (!left.hasModel())
-		{
-			return null;
-		}
-		for (DESEvent event : left.getModel().getEventSet())
-		{
-			if (event.getSymbol().equals(leftEvent))
-			{
-				return event;
-			}
-		}
-		return null;
-	}
+    public DESEvent getLeftEvent() {
+        if (!left.hasModel()) {
+            return null;
+        }
+        for (DESEvent event : left.getModel().getEventSet()) {
+            if (event.getSymbol().equals(leftEvent)) {
+                return event;
+            }
+        }
+        return null;
+    }
 
-	public String getLeftEventName()
-	{
-		return leftEvent;
-	}
+    public String getLeftEventName() {
+        return leftEvent;
+    }
 
-	public boolean existsRightEvent()
-	{
-		return getRightEvent() != null;
-	}
+    public boolean existsRightEvent() {
+        return getRightEvent() != null;
+    }
 
-	public boolean existsLeftEvent()
-	{
-		return getLeftEvent() != null;
-	}
+    public boolean existsLeftEvent() {
+        return getLeftEvent() != null;
+    }
 
-	public void setRightEventName(String name)
-	{
-		if (name == null)
-		{
-			name = "";
-		}
-		rightEvent = name;
-	}
+    public void setRightEventName(String name) {
+        if (name == null) {
+            name = "";
+        }
+        rightEvent = name;
+    }
 
-	public void setLeftEventName(String name)
-	{
-		if (name == null)
-		{
-			name = "";
-		}
-		leftEvent = name;
-	}
+    public void setLeftEventName(String name) {
+        if (name == null) {
+            name = "";
+        }
+        leftEvent = name;
+    }
 
-	public TemplateComponent[] getComponents()
-	{
-		return new TemplateComponent[] { left, right };
-	}
+    public TemplateComponent[] getComponents() {
+        return new TemplateComponent[] { left, right };
+    }
 
-	public TemplateComponent getLeftComponent()
-	{
-		return left;
-	}
+    public TemplateComponent getLeftComponent() {
+        return left;
+    }
 
-	public TemplateComponent getRightComponent()
-	{
-		return right;
-	}
+    public TemplateComponent getRightComponent() {
+        return right;
+    }
 
 }

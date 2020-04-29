@@ -35,41 +35,39 @@ import templates.model.TemplateComponent;
  * 
  * @author Lenko Grigorov
  */
-public class EntityLayout
-{
-	/**
-	 * The annotation key for the layout information.
-	 */
-	public final static String KEY = "templates.diagram.EntityLayout";
+public class EntityLayout {
+    /**
+     * The annotation key for the layout information.
+     */
+    public final static String KEY = "templates.diagram.EntityLayout";
 
-	/**
-	 * The center point of the icon.
-	 */
-	public Point location;
+    /**
+     * The center point of the icon.
+     */
+    public Point location;
 
-	/**
-	 * The label.
-	 */
-	public String label;
+    /**
+     * The label.
+     */
+    public String label;
 
-	/**
-	 * The background color of the icon.
-	 */
-	public Color color;
+    /**
+     * The background color of the icon.
+     */
+    public Color color;
 
-	/**
-	 * The text inside the icon.
-	 */
-	public String tag;
+    /**
+     * The text inside the icon.
+     */
+    public String tag;
 
-	/**
-	 * Construct an entity layout. All attributes get default values.
-	 */
-	public EntityLayout()
-	{
-		location = new Point();
-		label = "";
-		color = Color.WHITE;
-		tag = "";
-	}
+    /**
+     * Construct an entity layout. All attributes get default values.
+     */
+    public EntityLayout() {
+        location = new Point();
+        label = "";
+        color = Color.WHITE;
+        tag = "";
+    }
 }

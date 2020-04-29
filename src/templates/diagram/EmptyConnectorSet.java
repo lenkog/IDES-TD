@@ -31,12 +31,11 @@ import java.util.HashSet;
  * 
  * @author Lenko Grigorov
  */
-public class EmptyConnectorSet extends HashSet<EmptyConnector>
-{
-	private static final long serialVersionUID = 5609364008399572815L;
+public class EmptyConnectorSet extends HashSet<EmptyConnector> {
+    private static final long serialVersionUID = 5609364008399572815L;
 
-	/**
-	 * The annotation key for the empty connector set.
-	 */
-	public final static String KEY = "templates.diagram.EmptyConnectorSet";
+    /**
+     * The annotation key for the empty connector set.
+     */
+    public final static String KEY = "templates.diagram.EmptyConnectorSet";
 }

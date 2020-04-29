@@ -34,27 +34,23 @@ import templates.diagram.Connector;
  * 
  * @author Lenko Grigorov
  */
-public class ConnectorPopup extends JPopupMenu
-{
-	private static final long serialVersionUID = -1486150739464614804L;
+public class ConnectorPopup extends JPopupMenu {
+    private static final long serialVersionUID = -1486150739464614804L;
 
-	/**
-	 * Construct the context pop-up menu for the given connector.
-	 * 
-	 * @param canvas
-	 *            the canvas which contains the given connector
-	 * @param connector
-	 *            the connector for which the context menu is constructed
-	 */
-	public ConnectorPopup(TemplateEditableCanvas canvas, Connector connector)
-	{
-		super();
-		add(new UIActions.EventLinksAction(canvas, connector));
-		add(new UIActions.MatchEventsAction(canvas, connector));
-		addSeparator();
-		add(new UIActions.DeleteAllLinksAction(canvas, connector));
-		add(new UIActions.DeleteAction(canvas, connector));
-		pack();
-	}
+    /**
+     * Construct the context pop-up menu for the given connector.
+     * 
+     * @param canvas    the canvas which contains the given connector
+     * @param connector the connector for which the context menu is constructed
+     */
+    public ConnectorPopup(TemplateEditableCanvas canvas, Connector connector) {
+        super();
+        add(new UIActions.EventLinksAction(canvas, connector));
+        add(new UIActions.MatchEventsAction(canvas, connector));
+        addSeparator();
+        add(new UIActions.DeleteAllLinksAction(canvas, connector));
+        add(new UIActions.DeleteAction(canvas, connector));
+        pack();
+    }
 
 }

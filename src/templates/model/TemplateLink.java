@@ -36,157 +36,148 @@ import ides.api.plugin.model.DESEvent;
  * 
  * @author Lenko Grigorov
  */
-public interface TemplateLink extends DESElement
-{
-	/**
-	 * Retrieve the first {@link TemplateComponent} linked by the link.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @return the first {@link TemplateComponent} linked by the link
-	 */
-	public TemplateComponent getLeftComponent();
+public interface TemplateLink extends DESElement {
+    /**
+     * Retrieve the first {@link TemplateComponent} linked by the link.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @return the first {@link TemplateComponent} linked by the link
+     */
+    public TemplateComponent getLeftComponent();
 
-	/**
-	 * Retrieve the second {@link TemplateComponent} linked by the link.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @return the second {@link TemplateComponent} linked by the link
-	 */
-	public TemplateComponent getRightComponent();
+    /**
+     * Retrieve the second {@link TemplateComponent} linked by the link.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @return the second {@link TemplateComponent} linked by the link
+     */
+    public TemplateComponent getRightComponent();
 
-	/**
-	 * Retrieve the two {@link TemplateComponent}s linked by the link.
-	 * 
-	 * @return the two {@link TemplateComponent}s linked by the link
-	 */
-	public TemplateComponent[] getComponents();
+    /**
+     * Retrieve the two {@link TemplateComponent}s linked by the link.
+     * 
+     * @return the two {@link TemplateComponent}s linked by the link
+     */
+    public TemplateComponent[] getComponents();
 
-	/**
-	 * Retrieve the <i>module</i> linked by the link, if any.
-	 * 
-	 * @return the <i>module</i> linked by the link (if both
-	 *         {@link TemplateComponent}s are <i>modules</i>, returns
-	 *         arbitrarily one of them); <code>null</code> if no <i>module</i>
-	 *         is linked
-	 */
-	public TemplateComponent getModule();
+    /**
+     * Retrieve the <i>module</i> linked by the link, if any.
+     * 
+     * @return the <i>module</i> linked by the link (if both
+     *         {@link TemplateComponent}s are <i>modules</i>, returns arbitrarily
+     *         one of them); <code>null</code> if no <i>module</i> is linked
+     */
+    public TemplateComponent getModule();
 
-	/**
-	 * Retrieve the <i>channel</i> linked by the link, if any.
-	 * 
-	 * @return the <i>channel</i> linked by the link (if both
-	 *         {@link TemplateComponent}s are <i>channels</i>, returns
-	 *         arbitrarily one of them); <code>null</code> if no <i>channel</i>
-	 *         is linked
-	 */
-	public TemplateComponent getChannel();
+    /**
+     * Retrieve the <i>channel</i> linked by the link, if any.
+     * 
+     * @return the <i>channel</i> linked by the link (if both
+     *         {@link TemplateComponent}s are <i>channels</i>, returns arbitrarily
+     *         one of them); <code>null</code> if no <i>channel</i> is linked
+     */
+    public TemplateComponent getChannel();
 
-	/**
-	 * Retrieve the name of the linked event from the first
-	 * {@link TemplateComponent}.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @return the name of the linked event from the first
-	 *         {@link TemplateComponent}
-	 */
-	public String getLeftEventName();
+    /**
+     * Retrieve the name of the linked event from the first
+     * {@link TemplateComponent}.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @return the name of the linked event from the first {@link TemplateComponent}
+     */
+    public String getLeftEventName();
 
-	/**
-	 * Checks if the {@link FSAModel} of the first {@link TemplateComponent}
-	 * contains the linked event.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @return <code>true</code> if the first linked {@link TemplateComponent}
-	 *         has an assigned {@link FSAModel} and if this {@link FSAModel}
-	 *         contains the linked event; <code>false</code> otherwise
-	 */
-	public boolean existsLeftEvent();
+    /**
+     * Checks if the {@link FSAModel} of the first {@link TemplateComponent}
+     * contains the linked event.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @return <code>true</code> if the first linked {@link TemplateComponent} has
+     *         an assigned {@link FSAModel} and if this {@link FSAModel} contains
+     *         the linked event; <code>false</code> otherwise
+     */
+    public boolean existsLeftEvent();
 
-	/**
-	 * Retrieves the linked {@link DESEvent} from the first
-	 * {@link TemplateComponent}.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @return the linked {@link DESEvent} from the {@link FSAModel} of the
-	 *         first {@link TemplateComponent}, if the {@link TemplateComponent}
-	 *         has an assigned {@link FSAModel} and if this {@link FSAModel}
-	 *         contains the linked event; <code>null</code> otherwise
-	 */
-	public DESEvent getLeftEvent();
+    /**
+     * Retrieves the linked {@link DESEvent} from the first
+     * {@link TemplateComponent}.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @return the linked {@link DESEvent} from the {@link FSAModel} of the first
+     *         {@link TemplateComponent}, if the {@link TemplateComponent} has an
+     *         assigned {@link FSAModel} and if this {@link FSAModel} contains the
+     *         linked event; <code>null</code> otherwise
+     */
+    public DESEvent getLeftEvent();
 
-	/**
-	 * Retrieve the name of the linked event from the second
-	 * {@link TemplateComponent}.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @return the name of the linked event from the second
-	 *         {@link TemplateComponent}
-	 */
-	public String getRightEventName();
+    /**
+     * Retrieve the name of the linked event from the second
+     * {@link TemplateComponent}.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @return the name of the linked event from the second
+     *         {@link TemplateComponent}
+     */
+    public String getRightEventName();
 
-	/**
-	 * Checks if the {@link FSAModel} of the second {@link TemplateComponent}
-	 * contains the linked event.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @return <code>true</code> if the second linked {@link TemplateComponent}
-	 *         has an assigned {@link FSAModel} and if this {@link FSAModel}
-	 *         contains the linked event; <code>false</code> otherwise
-	 */
-	public boolean existsRightEvent();
+    /**
+     * Checks if the {@link FSAModel} of the second {@link TemplateComponent}
+     * contains the linked event.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @return <code>true</code> if the second linked {@link TemplateComponent} has
+     *         an assigned {@link FSAModel} and if this {@link FSAModel} contains
+     *         the linked event; <code>false</code> otherwise
+     */
+    public boolean existsRightEvent();
 
-	/**
-	 * Retrieves the linked {@link DESEvent} from the second
-	 * {@link TemplateComponent}.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @return the linked {@link DESEvent} from the {@link FSAModel} of the
-	 *         second {@link TemplateComponent}, if the
-	 *         {@link TemplateComponent} has an assigned {@link FSAModel} and if
-	 *         this {@link FSAModel} contains the linked event;
-	 *         <code>null</code> otherwise
-	 */
-	public DESEvent getRightEvent();
+    /**
+     * Retrieves the linked {@link DESEvent} from the second
+     * {@link TemplateComponent}.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @return the linked {@link DESEvent} from the {@link FSAModel} of the second
+     *         {@link TemplateComponent}, if the {@link TemplateComponent} has an
+     *         assigned {@link FSAModel} and if this {@link FSAModel} contains the
+     *         linked event; <code>null</code> otherwise
+     */
+    public DESEvent getRightEvent();
 
-	/**
-	 * Set the name of the linked event from the first {@link TemplateComponent}
-	 * .
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @param name
-	 *            the name of the linked event from the first
-	 *            {@link TemplateComponent}
-	 */
-	public void setLeftEventName(String name);
+    /**
+     * Set the name of the linked event from the first {@link TemplateComponent} .
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @param name the name of the linked event from the first
+     *             {@link TemplateComponent}
+     */
+    public void setLeftEventName(String name);
 
-	/**
-	 * Set the name of the linked event from the second
-	 * {@link TemplateComponent}.
-	 * <p>
-	 * A link is symmetric. "Left" and "right" are used only to enable
-	 * addressing the two {@link TemplateComponent}s separately.
-	 * 
-	 * @param name
-	 *            the name of the linked event from the second
-	 *            {@link TemplateComponent}
-	 */
-	public void setRightEventName(String name);
+    /**
+     * Set the name of the linked event from the second {@link TemplateComponent}.
+     * <p>
+     * A link is symmetric. "Left" and "right" are used only to enable addressing
+     * the two {@link TemplateComponent}s separately.
+     * 
+     * @param name the name of the linked event from the second
+     *             {@link TemplateComponent}
+     */
+    public void setRightEventName(String name);
 }

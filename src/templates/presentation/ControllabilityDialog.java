@@ -24,11 +24,6 @@
 
 package templates.presentation;
 
-import ides.api.core.Hub;
-import ides.api.model.fsa.FSAModel;
-import ides.api.model.supeventset.SupervisoryEvent;
-import ides.api.utilities.EscapeDialog;
-
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -56,6 +51,10 @@ import javax.swing.ListCellRenderer;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
+import ides.api.core.Hub;
+import ides.api.model.fsa.FSAModel;
+import ides.api.model.supeventset.SupervisoryEvent;
+import ides.api.utilities.EscapeDialog;
 import templates.diagram.Entity;
 import templates.diagram.actions.DiagramUndoableEdits;
 
@@ -68,252 +67,200 @@ import templates.diagram.actions.DiagramUndoableEdits;
  * @author Lenko Grigorov
  */
 @Deprecated
-public class ControllabilityDialog extends EscapeDialog
-{
-	private static final long serialVersionUID = -2875089939362805966L;
+public class ControllabilityDialog extends EscapeDialog {
+    private static final long serialVersionUID = -2875089939362805966L;
 
-	private static ControllabilityDialog me = null;
+    private static ControllabilityDialog me = null;
 
-	protected static TemplateEditableCanvas canvas = null;
+    protected static TemplateEditableCanvas canvas = null;
 
-	protected static WindowListener onFocusLost = new WindowListener()
-	{
-		public void windowActivated(WindowEvent arg0)
-		{
-			me.onEscapeEvent();
-		}
+    protected static WindowListener onFocusLost = new WindowListener() {
+        public void windowActivated(WindowEvent arg0) {
+            me.onEscapeEvent();
+        }
 
-		public void windowClosed(WindowEvent arg0)
-		{
-		}
+        public void windowClosed(WindowEvent arg0) {
+        }
 
-		public void windowClosing(WindowEvent arg0)
-		{
-		}
+        public void windowClosing(WindowEvent arg0) {
+        }
 
-		public void windowDeactivated(WindowEvent arg0)
-		{
-		}
+        public void windowDeactivated(WindowEvent arg0) {
+        }
 
-		public void windowDeiconified(WindowEvent arg0)
-		{
-		}
+        public void windowDeiconified(WindowEvent arg0) {
+        }
 
-		public void windowIconified(WindowEvent arg0)
-		{
-		}
+        public void windowIconified(WindowEvent arg0) {
+        }
 
-		public void windowOpened(WindowEvent arg0)
-		{
-		}
-	};
+        public void windowOpened(WindowEvent arg0) {
+        }
+    };
 
-	protected static ControllabilityDialog instance()
-	{
-		if (me == null)
-		{
-			me = new ControllabilityDialog();
-		}
-		return me;
-	}
+    protected static ControllabilityDialog instance() {
+        if (me == null) {
+            me = new ControllabilityDialog();
+        }
+        return me;
+    }
 
-	@Override
-	public Object clone()
-	{
-		throw new RuntimeException("Cloning of " + this.getClass().toString()
-				+ " not supported.");
-	}
+    @Override
+    public Object clone() {
+        throw new RuntimeException("Cloning of " + this.getClass().toString() + " not supported.");
+    }
 
-	private ControllabilityDialog()
-	{
-		super(Hub.getMainWindow(), Hub.string("TD_controllabilityTitle"));
-		addWindowListener(new WindowAdapter()
-		{
-			@Override
-			public void windowClosing(WindowEvent e)
-			{
-				onEscapeEvent();
-			}
-		});
-		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+    private ControllabilityDialog() {
+        super(Hub.getMainWindow(), Hub.string("TD_controllabilityTitle"));
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                onEscapeEvent();
+            }
+        });
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-		Box mainBox = Box.createVerticalBox();
+        Box mainBox = Box.createVerticalBox();
 
-		eventList = new JList();
-		eventList.setCellRenderer(new JCheckBoxListRenderer());
-		eventList.addMouseListener(new MouseListener()
-		{
-			public void mouseClicked(MouseEvent arg0)
-			{
-				int idx = eventList.locationToIndex(arg0.getPoint());
-				if (idx >= 0
-						&& eventList.getCellBounds(idx, idx).contains(arg0
-								.getPoint())
-						&& eventList.getModel().getElementAt(idx) instanceof JCheckBox)
-				{
-					((JCheckBox)eventList.getModel().getElementAt(idx))
-							.setSelected(!((JCheckBox)eventList
-									.getModel().getElementAt(idx)).isSelected());
-				}
-				eventList.repaint();
-			}
+        eventList = new JList();
+        eventList.setCellRenderer(new JCheckBoxListRenderer());
+        eventList.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent arg0) {
+                int idx = eventList.locationToIndex(arg0.getPoint());
+                if (idx >= 0 && eventList.getCellBounds(idx, idx).contains(arg0.getPoint())
+                        && eventList.getModel().getElementAt(idx) instanceof JCheckBox) {
+                    ((JCheckBox) eventList.getModel().getElementAt(idx))
+                            .setSelected(!((JCheckBox) eventList.getModel().getElementAt(idx)).isSelected());
+                }
+                eventList.repaint();
+            }
 
-			public void mouseEntered(MouseEvent arg0)
-			{
-			}
+            public void mouseEntered(MouseEvent arg0) {
+            }
 
-			public void mouseExited(MouseEvent arg0)
-			{
-			}
+            public void mouseExited(MouseEvent arg0) {
+            }
 
-			public void mousePressed(MouseEvent arg0)
-			{
-			}
+            public void mousePressed(MouseEvent arg0) {
+            }
 
-			public void mouseReleased(MouseEvent arg0)
-			{
-			}
-		});
+            public void mouseReleased(MouseEvent arg0) {
+            }
+        });
 
-		mainBox.add(new JScrollPane(eventList));
-		getContentPane().add(mainBox);
-	}
+        mainBox.add(new JScrollPane(eventList));
+        getContentPane().add(mainBox);
+    }
 
-	protected static JList eventList;
+    protected static JList eventList;
 
-	protected static CompoundEdit edits;
+    protected static CompoundEdit edits;
 
-	public static void showAndModify(TemplateEditableCanvas canvas,
-			Entity channel)
-	{
-		// canvas.setUIInteraction(true);
-		ControllabilityDialog.canvas = canvas;
-		instance();
-		edits = new CompoundEdit();
+    public static void showAndModify(TemplateEditableCanvas canvas, Entity channel) {
+        // canvas.setUIInteraction(true);
+        ControllabilityDialog.canvas = canvas;
+        instance();
+        edits = new CompoundEdit();
 
-		List<SupervisoryEvent> events = new LinkedList<SupervisoryEvent>();
-		for (Iterator<SupervisoryEvent> i = channel
-				.getComponent().getModel().getEventIterator(); i.hasNext();)
-		{
-			events.add(i.next());
-		}
-		Collections.sort(events);
-		DefaultListModel listModel = new DefaultListModel();
-		for (SupervisoryEvent event : events)
-		{
-			JCheckBox box = new JCheckBox();
-			box.setText(event.getSymbol());
-			box.setSelected(event.isControllable());
-			box.addItemListener(new ControllabilitySetter(channel
-					.getComponent().getModel(), event.getId(), edits));
-			listModel.addElement(box);
-		}
-		if (events.isEmpty())
-		{
-			listModel.addElement(Hub.string("TD_noEventsInModel"));
-		}
-		eventList.setModel(listModel);
+        List<SupervisoryEvent> events = new LinkedList<SupervisoryEvent>();
+        for (Iterator<SupervisoryEvent> i = channel.getComponent().getModel().getEventIterator(); i.hasNext();) {
+            events.add(i.next());
+        }
+        Collections.sort(events);
+        DefaultListModel listModel = new DefaultListModel();
+        for (SupervisoryEvent event : events) {
+            JCheckBox box = new JCheckBox();
+            box.setText(event.getSymbol());
+            box.setSelected(event.isControllable());
+            box.addItemListener(new ControllabilitySetter(channel.getComponent().getModel(), event.getId(), edits));
+            listModel.addElement(box);
+        }
+        if (events.isEmpty()) {
+            listModel.addElement(Hub.string("TD_noEventsInModel"));
+        }
+        eventList.setModel(listModel);
 
-		instance().pack();
-		Point p = canvas.localToScreen(channel.getLocation());
-		if (p.x + me.getWidth() > Toolkit
-				.getDefaultToolkit().getScreenSize().getWidth())
-		{
-			p.x = p.x - me.getWidth();
-		}
-		if (p.y + me.getHeight() > Toolkit
-				.getDefaultToolkit().getScreenSize().getHeight())
-		{
-			p.y = p.y - me.getHeight();
-		}
-		instance().setLocation(p);
-		Hub.getMainWindow().addWindowListener(onFocusLost);
-		instance().setVisible(true);
-	}
+        instance().pack();
+        Point p = canvas.localToScreen(channel.getLocation());
+        if (p.x + me.getWidth() > Toolkit.getDefaultToolkit().getScreenSize().getWidth()) {
+            p.x = p.x - me.getWidth();
+        }
+        if (p.y + me.getHeight() > Toolkit.getDefaultToolkit().getScreenSize().getHeight()) {
+            p.y = p.y - me.getHeight();
+        }
+        instance().setLocation(p);
+        Hub.getMainWindow().addWindowListener(onFocusLost);
+        instance().setVisible(true);
+    }
 
-	@Override
-	public void onEscapeEvent()
-	{
-		Hub.getMainWindow().removeWindowListener(onFocusLost);
-		setVisible(false);
-		edits.end();
-		Hub.getUndoManager().addEdit(edits);
-		canvas.setUIInteraction(false);
-		eventList.setListData(new Object[0]);
-	}
+    @Override
+    public void onEscapeEvent() {
+        Hub.getMainWindow().removeWindowListener(onFocusLost);
+        setVisible(false);
+        edits.end();
+        Hub.getUndoManager().addEdit(edits);
+        canvas.setUIInteraction(false);
+        eventList.setListData(new Object[0]);
+    }
 
-	protected class JCheckBoxListRenderer extends Box implements
-			ListCellRenderer
-	{
+    protected class JCheckBoxListRenderer extends Box implements ListCellRenderer {
 
-		private static final long serialVersionUID = -8828783426676456157L;
+        private static final long serialVersionUID = -8828783426676456157L;
 
-		protected JLabel label;
+        protected JLabel label;
 
-		public JCheckBoxListRenderer()
-		{
-			super(BoxLayout.X_AXIS);
-			label = new JLabel();
-			label.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		}
+        public JCheckBoxListRenderer() {
+            super(BoxLayout.X_AXIS);
+            label = new JLabel();
+            label.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+        }
 
-		public Component getListCellRendererComponent(JList list, Object value,
-				int index, boolean isSelected, boolean cellHasFocus)
-		{
-			removeAll();
-			if (value instanceof JCheckBox)
-			{
-				add((JCheckBox)value);
-				((JCheckBox)value).setOpaque(true);
-				((JCheckBox)value).setBackground(list.getBackground());
-			}
-			else
-			{
-				label.setText(value.toString());
-				add(label);
-			}
-			// if (isSelected)
-			// {
-			// setBackground(SystemColor.textHighlight);
-			// setOpaque(true);
-			// }
-			// else
-			// {
-			// setBackground(SystemColor.control);
-			// setOpaque(false);
-			// }
-			// removeAll();
-			// add(label);
-			add(Box.createHorizontalGlue());
-			return this;
-		}
-	}
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+                boolean cellHasFocus) {
+            removeAll();
+            if (value instanceof JCheckBox) {
+                add((JCheckBox) value);
+                ((JCheckBox) value).setOpaque(true);
+                ((JCheckBox) value).setBackground(list.getBackground());
+            } else {
+                label.setText(value.toString());
+                add(label);
+            }
+            // if (isSelected)
+            // {
+            // setBackground(SystemColor.textHighlight);
+            // setOpaque(true);
+            // }
+            // else
+            // {
+            // setBackground(SystemColor.control);
+            // setOpaque(false);
+            // }
+            // removeAll();
+            // add(label);
+            add(Box.createHorizontalGlue());
+            return this;
+        }
+    }
 
-	private static class ControllabilitySetter implements ItemListener
-	{
-		protected FSAModel model;
+    private static class ControllabilitySetter implements ItemListener {
+        protected FSAModel model;
 
-		protected long eventID;
+        protected long eventID;
 
-		protected CompoundEdit allEdits;
+        protected CompoundEdit allEdits;
 
-		public ControllabilitySetter(FSAModel model, long eventID,
-				CompoundEdit edit)
-		{
-			this.model = model;
-			this.eventID = eventID;
-			this.allEdits = edit;
-		}
+        public ControllabilitySetter(FSAModel model, long eventID, CompoundEdit edit) {
+            this.model = model;
+            this.eventID = eventID;
+            this.allEdits = edit;
+        }
 
-		public void itemStateChanged(ItemEvent e)
-		{
-			JCheckBox box = (JCheckBox)e.getSource();
-			UndoableEdit edit = new DiagramUndoableEdits.SetControllabilityEdit(
-					model,
-					eventID,
-					box.isSelected());
-			edit.redo();
-			allEdits.addEdit(edit);
-		}
-	}
+        public void itemStateChanged(ItemEvent e) {
+            JCheckBox box = (JCheckBox) e.getSource();
+            UndoableEdit edit = new DiagramUndoableEdits.SetControllabilityEdit(model, eventID, box.isSelected());
+            edit.redo();
+            allEdits.addEdit(edit);
+        }
+    }
 }

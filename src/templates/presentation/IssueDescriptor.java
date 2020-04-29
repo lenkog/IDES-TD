@@ -38,58 +38,51 @@ import templates.diagram.DiagramElement;
  * 
  * @author Lenko Grigorov
  */
-public class IssueDescriptor
-{
-	/**
-	 * The indicator for an issue of type "error".
-	 */
-	public static final int TYPE_ERROR = 1;
+public class IssueDescriptor {
+    /**
+     * The indicator for an issue of type "error".
+     */
+    public static final int TYPE_ERROR = 1;
 
-	/**
-	 * The indicator for an issue of type "warning".
-	 */
-	public static final int TYPE_WARNING = 2;
+    /**
+     * The indicator for an issue of type "warning".
+     */
+    public static final int TYPE_WARNING = 2;
 
-	/**
-	 * The human-readable description of the issue.
-	 */
-	public String message;
+    /**
+     * The human-readable description of the issue.
+     */
+    public String message;
 
-	/**
-	 * The type of issue (error or warning)
-	 */
-	public int type;
+    /**
+     * The type of issue (error or warning)
+     */
+    public int type;
 
-	/**
-	 * A collection of actions which can fix the issue.
-	 */
-	public List<Action> fixes;
+    /**
+     * A collection of actions which can fix the issue.
+     */
+    public List<Action> fixes;
 
-	/**
-	 * The set of diagram elements contributing to the occurrence of the
-	 * consistency issue.
-	 */
-	public Collection<DiagramElement> elements;
+    /**
+     * The set of diagram elements contributing to the occurrence of the consistency
+     * issue.
+     */
+    public Collection<DiagramElement> elements;
 
-	/**
-	 * Construct a new consistency issue descriptor for the given arguments.
-	 * 
-	 * @param message
-	 *            the human-readable description of the issue
-	 * @param type
-	 *            the type of issue (error or warning)
-	 * @param elements
-	 *            collection of actions which can fix the issue
-	 * @param fixes
-	 *            the set of diagram elements contributing to the occurrence of
-	 *            the issue
-	 */
-	public IssueDescriptor(String message, int type,
-			Collection<DiagramElement> elements, List<Action> fixes)
-	{
-		this.message = message;
-		this.elements = new HashSet<DiagramElement>(elements);
-		this.type = type;
-		this.fixes = new LinkedList<Action>(fixes);
-	}
+    /**
+     * Construct a new consistency issue descriptor for the given arguments.
+     * 
+     * @param message  the human-readable description of the issue
+     * @param type     the type of issue (error or warning)
+     * @param elements collection of actions which can fix the issue
+     * @param fixes    the set of diagram elements contributing to the occurrence of
+     *                 the issue
+     */
+    public IssueDescriptor(String message, int type, Collection<DiagramElement> elements, List<Action> fixes) {
+        this.message = message;
+        this.elements = new HashSet<DiagramElement>(elements);
+        this.type = type;
+        this.fixes = new LinkedList<Action>(fixes);
+    }
 }
