@@ -36,6 +36,7 @@ located directly in the IDES "plugins" folder.
 
 ## Compatibility
 
+* Version 3.1.0 is compatible with IDES v3.1.
 * Version 3.0.1 is compatible with IDES v3.0 beta 1 and IDES v3.1.
 
 ## Tutorial

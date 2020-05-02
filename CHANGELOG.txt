@@ -2,11 +2,14 @@ Template Design plugin for IDES
 (https://github.com/lenkog/IDES-TD)
 
 
-[Unreleased]
+v3.1.0 - 2020-05-02
 
 Changed:
+* Requires IDES 3.1
 * Updated to Java 8 (previous versions no longer supported)
 * Documentation generated from Markdown
+Fixed:
+* Updated references in the documentation
 
 
 v3.0.1 - 2010-09-24

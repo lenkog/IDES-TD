@@ -12,12 +12,15 @@ repositories {
     mavenCentral()
 }
 
-ext.idesVer = '3.1-200426174252'
+ext.idesVer = '3.1.0'
 
-ext.idesJARVer = idesVer ==~ /.*-[0-9]{12}$/ ? "${idesVer[0..-13]}SNAPSHOT" : idesVer
-ext.idesAPIJAR = "IDES-${idesJARVer}-api.jar"
-ext.idesReleaseURL = "https://github.com/krudie/IDES/releases/download/v${idesVer}/${idesAPIJAR}"
-ext.idesDependency = "${buildDir}/${idesAPIJAR}"
+ext.idesAPIId = "IDES-" + (idesVer ==~ /.*-[0-9]{12}$/ ? "${idesVer[0..-13]}SNAPSHOT" : idesVer) + "-api"
+ext.idesAPIZIP = "${idesAPIId}.zip"
+ext.idesAPIJAR = "${idesAPIId}.jar"
+ext.idesReleaseURL = "https://github.com/krudie/IDES/releases/download/v${idesVer}/${idesAPIZIP}"
+ext.idesAPIDir = "${buildDir}/api"
+ext.idesDependencyZip = "${idesAPIDir}/${idesAPIZIP}"
+ext.idesDependency = "${idesAPIDir}/${idesAPIJAR}"
 
 dependencies {
     compile files(idesDependency) {
@@ -27,12 +30,20 @@ dependencies {
 
 task getIDESAPI {
     doLast() {
-        if (file(idesDependency).exists()) {
-            println('IDES API jar already available.')
+        if (file(idesDependencyZip).exists()) {
+            println('IDES API archive already available.')
         } else {
-            mkdir buildDir
-            println('Downloading IDES API jar...')
-            new URL(idesReleaseURL).withInputStream{ i -> file(idesDependency).withOutputStream{ it << i }}
+            mkdir file(idesDependencyZip).parent
+            println('Downloading IDES API archive...')
+            new URL(idesReleaseURL).withInputStream{ i -> file(idesDependencyZip).withOutputStream{ it << i }}
+        }
+        copy {
+            from zipTree(idesDependencyZip)
+            into idesAPIDir
+            include "${idesAPIId}/${idesAPIJAR}"
+            eachFile { f ->
+                f.relativePath = new RelativePath(true, f.relativePath.segments.drop(1))  
+            }
         }
     }
 }
