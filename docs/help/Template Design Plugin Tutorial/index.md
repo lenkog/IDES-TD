@@ -134,10 +134,9 @@ any time two events need to alternate.
 Problem
 -------
 
-In this tutorial you will learn how to use IDES by solving a DES problem
-based on the "Transfer line" problem in literature \[W. M. Wonham,
-"Notes on supervisory control of discrete-event systems," Available at
-[http://www.control.toronto.edu/DES/](http://www.control.toronto.edu/DES/)\].
+In this tutorial you will learn how to use the Template Design plugin for
+IDES by solving a DES problem based on the "Transfer line" problem
+\[Al-Jaar and Desrochers, 1988\] often used in literature as an example.
 The description of the problem follows.
 
 ![](td_html_31f1051c.png)
