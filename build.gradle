@@ -23,7 +23,7 @@ ext.idesDependencyZip = "${idesAPIDir}/${idesAPIZIP}"
 ext.idesDependency = "${idesAPIDir}/${idesAPIJAR}"
 
 dependencies {
-    compile files(idesDependency) {
+    implementation files(idesDependency) {
         builtBy 'getIDESAPI'
     }
 }
@@ -54,7 +54,7 @@ java {
 }
 
 jar {
-    archiveName = 'templates.plugin.TemplatesPlugin.jar'
+    archiveFileName = 'templates.plugin.TemplatesPlugin.jar'
 }
 
 processResources {
@@ -89,7 +89,7 @@ task generateHelp(dependsOn: [generateTutorial]){}
 
 task zipRelease(type: Zip, dependsOn: [jar, generateHelp]) {
     from releaseDir
-    destinationDir buildDir
+    destinationDirectory = buildDir
 
     doFirst {
         copy {
